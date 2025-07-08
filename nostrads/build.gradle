@@ -1,0 +1,250 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'signing'
+    id "com.diffplug.spotless" version "7.0.2"  
+}
+
+if(System.getenv("SONATYPE_USERNAME") || project.findProperty("sonatypeUsername")){
+    nexusPublishing {
+        repositories {
+            sonatype {
+                nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+                snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
+
+                username = System.getenv("SONATYPE_USERNAME") ?: project.findProperty("sonatypeUsername") ?: ""
+                password = System.getenv("SONATYPE_PASSWORD") ?: project.findProperty("sonatypePassword") ?: ""
+            }
+        }
+    }
+}
+
+def projectVersion = System.getenv("VERSION")
+if (projectVersion == null || projectVersion.trim().isEmpty()) {
+    projectVersion = rootProject.ext.baseVersion
+}
+def projectGroup = System.getenv("GROUP") ?: rootProject.ext.baseGroup 
+
+println "Using project version: ${projectVersion}"
+println "Using project group: ${projectGroup}"
+
+version = projectVersion
+group   = projectGroup
+
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        url = uri("https://central.sonatype.com/repository/maven-snapshots")
+    }
+    maven {
+        url = "https://maven.rblb.it/NostrGameEngine/libdatachannel-java"
+    }
+}
+
+dependencies {
+    implementation "jakarta.annotation:jakarta.annotation-api:2.1.1"
+    implementation "org.ngengine:nge-platform-common:${project.version.endsWith('-SNAPSHOT') ? rootProject.ext.ngePlatformVersionSnapshot : rootProject.ext.ngePlatformVersion}"
+    api "org.ngengine:nostr4j:${project.version.endsWith('-SNAPSHOT') ? rootProject.ext.nostr4jVersionSnapshot : rootProject.ext.nostr4jVersion}"
+    
+    testImplementation libs.junit
+    testImplementation "org.ngengine:nge-platform-jvm:${project.version.endsWith('-SNAPSHOT') ? rootProject.ext.ngePlatformVersionSnapshot : rootProject.ext.ngePlatformVersion}"
+    testImplementation "junit:junit:4.13.2"   
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    withJavadocJar()
+    withSourcesJar()
+}
+
+
+
+tasks.withType(Javadoc).configureEach { Javadoc javadocTask ->
+    javadocTask.options.encoding = "UTF-8"
+    javadocTask.destinationDir = file("${rootDir}/dist/javadoc/${project.name}")
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from(components.java)
+                
+                groupId = group.toString()
+                artifactId = project.name
+                version = version.toString()
+
+                pom {
+                    name = project.name
+                    description = rootProject.ext.description
+                    url = rootProject.ext.website
+                    licenses {
+                        license {
+                            name = rootProject.ext.license
+                            url = rootProject.ext.licenseUrl
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = rootProject.ext.authorAlias
+                            name = rootProject.ext.author
+                            email = rootProject.ext.authorEmail
+                        }
+                    }
+                    scm {
+                        connection = "scm:git:git://github.com/${rootProject.ext.repo}.git"
+                        developerConnection = "scm:git:ssh://github.com:${rootProject.ext.repo}.git"
+                        url = "https://github.com/${rootProject.ext.repo}"
+                    }
+                }
+            }
+        }
+        repositories {
+            mavenLocal()
+            maven {
+                name = "distFolder"
+                url = uri("file://${rootDir}/dist")
+            }
+            if (System.getenv("GITHUB_REGISTRY") != null) {
+                maven {
+                    name = "GitHubPackages"
+                    url = uri(
+                        "https://maven.pkg.github.com/" + System.getenv("GITHUB_REGISTRY")
+                    )
+                    credentials {
+                        username = System.getenv("GITHUB_USERNAME") ?: ""
+                        password = System.getenv("GITHUB_TOKEN") ?: ""
+                    }
+                }
+            }
+        }
+    }
+
+    if (System.getenv("GPG_PRIVATE_KEY") != null && System.getenv("GPG_PASSPHRASE") != null) {
+        signing {
+            def signingKey = System.getenv("GPG_PRIVATE_KEY")
+            def signingPassword = System.getenv("GPG_PASSPHRASE")
+            useInMemoryPgpKeys(signingKey, signingPassword)
+            sign publishing.publications.mavenJava
+        }
+    }
+
+    tasks.register("outputCoordinates") {      
+        doLast {
+            publishing.publications.forEach { publication ->
+                if (publication instanceof org.gradle.api.publish.maven.MavenPublication) {
+                    println ""
+                    println "=========== Published Artifact Coordinates ==========="
+                    println "Group ID:    ${publication.groupId}"
+                    println "Artifact ID: ${publication.artifactId}"
+                    println "Version:     ${publication.version}"
+                    println "Maven:       ${publication.groupId}:${publication.artifactId}:${publication.version}"
+                    println "Gradle:      implementation '${publication.groupId}:${publication.artifactId}:${publication.version}'"
+                    println "===================================================="
+                    println ""
+                }
+            }
+        }
+    }
+
+    tasks.withType(org.gradle.api.publish.maven.tasks.PublishToMavenRepository).configureEach { publishTask ->
+        publishTask.finalizedBy(tasks.named("outputCoordinates"))
+    }
+    tasks.withType(org.gradle.api.publish.maven.tasks.PublishToMavenLocal).configureEach { publishLocalTask ->
+        publishLocalTask.finalizedBy(tasks.named("outputCoordinates"))
+    }
+
+    tasks.register("generateBuildDate") {
+        def outputDir = file("${buildDir}/generated-resources/build-date/${project.name}")
+        def outputFile = file("${outputDir}/build.date")
+
+        outputs.file(outputFile)
+
+        doLast {
+            outputDir.mkdirs()
+            outputFile.text = java.time.LocalDate.now().toString()
+        }
+    }
+
+    tasks.named("processResources").configure { copySpec ->
+        dependsOn(tasks.named("generateBuildDate"))
+        copySpec.duplicatesStrategy = DuplicatesStrategy.INCLUDE
+        copySpec.from("${buildDir}/generated-resources/build-date") {
+            into("")
+        }
+    }
+}
+
+
+
+
+tasks.register('addLicenseHeaders') {
+    description = 'Adds license headers to Java files if missing'
+    group = 'formatting'
+    
+    def srcFiles = fileTree(dir: 'src', include: '**/java/**/*.java')
+    
+    def licenseText = file("${project.rootDir}/LICENSE").text
+    licenseText = licenseText.readLines().collect { " * " + it }.join("\n")
+    licenseText = "/**\n" + licenseText + "\n */"
+
+    doLast {
+        def licenseHeader = licenseText
+        def headerPattern = ~/(?s)\/\*\*.*?Copyright.*?\*\//
+        
+        srcFiles.each { file ->
+            def content = file.text
+            
+            if (!(content =~ headerPattern)) {
+                logger.info("Adding license header to: ${file.path}")
+                
+                def packageMatcher = content =~ /(?m)^package\s+[\w.]+;/
+                
+                if (packageMatcher.find()) {
+                    def position = packageMatcher.start()
+                    def newContent = content.substring(0, position) + 
+                                     licenseHeader + 
+                                     "\n\n" + 
+                                     content.substring(position)
+                    file.text = newContent
+                } else {
+                    file.text = licenseHeader + "\n\n" + content
+                }
+            } else {
+                logger.debug("License header already exists in: ${file.path}")
+            }
+        }
+    }
+}
+
+tasks.named('spotlessApply').configure {
+    dependsOn tasks.named('addLicenseHeaders')
+}
+
+
+spotless {
+    java {
+        target 'src/*/**/*.java'      
+
+        
+        importOrder()
+        removeUnusedImports()
+        prettier(["prettier": "2.8.8", "prettier-plugin-java": "2.2.0"])
+        .config([
+            "parser": "java", 
+            "tabWidth": 4, 
+            "printWidth": 128,
+            "endOfLine": "lf",
+            "useTabs": false
+        ])
+        
+        
+        bumpThisNumberIfACustomStepChanges(1)
+    }
+    
+     
+}

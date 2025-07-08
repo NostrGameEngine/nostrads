@@ -1,0 +1,12 @@
+{
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.compile.nullAnalysis.nonnull": [        
+        "jakarta.annotation.Nonnull"
+    ],
+    "java.compile.nullAnalysis.nullable": [
+        "jakarta.annotation.Nullable"
+    ],
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.errors.incompleteClasspath.severity": "error"
+
+}
