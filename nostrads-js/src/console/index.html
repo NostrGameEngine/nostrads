@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nostr Ads 𓅦 Console</title>
+    <link rel="stylesheet" href="./common.css">
+    <link rel="stylesheet" href="./index.css">
+    <link rel="stylesheet" href="../nostr-ads.css">
+    <script type="module" src="./index.js"></script>
+</head>
+
+<body>
+    <header>
+        <h1> Nostr Ads 𓅦 Console</h1>
+        <div class="iconbtn" id="settings">
+            ⚙
+        </div>
+    </header>
+
+    <content>
+        <nav>
+            <div id="login"></div>
+
+            <div>
+                <h3>Tips</h3>
+                <ul>
+                    <li>Click on the ⚙ icon to change your settings.</li>
+                    <li>Click on any ad to manage it.</li>
+                    <li>Stopped Ads are stored locally until you delete them.</li>
+                    <li>Ads are immutable once created</li>
+                    <li>To edit an ad you must use the "clone" button to create a new ad with the same content and then
+                        delete the old one.</li>
+                </ul>
+            </div>
+            </p>
+        </nav>
+
+
+        <main>
+
+
+            <h2>Active Ads <button class="small" id="createNew">Create new ad</button> </h2>
+            <section class="adlist" id="adlist">
+
+            </section>
+
+            <h2>Stopped Ads</h2>
+            <section class="adlist" id="stoppedAdlist">
+            </section>
+
+        </main>
+    </content>
+</body>
+
+</html>

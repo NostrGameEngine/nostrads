@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nostr Ads 𓅦</title>
+    <link rel="stylesheet" href="./console/common.css">
+    <link rel="stylesheet" href="./console/index.css">
+    <link rel="stylesheet" href="./nostr-ads.css">
+    <script type="module" src="./index.js"></script>
+    <style>
+        header {
+            text-align: center;
+            align-items: center;
+            justify-content: center;
+            height: 22rem;
+            flex-direction: column;
+   
+        }
+
+        header h4{
+            max-width: 800px;
+        }
+
+        header button{
+            font-size:0.8rem;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        content {
+            text-align: center;
+            align-items: stretch;
+            justify-content: center;
+            gap:2rem;
+            flex-wrap: wrap;
+            align-self: center;
+          
+
+        }
+        section{
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            flex-grow: 1!important;
+            border: 2px dotted var(--medium-purple);
+            padding:1rem;
+            border-radius: 8px;
+            width:30%;
+
+        }
+
+        section button{
+            margin-top:auto;
+        }
+        section h2{
+            margin-top:0;
+        }
+
+        button a {
+            text-decoration: none;
+        }
+
+        p {
+            max-width: 800px;
+        }
+        ul {
+            text-align: left;
+            max-width: 300px;
+        }
+
+        ul li {
+            margin: 0;
+        }
+
+        img.info {
+            opacity:0.7;
+            max-width: 400px;
+            margin:1rem;
+            margin-left: auto;
+            margin-right: auto;
+            border-radius:8px;      
+            box-shadow: 0 0 6rem var(--medium-purple); 
+        }
+       
+        body > *{
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        body > header{
+            margin-left:0;
+            margin-right:0;
+        }
+        section .nostr-adspace {
+            margin:1rem;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .nostr-adspace {
+            border:2px dotted var(--accent-purple);
+            background:transparent;
+        }
+
+        .nostr-adspace-icon:before{
+            content:"demo ad";
+            color:var(--accent-purple);
+            opacity:1;
+        }
+
+        p a {
+            color:var(--accent-purple)
+        }
+
+        pre {
+            font-size: 0.6rem;
+            font-family: mono;
+            text-overflow: ellipsis;
+            overflow: auto;
+            display: block;
+            max-width: 100%;
+            padding:1rem;
+        }
+
+        footer {
+            margin-top: auto;
+            padding-top:10rem;
+            text-align: center;
+
+        }
+
+   
+        content {
+            padding-top: 0;
+        }
+
+        body > content:first-of-type {
+            padding-top: 4rem;
+        }
+
+        footer a {
+            color: var(--text-color);
+            text-decoration: none;
+        }
+        @media (max-width: 1200px) {
+            section {
+                width:100%;
+            }
+        }
+
+        @media (max-width: 1660px) {
+            .no-pt {
+                display: none;
+            
+
+            }
+
+            section {
+            }
+            
+        }
+    </style>
+    <script src="./nostrads-client.js"></script>
+    <script>
+        NostrAds({
+            devMode: true,
+            appKey: "npub13rugy09zg5pssxtjfvgkhjjzkx8swpvwr7e2gymnr2jp2ltveeqs88pjk4",
+            forceCompatModeForWorker: true
+        });
+    </script>
+
+    <script>
+        window.addEventListener('load', async () => {
+            const code = document.getElementById("code");
+            code.textContent = await fetch("./snippet.txt")
+                .then(res => res.text());
+            
+        });
+    </script>
+</head>
+
+<body>
+    <header>
+        <h1>𓅦</h1>
+        <h1>Nostr Ads</h1>
+        <h4>Nostr Ads is a privacy oriented decentralized advertising protocol that runs entirely on Nostr
+        with Bitcoin Lightning payouts and self-regulation via proof of work.</h4>
+        <button onclick='window.location.href="https://ngengine.org/docs/nip-drafts/nip-ADS/"'>
+            <a href="https://ngengine.org/docs/nip-drafts/nip-ADS/">Read more on the specification doc</a>
+        </button>
+    </header>
+
+    <content>
+        <section>
+            <h2>Advertisers</h2>
+            <p>
+                Publish signed bid events on Nostr and delegate their management to a delegate service with a budgeted
+                NWC URL.
+            </p>
+            <button onclick="location.href='/console'">
+                <a href="/console">Open Advertiser Console</a>
+            </button>
+        </section>
+        <img class="info" src="imgs/info.webp" />
+      
+        
+        
+        <section>
+            <h2>Delegate Providers</h2>
+            <p>
+                Run a delegate service to handle advertisers’ bid management, enforce offerer filters, process Lightning
+                payouts, and provide analytics & metrics.
+            </p>
+            <button onclick="location.href='/docs/delegate'">Learn to Host a Delegate Service</button>
+        </section>
+        
+      
+        
+    </content>
+    <div class="nostr-adspace" style="width: 720px; height: 90px;"></div>
+    <p>
+        You can try the <a href="https://demo.ads.ngengine.org">[demo console]</a> and publish ads here for free.
+    
+    </p>
+    <content>
+       
+    
+        <section>
+            <h2>Web Developers</h2>
+            <p>
+                Create an npub key for your app and publish a NIP‑01 metadata event including a <b>lud06</b> or
+                <b>lud16</b> entry.
+                <br>
+                Then download the <b>nostrads</b> 
+                <a download href="nostrads-client.js">[ client library ]</a> and <a download href="nostrads-worker.js">[ worker]</a> and 
+                use nostrads in your pages:
+            </p>            
+            <pre><code id="code"></code></pre>
+            <p>
+                Optionally, add the nostrads css
+            </p>
+            <pre><code>&lt;link rel=&quot;stylesheet&quot; href=&quot;./nostr-ads.css&quot;&gt;</code></pre>
+            
+            
+        </section>
+        <section>
+            <div class="nostr-adspace"   style="width: 250px; height: 250px;  "></div>
+            <div class="nostr-adspace no-pt" style="width: 480px; height: 60px;"></div>
+        </section>
+        <section>
+            <h2>Game Developers</h2>
+            <p>
+                TBD
+            </p>
+        </section>
+    
+    
+    </content>
+    <footer>
+        © 2025 <a href="https://ngengine.org">Nostr Game Engine</a> 
+        <br>
+        <a href="https://github.com/NostrGameEngine/nostrads">GitHub</a> |
+        <a href="https://github.com/NostrGameEngine/nostrads/issues">Report an Issue</a> |
+        <a href="https://ngengine.org">Discover Nostr Game Engine</a>
+        
+    </footer>
+</body>
+
+</html>

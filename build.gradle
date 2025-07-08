@@ -1,0 +1,39 @@
+buildscript {
+    repositories { mavenCentral() }
+    dependencies {
+        // Add ASM dependencies
+        classpath 'org.ow2.asm:asm:9.5'
+        classpath 'org.ow2.asm:asm-tree:9.5'
+    }
+}
+plugins {
+    id "io.github.gradle-nexus.publish-plugin" version "2.0.0"
+}
+
+
+// apply plugin: 'java'
+// apply plugin: 'war'
+// apply plugin: 'org.teavm'
+// apply plugin: 'maven-publish'
+// apply plugin: 'signing'
+// apply plugin: 'com.diffplug.spotless'
+// apply plugin: 'io.github.gradle-nexus.publish-plugin'
+
+ext {
+    repo="NostrGameEngine/nostrads"
+    website="https://ngengine.org/nostrads"
+    baseGroup="org.ngengine"
+    description="A Nostr based Ads network"
+    author="Riccardo Balbo"
+    authorAlias="rblb"
+    authorEmail="os@rblb.it"
+    license="BSD 3-Clause License"
+    licenseUrl="https://opensource.org/licenses/BSD-3-Clause"
+    baseVersion="0.0.1-SNAPSHOT"
+    baseGroup="org.ngengine"
+    nostr4jVersionSnapshot="0.1.0-SNAPSHOT"
+    nostr4jVersion="0.1.0"
+    ngePlatformVersionSnapshot = "0.1.0-SNAPSHOT"
+    ngePlatformVersion = "0.0.5"
+
+}

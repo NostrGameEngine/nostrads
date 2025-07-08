@@ -1,0 +1,30 @@
+evaluationDependsOn(':nostrads-bindings4js')
+
+task prepareJsClient(type: Copy) {
+    dependsOn ':nostrads-bindings4js:buildJsLibrary'
+    from project(':nostrads-bindings4js').file('build/generated/webpack/')
+    include 'nostr-ads.js*'
+    into file('src/console/')
+}
+
+
+task npmInstall(type: Exec) {
+    commandLine 'npm', 'install'
+}
+
+
+task packJsClient(type: Exec) {
+    dependsOn prepareJsClient
+    commandLine 'npx', 'webpack', '--config', 'webpack.config.js'
+}
+packJsClient.dependsOn npmInstall
+
+
+ 
+ 
+task startWebServer(type: Exec) {
+    dependsOn prepareJsClient
+    commandLine 'npx', 'http-server', 'src', '-p', '8082'
+    
+}
+startWebServer.dependsOn packJsClient

@@ -1,0 +1,16 @@
+#stoppedAdlist{
+    filter: grayscale(60%);
+}
+
+.adlist {
+    display: block;
+    flex-direction: row;
+    gap: 2em;
+    margin-top: 2em;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 90vw;
+    overflow: auto;
+}
+

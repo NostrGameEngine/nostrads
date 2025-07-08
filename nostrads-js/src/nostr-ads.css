@@ -1,0 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Electrolize&display=swap');
+.nostr-adspace {
+    border: 1px solid #C47AFF;
+    background-color: #3E1E68;
+    border-radius: 4px;
+    display: inline-flex;
+    text-align: center;
+    min-width: 260px;
+    min-height: 60px;
+    position: relative;
+    box-sizing: border-box;
+    cursor: pointer;
+    word-break: break-all;
+    overflow: hidden;
+    align-items: center;
+    justify-content: center;
+    color: #E0D5FF;
+    font-family: 'Electrolize', sans-serif;
+}
+
+.nostr-adspace-description {
+    font-size: 80%;
+    position: absolute;
+    overflow: hiden;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    padding: 1.2%;
+    box-sizing: border-box;
+    border: 1px solid #C47AFF;
+    background-color: #8357C5;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    color: var(--dark-purple);
+    font-weight: bold;
+    max-height: 100%;
+}
+
+.nostr-adspace:hover .nostr-adspace-description {
+    opacity: 1;
+}
+
+.nostr-adspace-call-to-action {
+    font-size: 11px;
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    opacity: 0.8;
+    max-width: 100%;
+    overflow: hidden;
+    background: #8357C5;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-right: 10px;
+    padding-left: 10px;
+    border-top-left-radius: 4px;
+    transition: opacity 0.3s ease-in-out;
+    opacity:0.7;
+}
+
+.nostr-adspace:hover .nostr-adspace-call-to-action {
+    opacity:0;
+}
+
+.nostr-adspace-icon::before {
+    opacity: 0.2;
+    font-family: sans-serif;
+    font-weight: bolder;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    content: "𓅦";
+}

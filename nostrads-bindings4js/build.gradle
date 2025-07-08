@@ -1,0 +1,236 @@
+plugins {
+    id 'java-library'
+    id "war"
+    id "org.teavm" version "0.12.1"
+    id "com.diffplug.spotless" version "7.0.2"  
+
+}
+
+def projectVersion = System.getenv("VERSION")
+if (projectVersion == null || projectVersion.trim().isEmpty()) {
+    projectVersion = rootProject.ext.baseVersion
+}
+def projectGroup = System.getenv("GROUP") ?: rootProject.ext.baseGroup 
+
+println "Using project version: ${projectVersion}"
+println "Using project group: ${projectGroup}"
+
+version = projectVersion
+group   = projectGroup
+
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    implementation "org.ngengine:nge-platform-common:${project.version.endsWith('-SNAPSHOT') ? rootProject.ext.ngePlatformVersionSnapshot : rootProject.ext.ngePlatformVersion}"
+    implementation "org.ngengine:nge-platform-teavm:${project.version.endsWith('-SNAPSHOT') ? rootProject.ext.ngePlatformVersionSnapshot : rootProject.ext.ngePlatformVersion}"
+    implementation project(":nostrads")
+    implementation teavm.libs.jso
+    implementation teavm.libs.jsoApis
+    implementation 'jakarta.annotation:jakarta.annotation-api:2.1.1'
+
+    testImplementation "junit:junit:4.13.2"
+    testImplementation teavm.libs.jso
+    testImplementation teavm.libs.jsoApis
+    
+
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+sourceSets {
+    test {
+        resources {
+            srcDirs = ['src/test/resources', 'src/main/resources']            
+        }
+    }
+}
+
+teavm {
+    all {
+        mainClass = "org.ngengine.nostrads.NostrAdsModule"
+    }
+    js {
+        addedToWebApp = false
+        targetFileName = "nostr-ads.js"
+        sourceMap = true     
+        obfuscated = true
+        moduleType = org.teavm.gradle.api.JSModuleType.ES2015
+        properties = [
+            "teavm.c.vmAssertions": "false"
+        ]
+    }
+}
+
+teavm.tests.js {
+    enabled.set(true)
+    runner.set(org.teavm.gradle.api.TeaVMWebTestRunner.CHROME)
+}
+ 
+task copyClasspathResources(type: Copy) {
+    description = 'Copies all resources from the classpath (including dependencies) to the TeaVM output directory'
+    
+    // Skip empty directories
+    includeEmptyDirs = false
+    
+    // Get all runtime classpath elements
+    from {
+        configurations.runtimeClasspath.collect { 
+            it.isDirectory() ? it : zipTree(it).matching { 
+                // Only include resource files, exclude class files and META-INF
+                exclude '**/*.class', 'META-INF/**'
+            }
+        }
+    }
+    
+    // Also include resources from the main source set
+    from sourceSets.main.resources
+    
+    // Destination directory
+    into 'build/generated/teavm/js'
+}
+// Make sure this task runs after TeaVM compilation
+tasks.named('generateJavaScript') {
+    finalizedBy(copyClasspathResources)
+}
+
+
+task buildJsLibrary(type: Exec) {
+    description = 'Runs webpack to bundle the generated JavaScript files'
+    group = 'build'
+    workingDir = project.projectDir
+    dependsOn 'generateJavaScript'
+    commandLine 'npx', 'webpack', '--config', 'webpack.config.js'
+}
+
+
+
+tasks.register('addLicenseHeaders') {
+    description = 'Adds license headers to Java files if missing'
+    group = 'formatting'
+    
+    def srcFiles = fileTree(dir: 'src', include: '**/java/**/*.java')
+    
+    def licenseText = file("${project.rootDir}/LICENSE").text
+    licenseText = licenseText.readLines().collect { " * " + it }.join("\n")
+    licenseText = "/**\n" + licenseText + "\n */"
+
+    doLast {
+        def licenseHeader = licenseText
+        def headerPattern = ~/(?s)\/\*\*.*?Copyright.*?\*\//
+        
+        srcFiles.each { file ->
+            def content = file.text
+            
+            if (!(content =~ headerPattern)) {
+                logger.info("Adding license header to: ${file.path}")
+                
+                def packageMatcher = content =~ /(?m)^package\s+[\w.]+;/
+                
+                if (packageMatcher.find()) {
+                    def position = packageMatcher.start()
+                    def newContent = content.substring(0, position) + 
+                                     licenseHeader + 
+                                     "\n\n" + 
+                                     content.substring(position)
+                    file.text = newContent
+                } else {
+                    file.text = licenseHeader + "\n\n" + content
+                }
+            } else {
+                logger.debug("License header already exists in: ${file.path}")
+            }
+        }
+    }
+}
+
+tasks.named('spotlessApply').configure {
+    dependsOn tasks.named('addLicenseHeaders')
+}
+
+
+spotless {
+    java {
+        target 'src/*/**/*.java'      
+
+        
+        importOrder()
+        removeUnusedImports()
+        prettier(["prettier": "2.8.8", "prettier-plugin-java": "2.2.0"])
+        .config([
+            "parser": "java", 
+            "tabWidth": 4, 
+            "printWidth": 128,
+            "endOfLine": "lf",
+            "useTabs": false
+        ])
+        
+        
+        bumpThisNumberIfACustomStepChanges(1)
+    }
+    
+     
+}
+
+
+
+
+// Import necessary classes
+import java.nio.file.Files
+import org.objectweb.asm.tree.ClassNode
+import org.objectweb.asm.ClassReader
+import org.objectweb.asm.ClassWriter
+
+// Define the serialization method removal task
+task removeTeaVMIncompatibleMethods {
+    description 'Removes Java serialization methods from classes for TeaVM compatibility'
+    dependsOn classes  // This ensures the task runs after compilation
+    
+    doLast {
+        // Path to compiled classes
+        def dest = compileJava.destinationDir.toPath()
+        
+        println "Scanning for serialization methods in: ${dest}"
+        
+        // Walk through class files
+        Files.walk(dest)
+             .filter { it.toString().endsWith('.class') }
+             // Optionally filter to specific packages if needed
+             .forEach { path ->
+                 byte[] bytes = Files.readAllBytes(path)
+                 def cr = new ClassReader(bytes)
+                 def cn = new ClassNode()
+                 cr.accept(cn, 0)
+
+                 // Look for writeObject and readObject methods
+                 def methodsToRemove = cn.methods.findAll { method ->
+                     (method.name == 'writeObject' && method.desc == '(Ljava/io/ObjectOutputStream;)V') ||
+                     (method.name == 'readObject' && method.desc == '(Ljava/io/ObjectInputStream;)V')
+                 }
+                 
+                 if (methodsToRemove) {
+                     // Remove the methods
+                     cn.methods.removeAll(methodsToRemove)
+                     println "Removed serialization methods from: ${cn.name}"
+                     
+                     // Write back the modified class
+                     def cw = new ClassWriter(ClassWriter.COMPUTE_MAXS)
+                     cn.accept(cw)
+                     Files.write(path, cw.toByteArray())
+                 }
+             }
+        println "Completed removing serialization methods"
+    }
+}
+
+// Make sure this task runs after compilation
+compileJava.finalizedBy removeTeaVMIncompatibleMethods
+
+ 

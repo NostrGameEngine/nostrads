@@ -1,0 +1,129 @@
+#adForm {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: stretch;
+}
+
+#adForm h1,
+#adForm h2 {
+    margin-top: 2rem;
+    width: 100%;
+
+}
+
+#adForm section {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    align-items: stretch;
+    justify-content: stretch;
+    margin-bottom: 2rem;
+}
+
+#adForm #previewContainer {
+    max-width: 90vw;
+    max-height: 800px;
+    overflow: auto;
+}
+
+#adForm #previewContainer>* {
+    pointer-events: none;
+}
+
+#adForm section>div {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+#adForm section>div>div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+#adForm section>div>div label {
+    margin-top: 2rem;
+}
+
+#adForm section>div>div label:first-child {
+    margin-top: 0;
+}
+
+#adForm section>div>div {
+    padding: 2rem;
+
+    height: 100%;
+    border: 1px solid var(--medium-purple);
+    border-radius: 0.5rem;
+}
+
+#adForm section>div>div p {
+    padding: 0;
+    margin: 0;
+}
+
+
+
+.description-box {
+    background: var(--glow-purpleA);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+}
+
+
+
+
+
+
+#adForm section>div>div > label{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.delegate-info{
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    border: 2px dotted var(--medium-purple);
+    padding:1rem;
+
+}
+
+.delegate-info h2{
+    padding:1rem;
+    margin:0;
+}
+
+.feedetails{
+    font-size:0.8rem;
+    opacity:0.8;
+    font-style: italic;
+}
+
+.delegate-info a {
+    font-size:0.7rem;
+    color:var(--accent-purple);
+    text-decoration: underline;
+}
+
+.delegate-info .fee{
+    font-size:0.9rem;
+    font-weight: bold;
+    color: var(--accent-purple);
+}
+
+#delete, #cancel {
+    background-color:rgb(160, 43, 111);
+}
+
+.required{
+    display:block;
+    margin-top:0.2rem;
+    color:var(--error);
+}
