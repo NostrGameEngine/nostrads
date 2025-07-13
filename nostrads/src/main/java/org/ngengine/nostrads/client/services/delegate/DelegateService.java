@@ -257,11 +257,7 @@ public class DelegateService extends AbstractAdService {
          * @param wallet the wallet to use for payments
          * @param budgetMsats the maximum budget in millisatoshis for this listener
          */
-        Listener(
-            Wallet wallet, 
-            long budgetMsats,
-            VStore tracker
-        ) {
+        Listener(Wallet wallet, long budgetMsats, VStore tracker) {
             this.dailyBudgetMsats = budgetMsats;
             this.wallet = wallet;
         }

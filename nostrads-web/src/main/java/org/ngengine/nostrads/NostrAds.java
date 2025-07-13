@@ -31,7 +31,6 @@
 
 package org.ngengine.nostrads;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
@@ -74,7 +73,6 @@ import org.ngengine.platform.teavm.TeaVMJsConverter;
 import org.teavm.jso.JSExport;
 import org.teavm.jso.JSObject;
 import org.teavm.jso.core.JSFunction;
-import org.teavm.jso.impl.JS;
 
 public class NostrAds {
 
@@ -95,10 +93,7 @@ public class NostrAds {
     }
 
     @JSExport
-    public NostrAds(
-        String[] relays, 
-        String auth
-    ) throws Exception {
+    public NostrAds(String[] relays, String auth) throws Exception {
         NostrAdsModule.initPlatform();
         pool = new NostrPool();
         for (int i = 0; i < relays.length; i++) {
@@ -108,7 +103,7 @@ public class NostrAds {
 
         System.out.println("Connected to relays: " + pool.getRelays().size());
 
-        signer=getSigner(auth);
+        signer = getSigner(auth);
 
         System.out.println("Loading taxonomy...");
         taxonomy = new AdTaxonomy();
@@ -125,22 +120,27 @@ public class NostrAds {
         }
     }
 
-    private NostrSigner getSigner(String signerProps) throws Exception{
-        if(signerProps.equals("nip07")){
+    private NostrSigner getSigner(String signerProps) throws Exception {
+        if (signerProps.equals("nip07")) {
             NostrNIP07Signer signer = new NostrNIP07Signer();
             boolean v = signer.isAvailable().await();
-            System.out.println("Using NIP-07 signer "+v);
-            if(!v){
+            System.out.println("Using NIP-07 signer " + v);
+            if (!v) {
                 System.out.println("NIP-07 signer is not available");
-                throw new Exception("NIP-07 signer is not available. Please ensure you have a Nostr wallet extension installed and enabled.");
+                throw new Exception(
+                    "NIP-07 signer is not available. Please ensure you have a Nostr wallet extension installed and enabled."
+                );
             }
             return signer;
-        }else{
-            NostrPrivateKey adsKeyN=null;
-            if(signerProps==null|| signerProps.isEmpty()) {
+        } else {
+            NostrPrivateKey adsKeyN = null;
+            if (signerProps == null || signerProps.isEmpty()) {
                 adsKeyN = NostrPrivateKey.generate();
             } else {
-                adsKeyN = signerProps.startsWith("nsec")?NostrPrivateKey.fromBech32(signerProps):NostrPrivateKey.fromHex(signerProps);
+                adsKeyN =
+                    signerProps.startsWith("nsec")
+                        ? NostrPrivateKey.fromBech32(signerProps)
+                        : NostrPrivateKey.fromHex(signerProps);
             }
             System.out.println("App configured");
             return new NostrKeyPairSigner(new NostrKeyPair(adsKeyN));
@@ -148,25 +148,29 @@ public class NostrAds {
     }
 
     @JSExport
-    public void getPublicKey(PublicKeyCallback callback) throws Exception{
-        synchronized(this){
+    public void getPublicKey(PublicKeyCallback callback) throws Exception {
+        synchronized (this) {
             NostrAdsModule.initPlatform();
-            signer.getPublicKey().then(pkey->{
-                callback.accept(pkey.asHex(),null);
-                return null;
-            }).catchException(err->{
-                logger.log(Level.SEVERE, "Error getting public key "+ err);
-                callback.accept(null, err.toString());
-            });
+            signer
+                .getPublicKey()
+                .then(pkey -> {
+                    callback.accept(pkey.asHex(), null);
+                    return null;
+                })
+                .catchException(err -> {
+                    logger.log(Level.SEVERE, "Error getting public key " + err);
+                    callback.accept(null, err.toString());
+                });
         }
-     }
+    }
 
-     @JSExport 
-     public void getNip01Meta(String pubkey,Nip01Callback callback){
-        synchronized(this){
+    @JSExport
+    public void getNip01Meta(String pubkey, Nip01Callback callback) {
+        synchronized (this) {
             NostrAdsModule.initPlatform();
             NostrPublicKey key = pubkeyFromString(pubkey);
-            Nip01.fetch(pool, key)
+            Nip01
+                .fetch(pool, key)
                 .then(meta -> {
                     JSObject metaObj = TeaVMJsConverter.toJSObject(meta.metadata);
                     callback.accept(metaObj, null);
@@ -177,10 +181,10 @@ public class NostrAds {
                     callback.accept(null, err.getMessage());
                 });
         }
-     }
+    }
 
     @JSExport
-    public void publishNewBid( BidInputObject bid, BidCallback callback) throws Exception {
+    public void publishNewBid(BidInputObject bid, BidCallback callback) throws Exception {
         synchronized (this) {
             NostrAdsModule.initPlatform();
 
@@ -208,7 +212,7 @@ public class NostrAds {
             long expireAt = Double.isNaN(expireAtValue) ? -1 : (long) expireAtValue;
 
             // Get array properties
-            String[] categories = bid.getCategory() !=null ? bid.getCategory() : null;
+            String[] categories = bid.getCategory() != null ? bid.getCategory() : null;
             String[] languages = bid.getLanguages() != null ? bid.getLanguages() : null;
             String[] offerersWhitelist = bid.getOfferersWhitelist() != null ? bid.getOfferersWhitelist() : null;
             String[] appsWhitelist = bid.getAppsWhitelist() != null ? bid.getAppsWhitelist() : null;
@@ -244,11 +248,10 @@ public class NostrAds {
                 advClient = new AdvertiserClient(pool, signer, taxonomy);
             }
 
-            Map<String,Object> delegatePayload = new HashMap<>();
+            Map<String, Object> delegatePayload = new HashMap<>();
             delegatePayload.put("nwc", nwcUrl);
             delegatePayload.put("budget", budgetMsats.intValue());
 
-         
             // Call client
             advClient
                 .newBid(
@@ -311,15 +314,15 @@ public class NostrAds {
     }
 
     @JSExport
-    public void cancelBid(String eventId, BidCancelCallback callback  ) throws Exception {
+    public void cancelBid(String eventId, BidCancelCallback callback) throws Exception {
         synchronized (this) {
             NostrAdsModule.initPlatform();
             if (advClient == null) {
                 advClient = new AdvertiserClient(pool, signer, taxonomy);
             }
             advClient
-                .cancelBid( eventId, "cancelled")
-                .then(r->{
+                .cancelBid(eventId, "cancelled")
+                .then(r -> {
                     callback.accept(null);
                     return null;
                 })
@@ -327,7 +330,6 @@ public class NostrAds {
                     logger.log(Level.SEVERE, "Error cancelling bid", ex);
                     callback.accept(ex.getMessage());
                 });
-              
         }
     }
 

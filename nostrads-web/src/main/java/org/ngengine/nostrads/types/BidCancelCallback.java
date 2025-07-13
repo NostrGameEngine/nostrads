@@ -36,8 +36,6 @@ import org.teavm.jso.JSObject;
 
 @JSFunctor
 @FunctionalInterface
-
-public interface BidCancelCallback extends JSObject{
+public interface BidCancelCallback extends JSObject {
     void accept(String error);
 }
- 

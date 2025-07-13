@@ -36,7 +36,6 @@ import org.teavm.jso.JSObject;
 
 @JSFunctor
 @FunctionalInterface
-
 public interface Nip01Callback extends JSObject {
     void accept(JSObject metadata, String error);
 }

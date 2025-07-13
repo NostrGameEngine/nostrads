@@ -62,7 +62,7 @@ public interface BidInputObject extends JSObject {
     @JSProperty
     String getActionType();
 
-    @JSProperty(value="callToAction")
+    @JSProperty(value = "callToAction")
     String getCallToAction();
 
     @JSProperty
