@@ -67,6 +67,7 @@ import org.ngengine.nostrads.protocol.types.AdTaxonomy;
 import org.ngengine.platform.AsyncTask;
 import org.ngengine.platform.NGEPlatform;
 import org.ngengine.platform.NGEUtils;
+import org.ngengine.platform.VStore;
 import org.ngengine.wallets.PayResponse;
 import org.ngengine.wallets.Wallet;
 import org.ngengine.wallets.nip47.NWCUri;
@@ -85,6 +86,7 @@ public class DelegateService extends AbstractAdService {
     private final Function<DelegateNegotiationHandler, AsyncTask<Boolean>> filterNegotiations;
     private final Function<AdBidEvent, AsyncTask<Boolean>> filterBids;
     private final PenaltyStorage penaltyStorage;
+    private final DailyBudgetTracker budgetDatabase;
 
     /**
      * Creates a new DelegateService instance.
@@ -234,7 +236,7 @@ public class DelegateService extends AbstractAdService {
      */
     private class Listener implements AdvListener {
 
-        private final long budgetMsats;
+        private final long dailyBudgetMsats;
         private final Wallet wallet;
         private long spent = 0;
 
@@ -255,8 +257,12 @@ public class DelegateService extends AbstractAdService {
          * @param wallet the wallet to use for payments
          * @param budgetMsats the maximum budget in millisatoshis for this listener
          */
-        Listener(Wallet wallet, long budgetMsats) {
-            this.budgetMsats = budgetMsats;
+        Listener(
+            Wallet wallet, 
+            long budgetMsats,
+            VStore tracker
+        ) {
+            this.dailyBudgetMsats = budgetMsats;
             this.wallet = wallet;
         }
 
@@ -285,7 +291,7 @@ public class DelegateService extends AbstractAdService {
         synchronized boolean checkBudget(NegotiationHandler neg) {
             // cleanExpired();
             AdBidEvent bid = neg.getBidEvent();
-            long budgetLeft = budgetMsats - spent - pendingOffers.size() * bid.getBidMsats();
+            long budgetLeft = dailyBudgetMsats - spent - pendingOffers.size() * bid.getBidMsats();
             if (budgetLeft < bid.getBidMsats()) {
                 logger.warning(
                     "Not enough budget left to accept offer for " +
@@ -450,7 +456,7 @@ public class DelegateService extends AbstractAdService {
                 try {
                     // grab nwc payload and initialize the wallet
                     String nwc = NGEUtils.safeString(Objects.requireNonNull(payload.get("nwc")));
-                    long budget = NGEUtils.safeLong(Objects.requireNonNull(payload.get("budget")));
+                    long budget = NGEUtils.safeLong(Objects.requireNonNull(payload.get("dailyBudget")));
                     NWCWallet wallet = new NWCWallet(new NWCUri(nwc));
 
                     // prepare a listener that will be shared by all the negotiations with a shared budget

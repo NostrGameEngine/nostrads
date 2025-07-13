@@ -62,14 +62,14 @@ public interface BidInputObject extends JSObject {
     @JSProperty
     String getActionType();
 
-    @JSProperty
+    @JSProperty(value="callToAction")
     String getCallToAction();
 
     @JSProperty
     String getDelegate();
 
     @JSProperty
-    double getBidMsats();
+    double getBid();
 
     @JSProperty
     double getHoldTime();
@@ -78,7 +78,7 @@ public interface BidInputObject extends JSObject {
     double getExpireAt();
 
     @JSProperty
-    String[] getCategories();
+    String[] getCategory();
 
     @JSProperty
     String[] getLanguages();

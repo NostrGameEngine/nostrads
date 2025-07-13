@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import org.ngengine.nostr4j.NostrPool;
+import org.ngengine.nostr4j.event.NostrEvent;
 import org.ngengine.nostr4j.event.UnsignedNostrEvent;
 import org.ngengine.nostr4j.keypair.NostrPublicKey;
 import org.ngengine.nostr4j.nip09.Nip09EventDeletion;
@@ -129,7 +130,7 @@ public class AdvertiserClient {
         @Nullable String callToAction,
         @Nonnull AdActionType actionType,
         // bid props
-        @Nonnull long bidMsats,
+        long bidMsats,
         @Nonnull Duration holdTime,
         @Nonnull NostrPublicKey delegate,
         @Nullable Map<String, Object> delegatePayload,
@@ -210,6 +211,18 @@ public class AdvertiserClient {
             });
     }
 
+    public AsyncTask<List<AsyncTask<NostrMessageAck>>> cancelBid(String eventId, String reason) {
+        UnsignedNostrEvent cancel=Nip09EventDeletion.createDeletionEvent(reason,new NostrEvent.Coordinates(
+            "e",
+            String.valueOf(AdBidEvent.KIND),
+            eventId
+        ));
+        return this.signer.sign(cancel).compose(signed -> {
+            return pool.publish(signed);
+        });
+    }
+
+ 
     public AsyncTask<List<AdBidEvent>> listBids() {
         return signer
             .getPublicKey()

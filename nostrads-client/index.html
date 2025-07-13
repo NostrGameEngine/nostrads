@@ -1,0 +1,64 @@
+<html>
+    <head>
+        <script type="module">
+            import NostrAds from './client.js';
+            NostrAds({
+                    devMode: true,
+                    appKey: "npub13rugy09zg5pssxtjfvgkhjjzkx8swpvwr7e2gymnr2jp2ltveeqs88pjk4",
+                    forceCompatModeForWorker: true
+                });
+        </script>
+        <script>
+            
+        </script>
+        <style>
+            .nostr-adspace {
+                border: 1px solid #ccc;
+                background-color: #f9f9f9;
+                display: inline-block;
+                text-align: center;
+                min-width: 260px; 
+                min-height: 60px; 
+                position: relative;
+                box-sizing: border-box;
+                cursor: pointer;
+            }
+
+            .nostr-adspace-description{
+                font-size:70%;
+                position:absolute;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                padding:1%;
+                box-sizing: border-box;
+                border:1px solid #ccc;
+                opacity: 0;
+                transition: opacity 0.3s ease-in-out;                
+
+
+            }
+
+            .nostr-adspace:hover .nostr-adspace-description {
+                opacity: 1;
+            }
+
+
+        </style>
+        <script>
+            function addSpace(){
+                const space = document.createElement('div');
+                space.className = 'nostr-adspace';
+                document.body.appendChild(space);
+            }
+        </script>
+    </head>
+    <body>
+        <button onclick="addSpace()">Add Ad Space</button>
+        <div class="nostr-adspace">
+            <div class="nostr-adspace-description">This is a description</div>
+        </div>        
+    </body>
+</html>

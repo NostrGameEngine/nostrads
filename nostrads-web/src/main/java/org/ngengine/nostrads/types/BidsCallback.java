@@ -29,35 +29,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.ngengine.nostrads;
+package org.ngengine.nostrads.types;
 
-import org.ngengine.nostr4j.keypair.NostrPrivateKey;
-import org.ngengine.platform.NGEPlatform;
-import org.ngengine.platform.teavm.TeaVMPlatform;
-import org.teavm.jso.JSExport;
-import org.teavm.jso.JSExportClasses;
+import org.teavm.jso.JSFunctor;
+import org.teavm.jso.JSObject;
 
-@JSExportClasses({ NostrAds.class })
-public class NostrAdsModule {
-
-    private static boolean platformInitialized = false;
-
-    public static void initPlatform() {
-        if (!platformInitialized) {
-            NGEPlatform.set(new TeaVMPlatform());
-            platformInitialized = true;
-        }
-    }
-
-    @JSExport
-    public static String generatePrivateKey() {
-        initPlatform();
-        return NostrPrivateKey.generate().asHex();
-    }
-
-    @JSExport
-    public static String getPublicKey(String privateKey) {
-        initPlatform();
-        return NostrPrivateKey.fromHex(privateKey).getPublicKey().asHex();
-    }
+@JSFunctor
+@FunctionalInterface
+public interface BidsCallback extends JSObject {
+    void accept(JSObject[] bidEvents, String error);
 }

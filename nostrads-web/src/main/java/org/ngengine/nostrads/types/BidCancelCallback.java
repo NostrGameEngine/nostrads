@@ -29,12 +29,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.ngengine.nostrads;
+package org.ngengine.nostrads.types;
 
 import org.teavm.jso.JSFunctor;
 import org.teavm.jso.JSObject;
 
 @JSFunctor
-public interface BidsCallback extends JSObject {
-    void onBids(JSObject[] bidEvents, String error);
+@FunctionalInterface
+
+public interface BidCancelCallback extends JSObject{
+    void accept(String error);
 }
+ 

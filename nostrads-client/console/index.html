@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advertiser Console | Create Ad</title>
+
+    <link rel="stylesheet" href="./common.css">
+    <link rel="stylesheet" href="./index.css">
+    <link rel="stylesheet" href="../ads.css">
+    <script type="module" src="./index.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js@9.0.1/public/assets/styles/base.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js@9.0.1/public/assets/styles/choices.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/choices.js@9.0.1/public/assets/scripts/choices.min.js"></script>
+
+    <style>
+      
+
+   
+
+        
+    </style>
+
+</head>
+
+<body>
+    <header>
+        <h1> Nostr Ads Network 𓅦 Console</h1>
+        <div id="settings">
+            ⚙
+        </div>
+    </header>
+
+    <content>
+        <nav>
+            <div id="login"></div>
+
+            <div>
+                <h3>Tips</h3>
+                <ul>
+                    <li>Click on the ⚙ icon to change your settings.</li>
+                    <li>Click on any ad to manage it.</li>
+                    <li>Stopped Ads are stored locally until you delete them.</li>
+                    <li>Ads are immutable once created</li>
+                    <li>To edit an ad you must use the "clone" button to create a new ad with the same content and then delete the old one.</li>                </ul>
+            </div></p>
+        </nav>
+        
+    
+        <main>
+          
+
+            <h2>Active Ads <button class="small">Create new ad</button> </h2>
+            <section class="adlist" id="adlist">
+
+            </section>
+            
+            <h2>Stopped Ads</h2>
+            <section class="adlist" id="stoppedAdlist">
+            </section>
+
+        </main>
+    </content>
+</body>
+</html>

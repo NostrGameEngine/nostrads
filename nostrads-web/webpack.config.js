@@ -54,14 +54,16 @@ module.exports = {
     mode: 'production',
     entry: path.resolve(__dirname, "build/generated/teavm/js/NostrAds.js")    ,
     devtool: 'source-map',
+    experiments: {
+        outputModule: true
+    },
     output: {
         path: path.resolve(__dirname, 'build/generated/webpack'),
         filename: 'nostr-ads.js',
         library: {
-            name: 'NostrAds',
-            type: 'umd',
-            export: 'default',
+            type: 'module',            
         },
+       
         globalObject: 'this',
         sourceMapFilename: 'nostr-ads.js.map'
     },
@@ -109,10 +111,7 @@ module.exports = {
             window.NGEBundledResources[key] = resources[key];
         });
         
-        // Ensure all exports are directly accessible on window.NostrAds
-        Object.keys(this.NostrAds).forEach(function(key) {
-            window.NostrAds[key] = this.NostrAds[key];
-        }, this);
+       
     }
 })();
             `,
