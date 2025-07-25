@@ -107,7 +107,7 @@ public enum AdAspectRatio {
         if (height == 0) {
             throw new IllegalArgumentException("Height cannot be zero");
         }
-        return findClosest((float) width / (float)height);
+        return findClosest((float) width / (float) height);
     }
 
     @Override

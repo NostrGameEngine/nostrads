@@ -36,7 +36,6 @@ import org.teavm.jso.JSProperty;
 import org.teavm.jso.core.JSFunction;
 
 public interface NextAdInput extends JSObject {
-
     @JSProperty
     public String getAppKey();
 
@@ -46,14 +45,12 @@ public interface NextAdInput extends JSObject {
     @JSProperty
     public int getHeight();
 
-    
     @JSProperty
     public String getPriceSlot();
 
     @JSProperty
     public String[] getMimeTypes();
 
- 
     @JSProperty
     public String[] getLanguages();
 

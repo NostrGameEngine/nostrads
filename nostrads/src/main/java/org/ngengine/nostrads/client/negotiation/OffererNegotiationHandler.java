@@ -144,13 +144,12 @@ public class OffererNegotiationHandler extends NegotiationHandler {
                     .compose(sub -> {
                         if (isClosed()) return null;
                         // publish the offer event and return it
-                        return getPool()
-                            .publish(sevent);
-                           
-                    }).then(r->{
+                        return getPool().publish(sevent);
+                    })
+                    .then(r -> {
                         return null;
                     });
-                });
+            });
     }
 
     /**

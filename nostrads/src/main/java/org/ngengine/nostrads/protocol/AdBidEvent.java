@@ -83,7 +83,6 @@ public class AdBidEvent extends AdEvent {
         return NGEUtils.safeString(getData("link", true));
     }
 
-    
     public int getMaxPayouts() {
         Object maxPayouts = getData("max_payouts", true);
         return NGEUtils.safeInt(maxPayouts); // Default to 3 if not set

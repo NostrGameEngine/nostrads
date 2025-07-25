@@ -33,32 +33,26 @@ package org.ngengine.nostrads.client.services;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.ngengine.nostr4j.NostrFilter;
 import org.ngengine.nostr4j.NostrPool;
 import org.ngengine.nostr4j.NostrSubscription;
 import org.ngengine.nostr4j.event.NostrEvent.TagValue;
-import org.ngengine.nostr4j.event.SignedNostrEvent;
 import org.ngengine.nostr4j.signer.NostrSigner;
 import org.ngengine.nostrads.client.negotiation.NegotiationHandler;
 import org.ngengine.nostrads.client.services.delegate.DelegateService;
 import org.ngengine.nostrads.protocol.AdBidEvent;
 import org.ngengine.nostrads.protocol.negotiation.AdBailEvent;
-import org.ngengine.nostrads.protocol.negotiation.AdNegotiationEvent;
 import org.ngengine.nostrads.protocol.negotiation.AdBailEvent.Reason;
 import org.ngengine.nostrads.protocol.types.AdTaxonomy;
 import org.ngengine.platform.AsyncExecutor;
-import org.ngengine.platform.AsyncTask;
 import org.ngengine.platform.NGEPlatform;
 
 /**
@@ -125,34 +119,34 @@ public abstract class AbstractAdService {
                 )
         );
 
-
-         NostrSubscription cancellationSub = getPool().subscribe(new NostrFilter().withKind(5).withTag("k", String.valueOf(AdBidEvent.KIND)));
-         cancellationSub.addEventListener((ev,eose)->{
+        NostrSubscription cancellationSub = getPool()
+            .subscribe(new NostrFilter().withKind(5).withTag("k", String.valueOf(AdBidEvent.KIND)));
+        cancellationSub.addEventListener((ev, eose) -> {
             List<TagValue> cancelledIds = ev.getTag("e");
-            if(cancelledIds!=null){
-                for(TagValue cancelledId : cancelledIds){
+            if (cancelledIds != null) {
+                for (TagValue cancelledId : cancelledIds) {
                     String id = cancelledId.get(0);
                     onAdCancelledById(id);
-                
                 }
             }
 
             List<TagValue> cancelledAddrs = ev.getTag("a");
-            if(cancelledAddrs!=null){
-                for(TagValue cancelledAddr : cancelledAddrs){
+            if (cancelledAddrs != null) {
+                for (TagValue cancelledAddr : cancelledAddrs) {
                     String addr = cancelledAddr.get(0);
                     onAdCancelledByCoordinates(addr);
-                
-                }            
+                }
             }
         });
-        registerCloser(()-> {
+        registerCloser(() -> {
             cancellationSub.close();
         });
-        cancellationSub.open().catchException(ex -> {
-            logger.log(Level.SEVERE,"Error opening subscription for bids",ex);
-            this.close();
-        });
+        cancellationSub
+            .open()
+            .catchException(ex -> {
+                logger.log(Level.SEVERE, "Error opening subscription for bids", ex);
+                this.close();
+            });
 
         this.executor = updater;
         this.loop();
@@ -167,28 +161,28 @@ public abstract class AbstractAdService {
         this.activeNegotiations.add(negotiation);
     }
 
-     protected void onAdCancelledById(@Nonnull String id) {
-        for(NegotiationHandler negotiation:activeNegotiations){
-            if(negotiation.getBidEvent().getId().equals(id)){
-                if(!negotiation.isClosed()&& !negotiation.isCompleted()){             
-                    logger.info("Negotiation cancelled by id: "+id); 
-                    negotiation.bail(Reason.CANCELLED);
-                 }
-            }
-        }
-    }
-
-     protected void onAdCancelledByCoordinates(@Nonnull String coordinates) {
-        for(NegotiationHandler negotiation:activeNegotiations){
-            if(negotiation.getBidEvent().getCoordinates().coords().equals(coordinates)){
-                if(!negotiation.isClosed()&& !negotiation.isCompleted()){
-                    logger.info("Negotiation cancelled by coordinates: "+coordinates);
+    protected void onAdCancelledById(@Nonnull String id) {
+        for (NegotiationHandler negotiation : activeNegotiations) {
+            if (negotiation.getBidEvent().getId().equals(id)) {
+                if (!negotiation.isClosed() && !negotiation.isCompleted()) {
+                    logger.info("Negotiation cancelled by id: " + id);
                     negotiation.bail(Reason.CANCELLED);
                 }
             }
         }
     }
- 
+
+    protected void onAdCancelledByCoordinates(@Nonnull String coordinates) {
+        for (NegotiationHandler negotiation : activeNegotiations) {
+            if (negotiation.getBidEvent().getCoordinates().coords().equals(coordinates)) {
+                if (!negotiation.isClosed() && !negotiation.isCompleted()) {
+                    logger.info("Negotiation cancelled by coordinates: " + coordinates);
+                    negotiation.bail(Reason.CANCELLED);
+                }
+            }
+        }
+    }
+
     /**
      * Close the service and clean up resources.
      */
@@ -224,16 +218,17 @@ public abstract class AbstractAdService {
                             negotiation.close();
                         } else if (
                             // check for expired hold time
-                            negotiation.getCreatedAt().plus(negotiation.getBidEvent().getHoldTime()).isBefore(Instant.now())
-                            || 
-                            (!negotiation.isAccepted()&&negotiation.getCreatedAt().plus(negotiationAcceptanceTimeout).isBefore(Instant.now()))
+                            negotiation.getCreatedAt().plus(negotiation.getBidEvent().getHoldTime()).isBefore(Instant.now()) ||
+                            (
+                                !negotiation.isAccepted() &&
+                                negotiation.getCreatedAt().plus(negotiationAcceptanceTimeout).isBefore(Instant.now())
+                            )
                         ) {
                             logger.fine("Negotiation timeouted: " + negotiation.getBidEvent().getId());
                             // bail the negotiation for timeout
                             negotiation.bail(AdBailEvent.Reason.EXPIRED).await();
-                        }  
+                        }
                         if (negotiation.isClosed()) {
-                            
                             activeNegotiations.remove(negotiation);
                             continue;
                         }
@@ -257,8 +252,6 @@ public abstract class AbstractAdService {
     protected AdTaxonomy getTaxonomy() {
         return taxonomy;
     }
-
-    
 
     /**
      * Get the NostrSigner instance used by this service.

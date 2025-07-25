@@ -92,7 +92,7 @@ public class DelegateNegotiationHandler extends NegotiationHandler {
             // the offerer is requesting us to pay
             if (event instanceof AdPaymentRequestEvent) {
                 // avoid double payments
-                if(paid.getAndSet(true)) {
+                if (paid.getAndSet(true)) {
                     logger.warning("Received a payment request event after already paid, ignoring: " + event.getId());
                     return; // we already paid, ignore this event
                 }
@@ -140,7 +140,7 @@ public class DelegateNegotiationHandler extends NegotiationHandler {
                                     return null;
                                 })
                                 .catchException(e -> {
-                                    logger.log(Level.WARNING,"Failed to fetch invoice for payment request" , e);
+                                    logger.log(Level.WARNING, "Failed to fetch invoice for payment request", e);
                                     // we can't get an invoice, so we bail out
                                     bail(AdBailEvent.Reason.FAILED_PAYMENT);
                                 });
@@ -150,13 +150,13 @@ public class DelegateNegotiationHandler extends NegotiationHandler {
                         return null;
                     })
                     .catchException(e -> {
-                        logger.log(Level.WARNING, "Failed to get LnUrl service" , e);
+                        logger.log(Level.WARNING, "Failed to get LnUrl service", e);
                         // we can't get the lnurlp service, so we bail out
                         bail(AdBailEvent.Reason.FAILED_PAYMENT);
                     });
             }
         } catch (Exception e) {
-            logger.log(Level.WARNING, "Error processing event" , e);
+            logger.log(Level.WARNING, "Error processing event", e);
         }
     }
 

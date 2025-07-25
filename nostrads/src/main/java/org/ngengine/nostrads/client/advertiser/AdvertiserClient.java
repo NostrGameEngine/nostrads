@@ -217,17 +217,16 @@ public class AdvertiserClient {
     }
 
     public AsyncTask<List<AsyncTask<NostrMessageAck>>> cancelBid(String eventId, String reason) {
-        UnsignedNostrEvent cancel=Nip09EventDeletion.createDeletionEvent(reason,new NostrEvent.Coordinates(
-            "e",
-            String.valueOf(AdBidEvent.KIND),
-            eventId
-        ));
-        return this.signer.sign(cancel).compose(signed -> {
-            return pool.publish(signed);
-        });
+        UnsignedNostrEvent cancel = Nip09EventDeletion.createDeletionEvent(
+            reason,
+            new NostrEvent.Coordinates("e", String.valueOf(AdBidEvent.KIND), eventId)
+        );
+        return this.signer.sign(cancel)
+            .compose(signed -> {
+                return pool.publish(signed);
+            });
     }
 
- 
     public AsyncTask<List<AdBidEvent>> listBids() {
         return signer
             .getPublicKey()

@@ -38,7 +38,6 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.ngengine.nostr4j.NostrPool;
@@ -53,11 +52,10 @@ import org.ngengine.nostrads.client.services.display.fun.CompletedCallback;
 import org.ngengine.nostrads.client.services.display.fun.RefreshAdspaceCallback;
 import org.ngengine.nostrads.client.services.display.fun.ShowCallback;
 import org.ngengine.nostrads.protocol.AdBidEvent;
-import org.ngengine.nostrads.protocol.AdEvent;
 import org.ngengine.nostrads.protocol.negotiation.AdAcceptOfferEvent;
 import org.ngengine.nostrads.protocol.negotiation.AdBailEvent;
-import org.ngengine.nostrads.protocol.negotiation.AdOfferEvent;
 import org.ngengine.nostrads.protocol.negotiation.AdBailEvent.Reason;
+import org.ngengine.nostrads.protocol.negotiation.AdOfferEvent;
 import org.ngengine.nostrads.protocol.negotiation.AdPayoutEvent;
 import org.ngengine.nostrads.protocol.types.AdTaxonomy;
 import org.ngengine.platform.AsyncTask;
@@ -70,12 +68,11 @@ public class AdsDisplayClient extends AbstractAdService {
 
     private static final Logger logger = Logger.getLogger(AdsDisplayClient.class.getName());
 
-    private final Map<String,GlobalRankedAd> bidsCache=new WeakHashMap<>();
-    private final Map<Adspace,RankedAdsQueue> queues=new ConcurrentHashMap<>();
+    private final Map<String, GlobalRankedAd> bidsCache = new WeakHashMap<>();
+    private final Map<Adspace, RankedAdsQueue> queues = new ConcurrentHashMap<>();
     private final PenaltyStorage penaltyStorage;
     private int penaltyIncrease = 1; // default penalty increase for failed negotiations
     private final RefreshAdspaceCallback refreshCallback;
- 
 
     /**
      * Constructor for AdsDisplayClient.
@@ -105,9 +102,6 @@ public class AdsDisplayClient extends AbstractAdService {
         this.penaltyIncrease = penaltyIncrease;
     }
 
-
-
-    
     /**
      * Register an adspace for displaying ads.
      * If two adspaces are equals, they will share the same queue of bids.
@@ -132,7 +126,7 @@ public class AdsDisplayClient extends AbstractAdService {
      * @param adspace the adspace to unregister
      */
     public void unregisterAdspace(Adspace adspace) {
-         queues.computeIfPresent(
+        queues.computeIfPresent(
             adspace,
             (k, v) -> {
                 if (v.refs.decrementAndGet() <= 0) {
@@ -158,8 +152,6 @@ public class AdsDisplayClient extends AbstractAdService {
             this.showAd = showAd;
             this.invalidate = invalidate;
             this.completedCallback = completedCallback;
-            
-       
         }
 
         @Override
@@ -172,8 +164,6 @@ public class AdsDisplayClient extends AbstractAdService {
 
             // remember the penalty
             penaltyStorage.set(neg);
-            
-
         }
 
         @Override
@@ -184,7 +174,7 @@ public class AdsDisplayClient extends AbstractAdService {
 
         @Override
         public void onBail(NegotiationHandler neg, AdBailEvent event, boolean initiatedByCounterparty) {
-             // if bailed after requesting payment, we punish automatically
+            // if bailed after requesting payment, we punish automatically
             if (initiatedByCounterparty) {
                 if (requestedPayment) {
                     logger.finer("Bail after payment request, punishing counterparty directly");
@@ -196,15 +186,14 @@ public class AdsDisplayClient extends AbstractAdService {
                 }
                 penaltyStorage.set(neg);
             }
-
         }
 
         @Override
         public void showAd(NegotiationHandler neg, AdAcceptOfferEvent acp, Consumer<String> notifyShown) {
             neg.markAccepted();
             AdOfferEvent offer = acp.getOffer();
-            if(offer==null)return;
-             this.showAd.apply( neg.getBidEvent(), offer)
+            if (offer == null) return;
+            this.showAd.apply(neg.getBidEvent(), offer)
                 .catchException(ex -> {
                     // any exception will automatically bail the negotiation
                     neg.bail(Reason.ACTION_INCOMPLETE);
@@ -225,98 +214,129 @@ public class AdsDisplayClient extends AbstractAdService {
 
         @Override
         public void onClose(NegotiationHandler neg, AdOfferEvent offer) {
-            if(offer==null) return;
+            if (offer == null) return;
             boolean completed = neg.isCompleted();
-            if(completedCallback!=null){
-                completedCallback.accept(neg,offer,completed,"Negotiation closed"+(completed?" successfully":" without payment"));
+            if (completedCallback != null) {
+                completedCallback.accept(
+                    neg,
+                    offer,
+                    completed,
+                    "Negotiation closed" + (completed ? " successfully" : " without payment")
+                );
             }
-            if(!completed){
-                invalidate.accept(neg, offer, "negotiation closed");            
-            }            
+            if (!completed) {
+                invalidate.accept(neg, offer, "negotiation closed");
+            }
         }
     }
 
- 
     /**
      * Load the best next ad for the given adspace.
      * @param adspace the adspace to load the next ad for
      */
     public AsyncTask<AdBidEvent> loadNextAd(
-        Adspace adspace, 
-        int width, 
-        int height, 
+        Adspace adspace,
+        int width,
+        int height,
         Function<AdBidEvent, AsyncTask<Boolean>> filter,
         ShowCallback showCallback,
-        CompletedCallback completedCallback 
+        CompletedCallback completedCallback
     ) {
         if (isClosed()) throw new IllegalStateException("AdClient is closing");
-        return NGEPlatform.get().wrapPromise((res,rej)->{
-            executor.run(() -> {
-                RankedAdsQueue queue=queues.get(adspace);
-                if(queue==null){ throw new IllegalStateException("Adspace not registered: "+adspace); }
-                GlobalRankedAd gad=queue.get(width,height,bid -> {
-                    try{
-                        return filter.apply(bid).await();
-                    }catch(Exception e){
-                        logger.log(Level.WARNING,"Error applying filter for bid: "+bid.getId(),e);
-                        e.printStackTrace();
-                        return false;
-                    }
-                });
-                if(gad==null){ throw new IllegalStateException("No ads available for adspace: "+adspace); }
-                AdBidEvent ad =  gad.get();
-
-                if(ad==null){ 
-                    throw new IllegalStateException("No ads available for adspace: "+adspace); 
-                }
-
-
-                Listener l=new Listener(
-                (bid, offer) -> {
-                    return showCallback.apply(bid, offer).then(result -> {
-                        if(!result){
-                            rej.accept(new RuntimeException("Ad display rejected by user"));
-                        } else {
-                            res.accept(ad);
+        return NGEPlatform
+            .get()
+            .wrapPromise((res, rej) -> {
+                executor
+                    .run(() -> {
+                        RankedAdsQueue queue = queues.get(adspace);
+                        if (queue == null) {
+                            throw new IllegalStateException("Adspace not registered: " + adspace);
                         }
-                        return result;
-                    });
-                },(neg,offer,reason)->{
-                    refreshCallback.accept(neg,offer,reason);
-                    gad.derank(true);
-                    rej.accept(new Exception("Ad negotiation failed: "+reason));
+                        GlobalRankedAd gad = queue.get(
+                            width,
+                            height,
+                            bid -> {
+                                try {
+                                    return filter.apply(bid).await();
+                                } catch (Exception e) {
+                                    logger.log(Level.WARNING, "Error applying filter for bid: " + bid.getId(), e);
+                                    e.printStackTrace();
+                                    return false;
+                                }
+                            }
+                        );
+                        if (gad == null) {
+                            throw new IllegalStateException("No ads available for adspace: " + adspace);
+                        }
+                        AdBidEvent ad = gad.get();
 
-                },completedCallback);
-                logger.finer("Creating negotiation handler for bid: "+ad.getId());
+                        if (ad == null) {
+                            throw new IllegalStateException("No ads available for adspace: " + adspace);
+                        }
 
-                openNegotiation(adspace.getAppKey(),ad,l).then(n -> {
-                    OffererNegotiationHandler oneg=(OffererNegotiationHandler)n;
-                    logger.finer("Negotiation opened for bid: "+ad.getId());
-                    oneg.makeOffer().catchException(ex -> {
-                        logger.log(Level.WARNING,"Error making offer for bid: "+ad.getId()+" in adspace: "+adspace,ex);
+                        Listener l = new Listener(
+                            (bid, offer) -> {
+                                return showCallback
+                                    .apply(bid, offer)
+                                    .then(result -> {
+                                        if (!result) {
+                                            rej.accept(new RuntimeException("Ad display rejected by user"));
+                                        } else {
+                                            res.accept(ad);
+                                        }
+                                        return result;
+                                    });
+                            },
+                            (neg, offer, reason) -> {
+                                refreshCallback.accept(neg, offer, reason);
+                                gad.derank(true);
+                                rej.accept(new Exception("Ad negotiation failed: " + reason));
+                            },
+                            completedCallback
+                        );
+                        logger.finer("Creating negotiation handler for bid: " + ad.getId());
+
+                        openNegotiation(adspace.getAppKey(), ad, l)
+                            .then(n -> {
+                                OffererNegotiationHandler oneg = (OffererNegotiationHandler) n;
+                                logger.finer("Negotiation opened for bid: " + ad.getId());
+                                oneg
+                                    .makeOffer()
+                                    .catchException(ex -> {
+                                        logger.log(
+                                            Level.WARNING,
+                                            "Error making offer for bid: " + ad.getId() + " in adspace: " + adspace,
+                                            ex
+                                        );
+                                        ex.printStackTrace();
+                                    });
+                                return ad;
+                            })
+                            .catchException(e -> {
+                                e.printStackTrace();
+                                gad.derank(true);
+
+                                logger.log(
+                                    Level.WARNING,
+                                    "Error opening negotiation for bid: " + ad.getId() + " in adspace: " + adspace,
+                                    e
+                                );
+                                rej.accept(
+                                    new RuntimeException(
+                                        "Error opening negotiation for bid: " + ad.getId() + " in adspace: " + adspace,
+                                        e
+                                    )
+                                );
+                            });
+                        return null;
+                    })
+                    .catchException(ex -> {
+                        logger.log(Level.WARNING, "Error loading next ad for adspace: " + adspace, ex);
                         ex.printStackTrace();
+                        rej.accept(ex);
                     });
-                    return ad;
-                }).catchException(e -> {
-                    e.printStackTrace();
-                    gad.derank(true);
-
-                    logger.log(Level.WARNING,"Error opening negotiation for bid: "+ad.getId()+" in adspace: "+adspace,e);
-                    rej.accept(new RuntimeException("Error opening negotiation for bid: "+ad.getId()+" in adspace: "+adspace,e));
-                });
-                return null;
-            }).catchException(ex->{
-                
-                logger.log(Level.WARNING,"Error loading next ad for adspace: "+adspace,ex);
-                ex.printStackTrace();
-                rej.accept(ex);
             });
-        });
-         
     }
-
-
-   
 
     /**
      * Open a negotiation for the given bid event manually.
@@ -330,23 +350,38 @@ public class AdsDisplayClient extends AbstractAdService {
      * @throws IllegalStateException if the AdClient is closing
      * @throws IllegalArgumentException if the event is not a valid AdBidEvent
      */
-    public AsyncTask<NegotiationHandler> openNegotiation(NostrPublicKey appKey, AdBidEvent bid, OffererNegotiationHandler.OfferListener listener) {
-        if(isClosed()){ throw new IllegalStateException("AdClient is closing"); }
-        OffererNegotiationHandler negotiation=new OffererNegotiationHandler(appKey,getPool(),getSigner(),bid,getMaxDiff());
+    public AsyncTask<NegotiationHandler> openNegotiation(
+        NostrPublicKey appKey,
+        AdBidEvent bid,
+        OffererNegotiationHandler.OfferListener listener
+    ) {
+        if (isClosed()) {
+            throw new IllegalStateException("AdClient is closing");
+        }
+        OffererNegotiationHandler negotiation = new OffererNegotiationHandler(
+            appKey,
+            getPool(),
+            getSigner(),
+            bid,
+            getMaxDiff()
+        );
 
         // load the initial penalty for the negotiation
-        return penaltyStorage.get(negotiation.getBidEvent()).then(penalty -> {
-            negotiation.setCounterpartyPenalty(penalty);
-            if(penalty>0){
-                logger.finer("Setting counterparty penalty for "+negotiation.getBidEvent().getId()+": "+penalty);
-            }
-            return negotiation;
-        }).then(neg -> {
-            // add the listener if provided
-            if(listener!=null) neg.addListener(listener);
-            // we register the negotiation, the parent class will track and close it when needed (eg. if it expires)
-            registerNegotiation(neg);
-            return neg;
-        });
+        return penaltyStorage
+            .get(negotiation.getBidEvent())
+            .then(penalty -> {
+                negotiation.setCounterpartyPenalty(penalty);
+                if (penalty > 0) {
+                    logger.finer("Setting counterparty penalty for " + negotiation.getBidEvent().getId() + ": " + penalty);
+                }
+                return negotiation;
+            })
+            .then(neg -> {
+                // add the listener if provided
+                if (listener != null) neg.addListener(listener);
+                // we register the negotiation, the parent class will track and close it when needed (eg. if it expires)
+                registerNegotiation(neg);
+                return neg;
+            });
     }
 }

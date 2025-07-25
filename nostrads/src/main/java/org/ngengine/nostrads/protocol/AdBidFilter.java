@@ -32,7 +32,6 @@
 package org.ngengine.nostrads.protocol;
 
 import java.util.Arrays;
-
 import org.ngengine.nostr4j.NostrFilter;
 import org.ngengine.nostr4j.keypair.NostrPublicKey;
 import org.ngengine.nostrads.protocol.types.AdActionType;

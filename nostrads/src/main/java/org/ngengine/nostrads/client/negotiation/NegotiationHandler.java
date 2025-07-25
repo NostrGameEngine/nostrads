@@ -35,14 +35,12 @@ import jakarta.annotation.Nonnull;
 import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.ngengine.nostr4j.NostrFilter;
 import org.ngengine.nostr4j.NostrPool;
 import org.ngengine.nostr4j.NostrSubscription;
 import org.ngengine.nostr4j.signer.NostrSigner;
-import org.ngengine.nostr4j.utils.UniqueId;
 import org.ngengine.nostrads.protocol.AdBidEvent;
 import org.ngengine.nostrads.protocol.negotiation.AdBailEvent;
 import org.ngengine.nostrads.protocol.negotiation.AdNegotiationEvent;
@@ -85,8 +83,7 @@ public abstract class NegotiationHandler {
     private volatile boolean closed = false;
     private volatile boolean completed = false;
     private volatile boolean accepted = false;
-    
-  
+
     /**
      * Returns the list of listeners registered to this negotiation handler.
      * @return
@@ -103,9 +100,6 @@ public abstract class NegotiationHandler {
         return accepted;
     }
 
-
-    
- 
     /**
      * Returns true if the negotiation is completed and can be safely closed and untracked
      * @return
@@ -222,12 +216,12 @@ public abstract class NegotiationHandler {
             sub.then(NostrSubscription::close);
             sub = null;
         }
-        for(Listener listener : listeners) {
+        for (Listener listener : listeners) {
             try {
                 listener.onClose(this, offer);
             } catch (Exception e) {
                 e.printStackTrace();
-                logger.log(Level.WARNING,"Error in onClose callback: ", e);
+                logger.log(Level.WARNING, "Error in onClose callback: ", e);
             }
         }
     }
@@ -240,13 +234,12 @@ public abstract class NegotiationHandler {
      * @return
      */
     public AsyncTask<Void> bail(AdBailEvent.Reason reason) {
-        if(this.offer==null){
+        if (this.offer == null) {
             return NGEPlatform
                 .get()
                 .wrapPromise((res, rej) -> {
                     res.accept(null);
                 });
-
         }
         return bail(reason, this.offer);
     }

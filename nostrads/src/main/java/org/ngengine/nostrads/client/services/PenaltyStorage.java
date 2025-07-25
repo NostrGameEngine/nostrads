@@ -89,7 +89,7 @@ public class PenaltyStorage {
         String pubkey = ev.getPubkey().asBech32();
         return store
             .exists(path)
-            .catchException(ex->{
+            .catchException(ex -> {
                 logger.log(Level.WARNING, "Failed to check if POW penalty exists for " + pubkey, ex);
             })
             .compose(exists -> {

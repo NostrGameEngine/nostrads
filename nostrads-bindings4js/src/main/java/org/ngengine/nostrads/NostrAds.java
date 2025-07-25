@@ -32,8 +32,6 @@
 package org.ngengine.nostrads;
 
 import java.io.Closeable;
-import java.util.Arrays;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.ngengine.nostr4j.NostrPool;
@@ -45,18 +43,13 @@ import org.ngengine.nostr4j.nip01.Nip01;
 import org.ngengine.nostr4j.signer.NostrKeyPairSigner;
 import org.ngengine.nostr4j.signer.NostrNIP07Signer;
 import org.ngengine.nostr4j.signer.NostrSigner;
-import org.ngengine.nostrads.client.services.display.Adspace;
-import org.ngengine.nostrads.protocol.types.AdAspectRatio;
-import org.ngengine.nostrads.protocol.types.AdMimeType;
-import org.ngengine.nostrads.protocol.types.AdPriceSlot;
 import org.ngengine.nostrads.protocol.types.AdTaxonomy;
 import org.ngengine.nostrads.types.Nip01Callback;
 import org.ngengine.nostrads.types.PublicKeyCallback;
 import org.ngengine.platform.teavm.TeaVMJsConverter;
-import org.teavm.jso.JSExport;
 import org.teavm.jso.JSObject;
 
-public abstract class NostrAds implements Closeable{
+public abstract class NostrAds implements Closeable {
 
     private static final Logger logger = Logger.getLogger(NostrAds.class.getName());
 
@@ -64,30 +57,24 @@ public abstract class NostrAds implements Closeable{
     protected final AdTaxonomy taxonomy;
     protected final NostrSigner signer;
 
-
-    public  void close() {
+    public void close() {
         synchronized (this) {
             NostrAdsModule.initPlatform();
             pool.close();
         }
-        
     }
 
-    protected  NostrAds(
-        String[] relays, 
-        String auth
-    ) throws Exception {     
+    protected NostrAds(String[] relays, String auth) throws Exception {
         NostrAdsModule.initPlatform();
-         
+
         pool = new NostrPool();
         for (int i = 0; i < relays.length; i++) {
             pool.connectRelay(new NostrRelay(relays[i]));
         }
 
-        signer=getSigner(auth);
+        signer = getSigner(auth);
 
         taxonomy = new AdTaxonomy();
-
     }
 
     protected NostrPublicKey pubkeyFromString(String pubkeyStr) {
@@ -98,43 +85,52 @@ public abstract class NostrAds implements Closeable{
         }
     }
 
-    protected NostrSigner getSigner(String signerProps) throws Exception{
-        if(signerProps.equals("nip07")){
+    protected NostrSigner getSigner(String signerProps) throws Exception {
+        if (signerProps.equals("nip07")) {
             NostrNIP07Signer signer = new NostrNIP07Signer();
             boolean v = signer.isAvailable().await();
-            if(!v){
-                throw new Exception("NIP-07 signer is not available. Please ensure you have a Nostr wallet extension installed and enabled.");
+            if (!v) {
+                throw new Exception(
+                    "NIP-07 signer is not available. Please ensure you have a Nostr wallet extension installed and enabled."
+                );
             }
             return signer;
-        }else{
-            NostrPrivateKey adsKeyN=null;
-            if(signerProps==null|| signerProps.isEmpty()) {
+        } else {
+            NostrPrivateKey adsKeyN = null;
+            if (signerProps == null || signerProps.isEmpty()) {
                 adsKeyN = NostrPrivateKey.generate();
             } else {
-                adsKeyN = signerProps.startsWith("nsec")?NostrPrivateKey.fromBech32(signerProps):NostrPrivateKey.fromHex(signerProps);
+                adsKeyN =
+                    signerProps.startsWith("nsec")
+                        ? NostrPrivateKey.fromBech32(signerProps)
+                        : NostrPrivateKey.fromHex(signerProps);
             }
             return new NostrKeyPairSigner(new NostrKeyPair(adsKeyN));
         }
     }
 
-    protected void getPublicKey(PublicKeyCallback callback) throws Exception{
-        synchronized(this){
+    protected void getPublicKey(PublicKeyCallback callback) throws Exception {
+        synchronized (this) {
             NostrAdsModule.initPlatform();
-            signer.getPublicKey().then(pkey->{
-                callback.accept(pkey.asHex(),null);
-                return null;
-            }).catchException(err->{
-                logger.log(Level.SEVERE, "Error getting public key "+ err);
-                callback.accept(null, err.toString());
-            });
+            signer
+                .getPublicKey()
+                .then(pkey -> {
+                    callback.accept(pkey.asHex(), null);
+                    return null;
+                })
+                .catchException(err -> {
+                    logger.log(Level.SEVERE, "Error getting public key " + err);
+                    callback.accept(null, err.toString());
+                });
         }
-     }
+    }
 
-     protected void getNip01Meta(String pubkey,Nip01Callback callback){
-        synchronized(this){
+    protected void getNip01Meta(String pubkey, Nip01Callback callback) {
+        synchronized (this) {
             NostrAdsModule.initPlatform();
             NostrPublicKey key = pubkeyFromString(pubkey);
-            Nip01.fetch(pool, key)
+            Nip01
+                .fetch(pool, key)
                 .then(meta -> {
                     JSObject metaObj = TeaVMJsConverter.toJSObject(meta.metadata);
                     callback.accept(metaObj, null);
@@ -145,9 +141,5 @@ public abstract class NostrAds implements Closeable{
                     callback.accept(null, err.getMessage());
                 });
         }
-     }
-
-   
-
-  
+    }
 }

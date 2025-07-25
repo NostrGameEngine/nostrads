@@ -68,8 +68,6 @@ import org.ngengine.nostrads.protocol.types.AdTaxonomy;
 import org.ngengine.platform.NGEPlatform;
 import org.ngengine.platform.NGEUtils;
 
-import jakarta.annotation.Nonnull;
-
 public class TestAds {
 
     private String APP_KEY = "npub13rugy09zg5pssxtjfvgkhjjzkx8swpvwr7e2gymnr2jp2ltveeqs88pjk4";
@@ -190,7 +188,8 @@ public class TestAds {
                     NostrPrivateKey.generate().getPublicKey(),
                     null,
                     Instant.now().plusSeconds(60 * 5),
-                            21,Duration.ofSeconds(1)
+                    21,
+                    Duration.ofSeconds(1)
                 )
                 .await();
             client.publishBid(bid).await();
@@ -199,8 +198,14 @@ public class TestAds {
         {
             NostrKeyPair offererKeyPair = new NostrKeyPair(NostrPrivateKey.generate());
             NostrKeyPairSigner offererSigner = new NostrKeyPairSigner(offererKeyPair);
-            
-            Adspace adspace = new Adspace(appKey, appKey, AdAspectRatio.RATIO_16_1, AdPriceSlot.BTC1_000, List.of(AdMimeType.TEXT_PLAIN));
+
+            Adspace adspace = new Adspace(
+                appKey,
+                appKey,
+                AdAspectRatio.RATIO_16_1,
+                AdPriceSlot.BTC1_000,
+                List.of(AdMimeType.TEXT_PLAIN)
+            );
             RankedAdsQueue queue = new RankedAdsQueue(taxonomy, pool, penaltyStorage, new HashMap<>(), adspace);
             // no bid
             {
@@ -217,7 +222,7 @@ public class TestAds {
                 filter.withAuthor(advertiserKeyPair.getPublicKey());
 
                 System.out.println("Fetching bid with filter: " + filter);
-                List<GlobalRankedAd> bids = queue.fetchBids(List.of(filter),null).await();
+                List<GlobalRankedAd> bids = queue.fetchBids(List.of(filter), null).await();
                 assertTrue(bids.size() > 0);
             }
         }
@@ -254,7 +259,8 @@ public class TestAds {
                     NostrPrivateKey.generate().getPublicKey(),
                     null,
                     Instant.now().plusSeconds(60 * 5),
-                            21,Duration.ofSeconds(1)
+                    21,
+                    Duration.ofSeconds(1)
                 )
                 .await();
             System.out.println("Publishing bid: " + bid);
@@ -265,8 +271,14 @@ public class TestAds {
         {
             NostrKeyPair offererKeyPair = new NostrKeyPair(NostrPrivateKey.generate());
 
-            Adspace adspace=new Adspace(appKey,appKey,AdAspectRatio.RATIO_16_1,AdPriceSlot.BTC1_000,List.of(AdMimeType.TEXT_PLAIN));
-            RankedAdsQueue queue=new RankedAdsQueue(taxonomy,pool,penaltyStorage,new HashMap<>(),adspace);
+            Adspace adspace = new Adspace(
+                appKey,
+                appKey,
+                AdAspectRatio.RATIO_16_1,
+                AdPriceSlot.BTC1_000,
+                List.of(AdMimeType.TEXT_PLAIN)
+            );
+            RankedAdsQueue queue = new RankedAdsQueue(taxonomy, pool, penaltyStorage, new HashMap<>(), adspace);
             // find bid
             {
                 AdBidFilter filter = new AdBidFilter().withSizes(AdSize.HORIZONTAL_300x50);
@@ -311,7 +323,8 @@ public class TestAds {
                     NostrPrivateKey.generate().getPublicKey(),
                     null,
                     Instant.now().plusSeconds(60 * 5),
-                            21,Duration.ofSeconds(1)
+                    21,
+                    Duration.ofSeconds(1)
                 )
                 .await();
 
@@ -323,8 +336,14 @@ public class TestAds {
             NostrKeyPair offererKeyPair = new NostrKeyPair(NostrPrivateKey.generate());
             NostrKeyPairSigner offererSigner = new NostrKeyPairSigner(offererKeyPair);
 
-            Adspace adspace=new Adspace(appKey,appKey,AdAspectRatio.RATIO_16_1,AdPriceSlot.BTC1_000,List.of(AdMimeType.TEXT_PLAIN));
-            RankedAdsQueue queue=new RankedAdsQueue(taxonomy,pool,penaltyStorage,new HashMap<>(),adspace);
+            Adspace adspace = new Adspace(
+                appKey,
+                appKey,
+                AdAspectRatio.RATIO_16_1,
+                AdPriceSlot.BTC1_000,
+                List.of(AdMimeType.TEXT_PLAIN)
+            );
+            RankedAdsQueue queue = new RankedAdsQueue(taxonomy, pool, penaltyStorage, new HashMap<>(), adspace);
             // find bid
             {
                 AdBidFilter filter = new AdBidFilter()
@@ -344,7 +363,7 @@ public class TestAds {
                 filter.withAuthor(advertiserKeyPair.getPublicKey());
 
                 System.out.println("Fetching bid with filter: " + filter);
-                List<GlobalRankedAd> bids = queue.fetchBids(List.of(filter),null).await();
+                List<GlobalRankedAd> bids = queue.fetchBids(List.of(filter), null).await();
                 assertTrue(bids.size() == 0);
             }
         }
@@ -378,7 +397,8 @@ public class TestAds {
                 NostrPrivateKey.generate().getPublicKey(),
                 null,
                 Instant.now().plusSeconds(60 * 5),
-                        21,Duration.ofSeconds(1)
+                21,
+                Duration.ofSeconds(1)
             )
             .await();
 
@@ -388,11 +408,17 @@ public class TestAds {
         NostrKeyPair offererKeyPair = new NostrKeyPair(NostrPrivateKey.generate());
         NostrKeyPairSigner offererSigner = new NostrKeyPairSigner(offererKeyPair);
         PenaltyStorage penaltyStorage = new PenaltyStorage(NGEUtils.getPlatform().getDataStore("unit-tests-Ad", "penalty"));
-     
-        NostrPublicKey appKey=NostrPublicKey.fromBech32(APP_KEY);
 
-        Adspace adspace=new Adspace(appKey,appKey,AdAspectRatio.RATIO_16_1,AdPriceSlot.BTC1_000,List.of(AdMimeType.TEXT_PLAIN));
-        RankedAdsQueue queue=new RankedAdsQueue(taxonomy,pool,penaltyStorage,new HashMap<>(),adspace);
+        NostrPublicKey appKey = NostrPublicKey.fromBech32(APP_KEY);
+
+        Adspace adspace = new Adspace(
+            appKey,
+            appKey,
+            AdAspectRatio.RATIO_16_1,
+            AdPriceSlot.BTC1_000,
+            List.of(AdMimeType.TEXT_PLAIN)
+        );
+        RankedAdsQueue queue = new RankedAdsQueue(taxonomy, pool, penaltyStorage, new HashMap<>(), adspace);
 
         // should return no bid
         {
@@ -400,7 +426,7 @@ public class TestAds {
             filter.withAuthor(advertiserKeyPair.getPublicKey());
 
             System.out.println("Fetching bid with filter: " + filter);
-            List<GlobalRankedAd> bids = queue.fetchBids(List.of(filter),null).await();
+            List<GlobalRankedAd> bids = queue.fetchBids(List.of(filter), null).await();
             assertTrue(bids.size() == 0);
         }
 
@@ -410,7 +436,7 @@ public class TestAds {
             filter.withAuthor(advertiserKeyPair.getPublicKey());
 
             System.out.println("Fetching bid with filter: " + filter);
-            List<GlobalRankedAd> bids = queue.fetchBids(List.of(filter),null).await();
+            List<GlobalRankedAd> bids = queue.fetchBids(List.of(filter), null).await();
             assertTrue(bids.size() > 0);
         }
 
@@ -420,7 +446,7 @@ public class TestAds {
             filter.withAuthor(advertiserKeyPair.getPublicKey());
 
             System.out.println("Fetching bid with filter: " + filter);
-            List<GlobalRankedAd> bids = queue.fetchBids(List.of(filter),null).await();
+            List<GlobalRankedAd> bids = queue.fetchBids(List.of(filter), null).await();
             assertTrue(bids.size() > 0);
         }
     }
@@ -467,7 +493,8 @@ public class TestAds {
                 delegateKeyPair.getPublicKey(),
                 Map.of("nwc", nwc, "dailyBudget", 4000),
                 Instant.now().plusSeconds(60 * 5),
-                        21,Duration.ofSeconds(1)
+                21,
+                Duration.ofSeconds(1)
             )
             .await();
 
@@ -495,7 +522,8 @@ public class TestAds {
                     delegateKeyPair.getPublicKey(),
                     Map.of("nwc", nwc, "dailyBudget", 4000),
                     Instant.now().plusSeconds(60 * 5),
-                                21,Duration.ofSeconds(1)
+                    21,
+                    Duration.ofSeconds(1)
                 )
                 .await();
 
@@ -504,51 +532,66 @@ public class TestAds {
 
         PenaltyStorage penaltyStorage = new PenaltyStorage(NGEUtils.getPlatform().getDataStore("unit-tests-Ad", "penalty"));
 
-        Tracker dailyBudgetTracker = new Tracker(
-            NGEPlatform.get().getDataStore("unit-tests-Ad", "tracker")
+        Tracker dailyBudgetTracker = new Tracker(NGEPlatform.get().getDataStore("unit-tests-Ad", "tracker"));
+        DelegateService delegate = new DelegateService(
+            pool,
+            delegateSigner,
+            taxonomy,
+            null,
+            null,
+            penaltyStorage,
+            dailyBudgetTracker
         );
-        DelegateService delegate = new DelegateService(pool, delegateSigner, taxonomy, null, null, penaltyStorage,dailyBudgetTracker);
 
         delegate.listen(Instant.now().minusSeconds(60));
-
 
         NGEPlatform
             .get()
             .wrapPromise((res2, rej2) -> {
                 // simulate an ad space
-               
-                AdsDisplayClient offererClient=new AdsDisplayClient(pool,offererSigner,taxonomy,penaltyStorage,(neg, offer, reason) -> {
-                    
 
-                });
-                int width=256;
-                int height=64;
-                Adspace adspace=new Adspace(NostrPublicKey.fromBech32(APP_KEY),NostrPrivateKey.generate().getPublicKey(),AdAspectRatio.fromDimensions(width,height),AdPriceSlot.BTC2_000,List.of(AdMimeType.TEXT_PLAIN));
+                AdsDisplayClient offererClient = new AdsDisplayClient(
+                    pool,
+                    offererSigner,
+                    taxonomy,
+                    penaltyStorage,
+                    (neg, offer, reason) -> {}
+                );
+                int width = 256;
+                int height = 64;
+                Adspace adspace = new Adspace(
+                    NostrPublicKey.fromBech32(APP_KEY),
+                    NostrPrivateKey.generate().getPublicKey(),
+                    AdAspectRatio.fromDimensions(width, height),
+                    AdPriceSlot.BTC2_000,
+                    List.of(AdMimeType.TEXT_PLAIN)
+                );
                 offererClient.registerAdspace(adspace);
 
                 offererClient.loadNextAd(
                     adspace,
                     width,
                     height,
-                    (ad)->  NGEPlatform
-                        .get()
-                        .wrapPromise((res, rej) -> {
-                             
-                            res.accept(true);
-                        }),
+                    ad ->
+                        NGEPlatform
+                            .get()
+                            .wrapPromise((res, rej) -> {
+                                res.accept(true);
+                            }),
                     (f, b) -> {
                         return NGEPlatform
-                        .get()
-                        .wrapPromise((res, rej) -> {
-                            System.out.println("Showing bid: " + b);
-                            res.accept(true); // simulate showing the ad
-                        });
+                            .get()
+                            .wrapPromise((res, rej) -> {
+                                System.out.println("Showing bid: " + b);
+                                res.accept(true); // simulate showing the ad
+                            });
                     },
-                    (neg, offer, success, message)->{
-                                res2.accept(null);
+                    (neg, offer, success, message) -> {
+                        res2.accept(null);
                     }
-                ) ;
-            }).catchException(ex->{
+                );
+            })
+            .catchException(ex -> {
                 ex.printStackTrace();
             })
             .await();

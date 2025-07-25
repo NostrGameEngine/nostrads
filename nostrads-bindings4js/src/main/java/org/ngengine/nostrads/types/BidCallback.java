@@ -36,7 +36,6 @@ import org.teavm.jso.JSObject;
 
 @JSFunctor
 @FunctionalInterface
-
 public interface BidCallback extends JSObject {
     void accept(JSObject bidEvent, String error);
 }
