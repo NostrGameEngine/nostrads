@@ -1,6 +1,6 @@
 plugins {
     id 'application'
-    id 'org.graalvm.buildtools.native' version '0.10.6'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
     id "com.diffplug.spotless" version "7.0.2"  
 }
 
@@ -116,153 +116,14 @@ spotless {
 application {
     mainClass = "org.ngengine.nostrads.DelegateServer"
 }
-
-
-graalvmNative {
-    toolchainDetection = true
-    metadataRepository {
-        enabled = true
+ 
+ 
+shadowJar {
+    archiveBaseName = "${project.name}"
+    archiveVersion = "fat"
+    destinationDirectory = file("${project.projectDir}/dist/portable")
+    manifest {
+        attributes 'Main-Class': application.mainClass.get()
     }
-    binaries {
-        main {
-        
-            def buildName =  "${rootProject.name}";
-            imageName = buildName
-            def initAtRuntime = file("${project.projectDir}/graal.initialize-at-runtime.conf")
-                .text
-                .split("\\r?\\n")
-                .findAll { it && !it.startsWith('#') && !it.trim().isEmpty() }
-                .join(',')
-
-            mainClass = application.mainClass.get()
-                def arguments = [
-                '--report-unsupported-elements-at-runtime',
-                '--install-exit-handlers',
-                '-H:+ReportExceptionStackTraces',
-                '-H:+PrintClassInitialization',
-                '--initialize-at-run-time=' + initAtRuntime,
-                '--no-server',
-                '--enable-url-protocols=http,https,file',
-                '--link-at-build-time',
-                '-H:+UnlockExperimentalVMOptions',
-                '--enable-native-access=ALL-UNNAMED',
-                '-H:+StaticExecutableWithDynamicLibC',
-                '-march=compatibility',
-                '-Djava.awt.headless=true',
-                "-Djava.util.logging.config.file=release-logging.properties",
-                '-H:IncludeResources=.*',
-                "-H:IncludeResources=release-logging.properties",
-                "-H:Log=registerResource:3",
-                '-H:Name=' + buildName,
-                "-H:ConfigurationFileDirectories=${project.projectDir}/trace"
-            ]
-            
-            // Add G1 GC only if linux
-            if (org.gradle.internal.os.OperatingSystem.current().isLinux()) {
-                arguments.add('--gc=G1')
-            }
-            
-            buildArgs.addAll(arguments)
-            sharedLibrary = false       
-        }
-    }
+    mergeServiceFiles()
 }
-
-configurations { 
-    nativeImageCompileOnly {
-        canBeResolved = true
-    }
-}
-
-
-task traceNative(type: JavaExec) {
-    group = 'graalvm'
-    description = 'Trace reflection and resource usage'
-    mainClass =  application.mainClass.get()
-    classpath = sourceSets.main.runtimeClasspath
-    def jvmArgsList = [
-        "-agentlib:native-image-agent=config-merge-dir=${project.projectDir}/trace",
-        '-Djava.awt.headless=true'
-    ]
-    jvmArgsList.add("-Djava.util.logging.config.file=${project.projectDir}/logging.properties")
-
-    // add '-XstartOnFirstThread if macos
-    if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
-        jvmArgsList.add('-XstartOnFirstThread')
-    }
-    
-    jvmArgs = jvmArgsList
-
-    // app args
-    args = [
-        "--test"
-    ]
-
-    systemProperty 'java.awt.headless', 'false'
-    systemProperty 'testMode', 'true'
-    doFirst {
-        println "Tracing to: ${project.projectDir}/trace"
-        println "Run the application and exercise ALL features:"
-        println "- Load different asset types (textures, models, sounds)"
-        println "- Use UI components"
-        println "- Trigger network operations"
-        println "- Test different game states"
-        println "Then close the application normally."
-    }
-    doLast {
-        println "Tracing complete! Generated/updated files:"
-        fileTree("${project.projectDir}/trace").each { file ->
-            if (file.isFile()) {
-                println "  - ${file.name} (${file.length()} bytes)"
-            }
-        }
-    }
-}
-
-
-
-def getOsName(){
-    def osName = org.gradle.internal.os.OperatingSystem.current().getName().toLowerCase()
-
-    if (org.gradle.internal.os.OperatingSystem.current().isWindows()){
-        osName = "windows"
-    } else if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
-        osName = "macos"
-    } else if (org.gradle.internal.os.OperatingSystem.current().isLinux()) {
-        osName = "linux"
-    }
-
-    return osName
-}
-task buildNativeExecutable {
-    group = 'graalvm'
-    description = 'Build native executable for current platform'
-    dependsOn 'nativeCompile' 
-    doLast {
-        def buildDirNative = "${project.buildDir}/native/nativeCompile"
-        def executableName = graalvmNative.binaries.main.imageName.get()
-        if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
-            executableName += '.exe'
-        }
-        
-        def osName = getOsName()
-        def osArch = System.getProperty("os.arch").toLowerCase()
-        def buildName =  "${rootProject.name}-${project.version}-${osName}-${osArch}";
-
-        def distDir = file("${rootProject.projectDir}/dist/${buildName}.buildNative")
-        distDir.mkdirs()
-        
-        copy {
-            from buildDirNative
-            into distDir
-            exclude '**/reports/**'
-            exclude '**/*.report'
-            exclude '**/*.dmp'
-            exclude '**/*.log'
-        }
-        
-        println "Native executable built: ${buildDirNative}/${executableName}"
-        println "All native build files copied to: ${distDir}"
-    }
-}
-

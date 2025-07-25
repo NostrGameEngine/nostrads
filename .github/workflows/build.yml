@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write 
       id-token: write
       pages: write
@@ -77,11 +77,7 @@ jobs:
         name: build-artifacts
         path: dist
 
-    - name: Upload pages artifact
-      # if: github.event_name == 'release'
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: 'dist/javadoc/nostrads'
+ 
 
     # - name: Deploy to GitHub Pages
     #   if: github.event_name == 'release'  
@@ -90,7 +86,9 @@ jobs:
       
  
     - name: Build JS Client
-      run: ./gradlew --no-daemon :nostrads-js:packJsClient
+      run: |
+        npm install webpack webpack-cli buffer  path-browserify buffer  crypto-browserify  babel-loader @babel/core @babel/preset-env  @noble/ciphers @noble/curves @noble/hashes @scure/base
+        ./gradlew --no-daemon :nostrads-js:packJsClient
 
 
     - name: Prepare deploy folder
@@ -124,3 +122,46 @@ jobs:
         publish_dir: dist/deploy-demo
         publish_branch: demo
         force_orphan: true
+
+  build_delegate:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      
+    - name: Set up JDK 21
+      uses: actions/setup-java@v3
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: 'gradle'
+
+    - name: Build Delegate executable
+      run: |
+        java -version
+        ./gradlew shadowJar --no-daemon
+
+    - name: Build Docker image
+      working-directory: nostrads-delegate
+      run: |
+        IMAGE_NAME=ghcr.io/$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')/nostrads-delegate
+        if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+          VERSION=${GITHUB_REF#refs/tags/}
+        else
+          VERSION="latest"
+        fi
+        docker build -t $IMAGE_NAME:$VERSION .
+
+    - name: Login to GitHub Container Registry
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+    - name: Push Docker image
+      working-directory: nostrads-delegate
+      run: |
+        IMAGE_NAME=ghcr.io/$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')/nostrads-delegate
+        if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+          VERSION=${GITHUB_REF#refs/tags/}
+        else
+          VERSION="latest"
+        fi
+        docker push $IMAGE_NAME:$VERSION

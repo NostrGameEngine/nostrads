@@ -314,12 +314,12 @@ public class DelegateServer {
         }
 
         if (id == null) {
-            id = "nostrads-delegate";
+            id = "default";
         }
 
         args = processEnvironmentVariables(args, id);
 
-        boolean isTestMode = System.getenv().get("NOSTRADS_DELEGATE" + envName(id) + "_TEST_MODE") != null;
+        boolean isTestMode = System.getenv().get(envName(id) + "_TEST_MODE") != null;
         isTestMode = isTestMode || java.util.Arrays.asList(args).contains("--test");
         if (isTestMode) {
             System.out.println("Running in test mode.");
