@@ -78,7 +78,6 @@ public class AdsDisplayClient extends AbstractAdService {
      * Constructor for AdsDisplayClient.
      * @param pool the NostrPool to use for network operations
      * @param signer the NostrSigner to use for signing events
-     * @param appKey the public key of the app that is displaying ads
      * @param taxonomy the AdTaxonomy to use for categorizing ads (null to instantiate a default taxonomy)
      * @param penaltyStorage the PenaltyStorage to use for storing and retrieving POW penalties
      */
@@ -340,11 +339,10 @@ public class AdsDisplayClient extends AbstractAdService {
 
     /**
      * Open a negotiation for the given bid event manually.
-     * This is not needed when using {@link #loadNextAd(Adspace)}, but can be used to handle
+     * This is not needed when using loadNextAd, but can be used to handle
      * bids and offers manually by calling {@link OffererNegotiationHandler#makeOffer()} on the negotiation handler returned.
      *
      *
-     * @param event the signed nostr event representing the bid to open a negotiation for
      * @param listener the listener to notify when the negotiation is ready, can be null
      * @return an AsyncTask that will complete with the AdOffererNegotiationHandler instance
      * @throws IllegalStateException if the AdClient is closing

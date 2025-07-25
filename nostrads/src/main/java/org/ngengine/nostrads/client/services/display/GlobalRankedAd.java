@@ -189,7 +189,6 @@ public final class GlobalRankedAd {
      * Get the score for a specific adspace.
      * This score is based on how much the bid fits the specified adspace.
      *
-     * @param adspace the adspace to score against
      * @param width the width of the adspace in pixels
      * @param height the height of the adspace in pixels
      * @return the score for this bid in the context of the adspace
