@@ -73,7 +73,8 @@ public class DelegateServer {
         "wss://relay2.ngengine.org",
         "wss://relay.damus.io",
         "wss://relay.primal.net",
-        "wss://relay.nostr.band"
+        "wss://relay.nostr.band",
+        "wss://nostr.rblb.it"
     );
     private static final String TEST_RELAY = "wss://nostr.rblb.it";
 
