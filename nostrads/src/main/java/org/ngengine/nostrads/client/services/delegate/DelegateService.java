@@ -326,7 +326,8 @@ public class DelegateService extends AbstractAdService {
                 new NostrFilter()
                     .withTag("p", bidEvent.getDelegate().asHex())
                     .withKind(AdNegotiationEvent.KIND)
-                    .limit(1)
+                    .limit(0)
+                    .since(Instant.now())
                     .withTag("d", bidEvent.getId())
             );
 
