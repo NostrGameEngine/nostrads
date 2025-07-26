@@ -16,6 +16,7 @@
     justify-content: center;
     color: #E0D5FF;
     font-family: 'Electrolize', sans-serif;
+    box-sizing: content-box;
 }
 
 .nostr-adspace-description {

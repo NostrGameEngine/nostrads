@@ -21,6 +21,13 @@
     margin-bottom: 2rem;
 }
 
+@media (max-width: 1200px) {
+    #adForm section {
+        flex-direction: column;
+        
+    }
+}
+
 #adForm #previewContainer {
     max-width: 90vw;
     max-height: 800px;

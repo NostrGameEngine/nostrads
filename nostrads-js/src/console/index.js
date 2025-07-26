@@ -21,7 +21,7 @@ async function showAdlist(view, {relays, blossomEndpoints}) {
     const ads = await client.list();
     console.log("Loading ad list:", ads);
 
-    const renderAd = (adListEl, ad, isLive) => {
+    const render = (adListEl, ad, isLive) => {
         const tags = ad.tags || [];
         const size = tags.find(tag => tag[0] === 's')[1].split("x").map(s => parseInt(s, 10));
         const ratio = tags.find(tag => tag[0] === 'S')[1].split(":").map(s => parseFloat(s)).reduce((a, b) => a / b);
@@ -68,13 +68,13 @@ async function showAdlist(view, {relays, blossomEndpoints}) {
             }
         }
 
-        renderAd(adListEl, ad,true);
+        render(adListEl, ad,true);
     }
 
     const stoppedAdListEl = view.querySelector('#stoppedAdlist');
 
     for(const ad of savedAds) {
-        renderAd(stoppedAdListEl, ad, false);
+        render(stoppedAdListEl, ad, false);
     }
 
 }

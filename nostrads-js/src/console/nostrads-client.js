@@ -79,7 +79,7 @@ async function getInput(el, globalOptions) {
     adspaceInput.width = Math.floor(rect.width);
     adspaceInput.height = Math.floor(rect.height);
     if (!adspaceInput.width || !adspaceInput.height) {
-        throw new Error("Adspace element must have a visible width and height");
+        return null;
     }
 
     // get uid
@@ -129,6 +129,11 @@ async function prepareSpace(el, globalOptions, timeout) {
         requestAnimationFrame(async () => {
             try{
                 const adspaceInput = await getInput(el, globalOptions);
+                if(!adspaceInput) {
+                    resolve();
+                    return;
+                }
+
                 const props = {};
                 const exists = !!spacesList[adspaceInput.uid];
                 spacesList[adspaceInput.uid] = [el, adspaceInput, props];
@@ -178,6 +183,9 @@ async function prepareSpace(el, globalOptions, timeout) {
 
 async function releaseSpace(el, globalOptions) {
     const adspaceInput = await getInput(el, globalOptions);
+    if (adspaceInput == null) {
+        return;
+    }
     if (spacesList[adspaceInput.uid]) {
         delete spacesList[adspaceInput.uid];
     }

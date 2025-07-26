@@ -16,6 +16,7 @@
             justify-content: center;
             height: 22rem;
             flex-direction: column;
+            padding:1rem;
    
         }
 
@@ -38,7 +39,6 @@
             gap:2rem;
             flex-wrap: wrap;
             align-self: center;
-          
 
         }
         section{
@@ -60,12 +60,16 @@
             margin-top:0;
         }
 
-        button a {
+        button a, button a:hover, button a:visited {
             text-decoration: none;
+            color:var(--dark-purple);
         }
+
+
 
         p {
             max-width: 800px;
+            
         }
         ul {
             text-align: left;
@@ -78,7 +82,7 @@
 
         img.info {
             opacity:0.7;
-            max-width: 400px;
+            max-width: min(400px,90vw);
             margin:1rem;
             margin-left: auto;
             margin-right: auto;
@@ -97,19 +101,25 @@
         }
         section .nostr-adspace {
             margin:1rem;
-            margin-left: auto;
-            margin-right: auto;
+            align-self: center;
+          
         }
 
         .nostr-adspace {
             border:2px dotted var(--accent-purple);
             background:transparent;
+            align-self: center;
         }
 
         .nostr-adspace-icon:before{
             content:"demo ad";
             color:var(--accent-purple);
             opacity:1;
+        }
+
+        body > p {
+            text-align: center;
+            padding:1rem;
         }
 
         p a {
@@ -122,7 +132,7 @@
             text-overflow: ellipsis;
             overflow: auto;
             display: block;
-            max-width: 100%;
+            max-width: min(100%,80vw);
             padding:1rem;
         }
 
@@ -146,6 +156,9 @@
             color: var(--text-color);
             text-decoration: none;
         }
+        .only-pt{
+            display:none;
+        }
         @media (max-width: 1200px) {
             section {
                 width:100%;
@@ -157,6 +170,9 @@
                 display: none;
             
 
+            }
+            .only-pt {
+                display: block;
             }
 
             section {
@@ -221,9 +237,11 @@
       
         
     </content>
-    <div class="nostr-adspace" style="width: 720px; height: 90px;"></div>
+    <div class="nostr-adspace  no-pt" style="width: 720px; height: 90px;"></div>
+    <div class="nostr-adspace only-pt" style="width: 250px; height: 250px;  "></div>
+
     <p>
-        You can try the <a href="https://demo.nostr-ads.ngengine.org">[demo console]</a> and publish ads here for free.
+        You can try the <a href="https://demo.nostr-ads.ngengine.org/console">[demo console]</a> and publish ads here for free.
     
     </p>
     <content>

@@ -57,7 +57,8 @@
     gap: 3rem;
     padding:1rem;
     flex-wrap: nowrap;
- }
+    width: 100%;
+}
 
  @media (max-width: 1200px) {
     content {
