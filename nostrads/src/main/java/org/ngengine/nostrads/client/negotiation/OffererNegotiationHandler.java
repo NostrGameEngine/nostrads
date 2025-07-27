@@ -75,7 +75,6 @@ public class OffererNegotiationHandler extends NegotiationHandler {
     @Override
     protected void onEvent(AdNegotiationEvent event) {
         if (isClosed()) return;
-        super.onEvent(event);
         if (event instanceof AdAcceptOfferEvent) {
             // show ad and request payment
             AdAcceptOfferEvent acceptEvent = (AdAcceptOfferEvent) event;
@@ -136,19 +135,13 @@ public class OffererNegotiationHandler extends NegotiationHandler {
                 builder.withExpiration(Instant.now().plus(getBidEvent().getHoldTime()));
                 return builder.build(getSigner(), getBidEvent());
             })
-            .compose(sevent -> {
+            .then(sevent -> {
                 logger.fine("Sending offer event for bid: " + getBidEvent().getId() + ": " + sevent);
 
                 // initialize with this offer
-                return open(sevent)
-                    .compose(sub -> {
-                        if (isClosed()) return null;
-                        // publish the offer event and return it
-                        return getPool().publish(sevent);
-                    })
-                    .then(r -> {
-                        return null;
-                    });
+                open(sevent);
+                getPool().publish(sevent);
+                return null;
             });
     }
 

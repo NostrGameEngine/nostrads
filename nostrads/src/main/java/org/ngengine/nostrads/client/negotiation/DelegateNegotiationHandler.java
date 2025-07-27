@@ -87,7 +87,6 @@ public class DelegateNegotiationHandler extends NegotiationHandler {
     @Override
     protected void onEvent(AdNegotiationEvent event) {
         if (isClosed()) return;
-        super.onEvent(event);
         try {
             // the offerer is requesting us to pay
             if (event instanceof AdPaymentRequestEvent) {
@@ -178,17 +177,13 @@ public class DelegateNegotiationHandler extends NegotiationHandler {
                 }
 
                 // open negotiation with offer
-                return super
-                    .open(offer)
-                    .compose(sub -> {
-                        if (isClosed()) return null;
-                        // create accept event
-                        AdAcceptOfferEvent.AdAcceptOfferBuilder builder = new AdAcceptOfferEvent.AdAcceptOfferBuilder();
-                        builder.requestDifficulty(getCounterpartyPenalty());
-                        builder.withExpiration(Instant.now().plus(getBidEvent().getHoldTime()));
+                open(offer);
+                // create accept event
+                AdAcceptOfferEvent.AdAcceptOfferBuilder builder = new AdAcceptOfferEvent.AdAcceptOfferBuilder();
+                builder.requestDifficulty(getCounterpartyPenalty());
+                builder.withExpiration(Instant.now().plus(getBidEvent().getHoldTime()));
 
-                        return builder.build(getSigner(), offer, getLocalPenalty());
-                    });
+                return builder.build(getSigner(), offer, getLocalPenalty());
             })
             .then(sevent -> {
                 logger.fine("Sending accept offer event for bid: " + getBidEvent().getId() + ": " + sevent);

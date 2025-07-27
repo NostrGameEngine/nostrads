@@ -37,9 +37,8 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.ngengine.nostr4j.NostrFilter;
 import org.ngengine.nostr4j.NostrPool;
-import org.ngengine.nostr4j.NostrSubscription;
+import org.ngengine.nostr4j.event.SignedNostrEvent;
 import org.ngengine.nostr4j.signer.NostrSigner;
 import org.ngengine.nostrads.protocol.AdBidEvent;
 import org.ngengine.nostrads.protocol.negotiation.AdBailEvent;
@@ -75,11 +74,10 @@ public abstract class NegotiationHandler {
     private final List<Listener> listeners = new CopyOnWriteArrayList<>();
     private final Instant createAt = Instant.now();
 
-    private AdOfferEvent offer = null; // the offer we are negotiating on
+    private AdOfferEvent offer; // the offer we are negotiating on
     private int counterpartyPenalty = 0;
     private int localPenalty = 0;
 
-    private AsyncTask<NostrSubscription> sub;
     private volatile boolean closed = false;
     private volatile boolean completed = false;
     private volatile boolean accepted = false;
@@ -161,48 +159,8 @@ public abstract class NegotiationHandler {
         this.maxDiff = maxDiff;
     }
 
-    /**
-     * Open the negotiation and start listening for events.
-     * Note: once this method is called, make sure to call {@link #close()} when the negotiation is done to avoid memory leaks.
-     *
-     * This can be called only once. If the negotiation was closed, create a new one to reopen it.
-     * @param offer
-     * @return
-     */
-    protected AsyncTask<NostrSubscription> open(AdOfferEvent offer) {
-        if (closed) throw new IllegalStateException("Negotiation is closed, cannot open it again.");
+    public void open(@Nonnull AdOfferEvent offer) {
         this.offer = offer;
-        this.sub =
-            signer
-                .getPublicKey()
-                .compose(pubkey -> {
-                    if (closed) return null;
-
-                    // filter only events related to this negotiation and from the right counterparty
-                    NostrSubscription sub = pool.subscribe(
-                        new NostrFilter()
-                            .withKind(AdNegotiationEvent.KIND)
-                            .withTag("p", pubkey.asHex())
-                            .withAuthor(pubkey.equals(bid.getDelegate()) ? offer.getPubkey() : bid.getDelegate())
-                            .withTag("d", offer.getId())
-                    );
-
-                    sub.addEventListener((event, stored) -> {
-                        AdNegotiationEvent
-                            .cast(signer, event, offer)
-                            .then(ev -> {
-                                onEvent(ev);
-                                return null;
-                            });
-                    });
-
-                    return sub
-                        .open()
-                        .then(ack -> {
-                            return sub;
-                        });
-                });
-        return this.sub;
     }
 
     /**
@@ -212,10 +170,7 @@ public abstract class NegotiationHandler {
     public void close() {
         if (closed) return; // already closed
         closed = true;
-        if (sub != null) {
-            sub.then(NostrSubscription::close);
-            sub = null;
-        }
+
         for (Listener listener : listeners) {
             try {
                 listener.onClose(this, offer);
@@ -272,48 +227,58 @@ public abstract class NegotiationHandler {
             });
     }
 
-    protected void onEvent(AdNegotiationEvent event) {
-        if (closed) return;
-        if (!event.isValid()) return; // continue only if the event is valid
+    public final void onEvent(SignedNostrEvent ev) {
+        AdNegotiationEvent
+            .cast(signer, ev, offer)
+            .then(event -> {
+                try {
+                    if (event instanceof AdOfferEvent) return null;
 
-        try {
-            if (event instanceof AdPowNegotiationEvent) {
-                // ensure the counterparty if providing the requested proof of work (if any)
-                if (
-                    // offer is a special case, we won't ask for pow right away as the counterparty has no
-                    // idea we want pow from them, yet
-                    !(event instanceof AdOfferEvent) && event.checkPow(counterpartyPenalty)
-                ) {
-                    // if valid pow, we reset the counterparty penalty
-                    counterpartyPenalty = 0;
-                } else {
-                    throw new RuntimeException("Counterparty failed to provide valid proof of work");
-                }
+                    if (!event.isValid()) return null; // continue only if the event is valid
 
-                // handle penalty increase driven by the counterparty
-                AdPowNegotiationEvent powEvent = (AdPowNegotiationEvent) event;
-                if (powEvent.getRequestedDifficultyToRespond() > localPenalty) {
-                    int p = powEvent.getRequestedDifficultyToRespond();
-                    if (p < 0) p = 0;
-                    if (p > maxDiff) {
-                        throw new Exception("Too difficult");
+                    if (event instanceof AdPowNegotiationEvent) {
+                        // ensure the counterparty if providing the requested proof of work (if any)
+                        if (
+                            // offer is a special case, we won't ask for pow right away as the counterparty has no
+                            // idea we want pow from them, yet
+                            !(event instanceof AdOfferEvent) && event.checkPow(counterpartyPenalty)
+                        ) {
+                            // if valid pow, we reset the counterparty penalty
+                            counterpartyPenalty = 0;
+                        } else {
+                            throw new RuntimeException("Counterparty failed to provide valid proof of work");
+                        }
+
+                        // handle penalty increase driven by the counterparty
+                        AdPowNegotiationEvent powEvent = (AdPowNegotiationEvent) event;
+                        if (powEvent.getRequestedDifficultyToRespond() > localPenalty) {
+                            int p = powEvent.getRequestedDifficultyToRespond();
+                            if (p < 0) p = 0;
+                            if (p > maxDiff) {
+                                throw new Exception("Too difficult");
+                            }
+                            this.localPenalty = p;
+                        }
                     }
-                    this.localPenalty = p;
-                }
-            }
 
-            // handle bailing
-            if (event instanceof AdBailEvent) {
-                AdBailEvent bailEvent = (AdBailEvent) event;
-                for (Listener listener : listeners) {
-                    listener.onBail(this, bailEvent, true);
+                    // handle bailing
+                    if (event instanceof AdBailEvent) {
+                        AdBailEvent bailEvent = (AdBailEvent) event;
+                        for (Listener listener : listeners) {
+                            listener.onBail(this, bailEvent, true);
+                        }
+                        close();
+                    }
+
+                    onEvent(event);
+                } catch (Exception e) {
+                    throw new RuntimeException("Error processing event: " + event.getId(), e);
                 }
-                close();
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Error processing event: " + event.getId(), e);
-        }
+                return null;
+            });
     }
+
+    protected abstract void onEvent(AdNegotiationEvent ev);
 
     /**
      * Punish the counterparty by increasing the penalty amount.
@@ -375,7 +340,7 @@ public abstract class NegotiationHandler {
      * Get the offer that this negotiation is based on.
      * @return the AdOfferEvent that this negotiation is based on or null if the negotiation is not open yet
      */
-    protected AdOfferEvent getOffer() {
+    public AdOfferEvent getOffer() {
         return offer;
     }
 

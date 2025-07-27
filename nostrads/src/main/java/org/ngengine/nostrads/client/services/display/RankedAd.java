@@ -38,7 +38,7 @@ import java.util.List;
 import org.ngengine.nostrads.protocol.AdBidEvent;
 import org.ngengine.nostrads.protocol.types.AdTaxonomy;
 
-public final class GlobalRankedAd {
+public final class RankedAd {
 
     private static class DerankEvent {
 
@@ -52,7 +52,7 @@ public final class GlobalRankedAd {
     }
 
     private final AdBidEvent bid;
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(GlobalRankedAd.class.getName());
+    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(RankedAd.class.getName());
 
     private final List<DerankEvent> derankEvents = new ArrayList<>();
     private double penalty = 0;
@@ -64,7 +64,7 @@ public final class GlobalRankedAd {
     private static final double DERANK_ACCUMULATION_FACTOR = 0.9;
     private static final double HARD_DERANK_FACTOR = 0.00001; // Effectively puts ad at the end
 
-    GlobalRankedAd(AdBidEvent bid) {
+    RankedAd(AdBidEvent bid) {
         this.bid = bid;
     }
 

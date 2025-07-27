@@ -33,24 +33,29 @@ package org.ngengine.nostrads.client.services;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import java.io.Closeable;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.ngengine.nostr4j.NostrFilter;
 import org.ngengine.nostr4j.NostrPool;
 import org.ngengine.nostr4j.NostrSubscription;
 import org.ngengine.nostr4j.event.NostrEvent.TagValue;
+import org.ngengine.nostr4j.keypair.NostrPublicKey;
 import org.ngengine.nostr4j.signer.NostrSigner;
 import org.ngengine.nostrads.client.negotiation.NegotiationHandler;
 import org.ngengine.nostrads.client.services.delegate.DelegateService;
 import org.ngengine.nostrads.protocol.AdBidEvent;
 import org.ngengine.nostrads.protocol.negotiation.AdBailEvent;
 import org.ngengine.nostrads.protocol.negotiation.AdBailEvent.Reason;
+import org.ngengine.nostrads.protocol.negotiation.AdNegotiationEvent;
+import org.ngengine.nostrads.protocol.negotiation.AdOfferEvent;
 import org.ngengine.nostrads.protocol.types.AdTaxonomy;
 import org.ngengine.platform.AsyncExecutor;
 import org.ngengine.platform.NGEPlatform;
@@ -58,7 +63,7 @@ import org.ngengine.platform.NGEPlatform;
 /**
  * AbstractAdService is the base class for ad services that handle negotiations in the Ad network.
  */
-public abstract class AbstractAdService {
+public abstract class AbstractAdService implements Closeable {
 
     private static final Logger logger = Logger.getLogger(AbstractAdService.class.getName());
     private final NostrSigner signer;
@@ -87,37 +92,31 @@ public abstract class AbstractAdService {
         this.activeNegotiations = new CopyOnWriteArrayList<>();
 
         AsyncExecutor updater = NGEPlatform.get().newAsyncExecutor(this.getClass());
-        closers.add(
-            NGEPlatform
-                .get()
-                .registerFinalizer(
-                    this,
-                    () -> {
-                        updater.close();
-                        for (NegotiationHandler negotiation : activeNegotiations) {
-                            try {
-                                if (!negotiation.isCompleted()) {
-                                    negotiation
-                                        .bail(
-                                            (this instanceof DelegateService)
-                                                ? AdBailEvent.Reason.CANCELLED
-                                                : AdBailEvent.Reason.ACTION_INCOMPLETE
-                                        )
-                                        .then(r -> {
-                                            negotiation.close();
-                                            return null;
-                                        });
-                                } else {
-                                    negotiation.close();
-                                }
-                            } catch (Exception e) {
-                                logger.log(Level.WARNING, "Error closing negotiation: " + negotiation.getBidEvent().getId(), e);
-                            }
-                        }
-                        activeNegotiations.clear();
+
+        registerCloser(() -> {
+            updater.close();
+            for (NegotiationHandler negotiation : activeNegotiations) {
+                try {
+                    if (!negotiation.isCompleted()) {
+                        negotiation
+                            .bail(
+                                (this instanceof DelegateService)
+                                    ? AdBailEvent.Reason.CANCELLED
+                                    : AdBailEvent.Reason.ACTION_INCOMPLETE
+                            )
+                            .then(r -> {
+                                negotiation.close();
+                                return null;
+                            });
+                    } else {
+                        negotiation.close();
                     }
-                )
-        );
+                } catch (Exception e) {
+                    logger.log(Level.WARNING, "Error closing negotiation: " + negotiation.getBidEvent().getId(), e);
+                }
+            }
+            activeNegotiations.clear();
+        });
 
         NostrSubscription cancellationSub = getPool()
             .subscribe(new NostrFilter().withKind(5).withTag("k", String.valueOf(AdBidEvent.KIND)));
@@ -141,10 +140,61 @@ public abstract class AbstractAdService {
         registerCloser(() -> {
             cancellationSub.close();
         });
+
         cancellationSub
             .open()
             .catchException(ex -> {
                 logger.log(Level.SEVERE, "Error opening subscription for bids", ex);
+                this.close();
+            });
+
+        signer
+            .getPublicKey()
+            .then(pubkey -> {
+                if (closed) return null;
+
+                // filter only events related to this negotiation and from the right counterparty
+                NostrSubscription sub = pool.subscribe(
+                    new NostrFilter().withKind(AdNegotiationEvent.KIND).withTag("p", pubkey.asHex())
+                );
+
+                sub.addEventListener((event, stored) -> {
+                    String offerId = event.getFirstTag("d").get(0);
+                    if (offerId == null) return;
+
+                    NostrPublicKey author = event.getPubkey();
+                    for (NegotiationHandler negotiation : activeNegotiations) {
+                        AdOfferEvent offer = negotiation.getOffer();
+                        AdBidEvent bid = negotiation.getBidEvent();
+
+                        // if delegate side: the counterparty is the author of the offer
+                        // if offer side: the counterparty is the delegate
+                        NostrPublicKey counterparty = pubkey.equals(bid.getDelegate()) ? offer.getPubkey() : bid.getDelegate();
+
+                        if (offer.getId().equals(offerId) && counterparty.equals(author)) {
+                            // if the event is already handled, skip it
+                            if (negotiation.isClosed() || negotiation.isCompleted()) {
+                                return;
+                            }
+
+                            negotiation.onEvent(event);
+                            break;
+                        }
+                    }
+                });
+                registerCloser(() -> {
+                    sub.close();
+                });
+                sub
+                    .open()
+                    .catchException(ex -> {
+                        logger.log(Level.SEVERE, "Error opening subscription for negotiations", ex);
+                        this.close();
+                    });
+                return null;
+            })
+            .catchException(ex -> {
+                logger.log(Level.SEVERE, "Error getting public key for negotiation subscription", ex);
                 this.close();
             });
 
@@ -186,7 +236,7 @@ public abstract class AbstractAdService {
     /**
      * Close the service and clean up resources.
      */
-    public void close() {
+    public final void close() {
         closed = true;
         for (Runnable closer : closers) {
             try {
@@ -278,7 +328,18 @@ public abstract class AbstractAdService {
         if (closers == null) {
             throw new IllegalStateException("AdClient is closing");
         }
-        closers.add(closer);
+        AtomicBoolean closed = new AtomicBoolean(false);
+        Runnable wrapper = () -> {
+            if (closed.compareAndSet(false, true)) {
+                try {
+                    closer.run();
+                } catch (Exception e) {
+                    logger.log(Level.WARNING, "Error running closer", e);
+                }
+            }
+        };
+        NGEPlatform.get().registerFinalizer(this, wrapper);
+        closers.add(wrapper);
     }
 
     /**

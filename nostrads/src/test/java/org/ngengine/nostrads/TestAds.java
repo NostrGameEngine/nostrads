@@ -55,7 +55,7 @@ import org.ngengine.nostrads.client.services.delegate.DelegateService;
 import org.ngengine.nostrads.client.services.delegate.Tracker;
 import org.ngengine.nostrads.client.services.display.AdsDisplayClient;
 import org.ngengine.nostrads.client.services.display.Adspace;
-import org.ngengine.nostrads.client.services.display.GlobalRankedAd;
+import org.ngengine.nostrads.client.services.display.RankedAd;
 import org.ngengine.nostrads.client.services.display.RankedAdsQueue;
 import org.ngengine.nostrads.protocol.AdBidEvent;
 import org.ngengine.nostrads.protocol.AdBidFilter;
@@ -212,7 +212,7 @@ public class TestAds {
                 AdBidFilter filter = new AdBidFilter().onlyForApp(appKey).withSizes(AdSize.HORIZONTAL_480x60);
                 filter.withAuthor(advertiserKeyPair.getPublicKey());
 
-                List<GlobalRankedAd> bids = queue.fetchBids(List.of(filter), null).await();
+                List<RankedAd> bids = queue.fetchBids(List.of(filter), null).await();
                 assertEquals(bids.size(), 0);
             }
 
@@ -222,7 +222,7 @@ public class TestAds {
                 filter.withAuthor(advertiserKeyPair.getPublicKey());
 
                 System.out.println("Fetching bid with filter: " + filter);
-                List<GlobalRankedAd> bids = queue.fetchBids(List.of(filter), null).await();
+                List<RankedAd> bids = queue.fetchBids(List.of(filter), null).await();
                 assertTrue(bids.size() > 0);
             }
         }
@@ -285,7 +285,7 @@ public class TestAds {
                 filter.withAuthor(advertiserKeyPair.getPublicKey());
 
                 System.out.println("Fetching bid with filter: " + filter);
-                List<GlobalRankedAd> bids = queue.fetchBids(List.of(filter), null).await();
+                List<RankedAd> bids = queue.fetchBids(List.of(filter), null).await();
 
                 assertTrue(bids.size() > 0);
             }
@@ -352,7 +352,7 @@ public class TestAds {
                 filter.withAuthor(advertiserKeyPair.getPublicKey());
 
                 System.out.println("Fetching bid with filter: " + filter);
-                List<GlobalRankedAd> bids = queue.fetchBids(List.of(filter), null).await();
+                List<RankedAd> bids = queue.fetchBids(List.of(filter), null).await();
                 assertTrue(bids.size() > 0);
             }
             // find no bid
@@ -363,7 +363,7 @@ public class TestAds {
                 filter.withAuthor(advertiserKeyPair.getPublicKey());
 
                 System.out.println("Fetching bid with filter: " + filter);
-                List<GlobalRankedAd> bids = queue.fetchBids(List.of(filter), null).await();
+                List<RankedAd> bids = queue.fetchBids(List.of(filter), null).await();
                 assertTrue(bids.size() == 0);
             }
         }
@@ -426,7 +426,7 @@ public class TestAds {
             filter.withAuthor(advertiserKeyPair.getPublicKey());
 
             System.out.println("Fetching bid with filter: " + filter);
-            List<GlobalRankedAd> bids = queue.fetchBids(List.of(filter), null).await();
+            List<RankedAd> bids = queue.fetchBids(List.of(filter), null).await();
             assertTrue(bids.size() == 0);
         }
 
@@ -436,7 +436,7 @@ public class TestAds {
             filter.withAuthor(advertiserKeyPair.getPublicKey());
 
             System.out.println("Fetching bid with filter: " + filter);
-            List<GlobalRankedAd> bids = queue.fetchBids(List.of(filter), null).await();
+            List<RankedAd> bids = queue.fetchBids(List.of(filter), null).await();
             assertTrue(bids.size() > 0);
         }
 
@@ -446,7 +446,7 @@ public class TestAds {
             filter.withAuthor(advertiserKeyPair.getPublicKey());
 
             System.out.println("Fetching bid with filter: " + filter);
-            List<GlobalRankedAd> bids = queue.fetchBids(List.of(filter), null).await();
+            List<RankedAd> bids = queue.fetchBids(List.of(filter), null).await();
             assertTrue(bids.size() > 0);
         }
     }

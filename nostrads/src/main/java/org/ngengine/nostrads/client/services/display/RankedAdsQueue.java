@@ -61,11 +61,11 @@ public class RankedAdsQueue {
     private static final Duration updateInterval = Duration.ofSeconds(60);
     private static final double minBaseScore = 0.2; // Set your minimum rank threshold here
 
-    private final List<GlobalRankedAd> rankedBids;
+    private final List<RankedAd> rankedBids;
     private final PenaltyStorage penaltyStorage;
     private final NostrPool pool;
     private final AdTaxonomy taxonomy;
-    private final Map<String, GlobalRankedAd> bidsCache;
+    private final Map<String, RankedAd> bidsCache;
     private final Adspace adspace;
     final AtomicInteger refs = new AtomicInteger(1);
 
@@ -77,7 +77,7 @@ public class RankedAdsQueue {
         @Nonnull AdTaxonomy taxonomy,
         @Nonnull NostrPool pool,
         @Nonnull PenaltyStorage penaltyStorage,
-        @Nonnull Map<String, GlobalRankedAd> bidsCache,
+        @Nonnull Map<String, RankedAd> bidsCache,
         @Nonnull Adspace adspace
     ) {
         this.taxonomy = taxonomy;
@@ -114,10 +114,10 @@ public class RankedAdsQueue {
 
             Instant now = Instant.now();
 
-            List<GlobalRankedAd> mergedBids = new ArrayList<>();
+            List<RankedAd> mergedBids = new ArrayList<>();
 
             // merge bids with the existing ranked bids and remove expired in the same pass
-            for (GlobalRankedAd r : rankedBids) {
+            for (RankedAd r : rankedBids) {
                 AdBidEvent bid = r.get();
                 if (bid.getExpiration() != null && bid.getExpiration().isBefore(now)) {
                     logger.finer("Removing expired bid: " + bid.getId() + " with expiration: " + bid.getExpiration());
@@ -149,14 +149,14 @@ public class RankedAdsQueue {
                 logger.finer("Oldest bid time: " + oldestBidTime);
                 logger.finer("Currently newly loaded bids: " + rankedBids.size());
 
-                AsyncTask<List<GlobalRankedAd>> newOlderBids = fetchBids(
+                AsyncTask<List<RankedAd>> newOlderBids = fetchBids(
                     List.of(filter.clone().until(oldestBidTime.plusMillis(2100))),
                     null
                 );
 
-                List<List<GlobalRankedAd>> newBids;
+                List<List<RankedAd>> newBids;
                 if (rounds == 0) {
-                    AsyncTask<List<GlobalRankedAd>> newNewerBids = fetchBids(
+                    AsyncTask<List<RankedAd>> newNewerBids = fetchBids(
                         List.of(filter.clone().since(newestBidTime.minusMillis(2100))),
                         null
                     );
@@ -172,7 +172,7 @@ public class RankedAdsQueue {
                 // merge and find olderst and newest bid times
                 for (int i = 0; i < 2; i++) {
                     if (newBids.size() <= i) continue;
-                    for (GlobalRankedAd r : newBids.get(i)) {
+                    for (RankedAd r : newBids.get(i)) {
                         AdBidEvent bid = r.get();
 
                         try {
@@ -242,7 +242,7 @@ public class RankedAdsQueue {
         }
     }
 
-    public GlobalRankedAd get(int width, int height, Predicate<AdBidEvent> filter) {
+    public RankedAd get(int width, int height, Predicate<AdBidEvent> filter) {
         update();
 
         // get best bid
@@ -261,7 +261,7 @@ public class RankedAdsQueue {
             });
             logger.finer("payload Available bids per rank: " + rankedBids.size());
 
-            for (GlobalRankedAd rbid : rankedBids) {
+            for (RankedAd rbid : rankedBids) {
                 AdBidEvent bid = rbid.get();
                 try {
                     if (rbid.getBaseScore() < 0) {
@@ -295,7 +295,7 @@ public class RankedAdsQueue {
      * @throws IllegalStateException if the AdClient is closing
      *
      */
-    public AsyncTask<List<GlobalRankedAd>> fetchBids(List<NostrFilter> filters, NostrPoolFetchPolicy fetchPolicy) {
+    public AsyncTask<List<RankedAd>> fetchBids(List<NostrFilter> filters, NostrPoolFetchPolicy fetchPolicy) {
         // we will use the maximum limit from the filter to autogenerate a fetch policy if one is not provided
         int maxLimit = 0;
         for (NostrFilter filter : filters) {
@@ -304,7 +304,7 @@ public class RankedAdsQueue {
             }
         }
 
-        AsyncTask<List<GlobalRankedAd>> nn = pool
+        AsyncTask<List<RankedAd>> nn = pool
             .fetch(
                 filters,
                 fetchPolicy != null
@@ -313,7 +313,7 @@ public class RankedAdsQueue {
             )
             .then(events -> {
                 // turn all the events into bids
-                List<GlobalRankedAd> bids = new ArrayList<>();
+                List<RankedAd> bids = new ArrayList<>();
                 for (SignedNostrEvent event : events) {
                     try {
                         AdBidEvent bid = new AdBidEvent(taxonomy, event);
@@ -322,9 +322,9 @@ public class RankedAdsQueue {
                             continue; // skip invalid bids
                         }
                         String id = bid.getId();
-                        GlobalRankedAd rbid;
+                        RankedAd rbid;
                         synchronized (bidsCache) {
-                            rbid = bidsCache.computeIfAbsent(id, k -> new GlobalRankedAd(bid));
+                            rbid = bidsCache.computeIfAbsent(id, k -> new RankedAd(bid));
                         }
                         if (bids != null) {
                             bids.add(rbid);

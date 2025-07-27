@@ -68,7 +68,7 @@ public class AdsDisplayClient extends AbstractAdService {
 
     private static final Logger logger = Logger.getLogger(AdsDisplayClient.class.getName());
 
-    private final Map<String, GlobalRankedAd> bidsCache = new WeakHashMap<>();
+    private final Map<String, RankedAd> bidsCache = new WeakHashMap<>();
     private final Map<Adspace, RankedAdsQueue> queues = new ConcurrentHashMap<>();
     private final PenaltyStorage penaltyStorage;
     private int penaltyIncrease = 1; // default penalty increase for failed negotiations
@@ -251,7 +251,7 @@ public class AdsDisplayClient extends AbstractAdService {
                         if (queue == null) {
                             throw new IllegalStateException("Adspace not registered: " + adspace);
                         }
-                        GlobalRankedAd gad = queue.get(
+                        RankedAd gad = queue.get(
                             width,
                             height,
                             bid -> {

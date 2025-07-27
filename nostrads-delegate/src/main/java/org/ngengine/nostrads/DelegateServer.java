@@ -160,6 +160,7 @@ public class DelegateServer {
 
         NostrPool pool = new NostrPool();
         for (String relay : relays) {
+            System.out.println("Connecting to relay: " + relay);
             pool.connectRelay(new NostrRelay(relay));
         }
 
