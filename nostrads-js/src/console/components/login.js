@@ -3,6 +3,10 @@ import NostrAds from '../nostr-ads.js';
 
 
 async function login(view, { relays, blossomEndpoints }) {
+    if(typeof window.nostr === "undefined"){
+        alert("You need a Nostr browser extension (nip-07) such as Alby or nos2x, to use this page.");
+        return;
+    }
     
     const userEl = view.querySelector('#login');
     if (userEl != null) {
