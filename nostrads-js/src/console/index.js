@@ -12,7 +12,7 @@ async function showAdlist(view, {relays, blossomEndpoints}) {
     const client = NostrAds.newAdvertiserClient(relays, "nip07", blossomEndpoints);
     const savedAds = await getAds();
 
-    const adListEl = view.querySelector('#adlist');
+    const adListEl = view.querySelector('#ddlist');
     if (!adListEl) {
         console.error("No ad list element found");
         return;
@@ -31,7 +31,7 @@ async function showAdlist(view, {relays, blossomEndpoints}) {
         const height = Math.min(size[1], maxSize * ratio);
 
         const adEl = document.createElement('div');
-        adEl.className = 'nostr-adspace';
+        adEl.className = 'nostr-ddspace';
         adEl.style.width = `${width}px`;
         adEl.style.height = `${height}px`;
         console.log("Creating ad element with size:", width, height, "for ad:", ad);

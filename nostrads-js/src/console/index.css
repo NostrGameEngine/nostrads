@@ -2,7 +2,7 @@
     filter: grayscale(60%);
 }
 
-.adlist {
+.ddlist {
     display: block;
     flex-direction: row;
     gap: 2em;

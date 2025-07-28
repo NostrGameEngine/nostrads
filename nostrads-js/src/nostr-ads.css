@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Electrolize&display=swap');
-.nostr-adspace {
+.nostr-ddspace {
     border: 1px solid #C47AFF;
     background-color: #3E1E68;
     border-radius: 4px;
@@ -19,7 +19,7 @@
     box-sizing: content-box;
 }
 
-.nostr-adspace-description {
+.nostr-ddspace-description {
     font-size: 80%;
     position: absolute;
     overflow: hiden;
@@ -38,11 +38,11 @@
     max-height: 100%;
 }
 
-.nostr-adspace:hover .nostr-adspace-description {
+.nostr-ddspace:hover .nostr-ddspace-description {
     opacity: 1;
 }
 
-.nostr-adspace-call-to-action {
+.nostr-ddspace-call-to-action {
     font-size: 11px;
     position: absolute;
     bottom: 0px;
@@ -60,11 +60,11 @@
     opacity:0.7;
 }
 
-.nostr-adspace:hover .nostr-adspace-call-to-action {
+.nostr-ddspace:hover .nostr-ddspace-call-to-action {
     opacity:0;
 }
 
-.nostr-adspace-icon::before {
+.nostr-ddspace-icon::before {
     opacity: 0.2;
     font-family: sans-serif;
     font-weight: bolder;

@@ -66,10 +66,10 @@ function render(
 
 
 
-    let descriptionEl = el.querySelector('.nostr-adspace-description');
+    let descriptionEl = el.querySelector('.nostr-ddspace-description');
     if (!descriptionEl) {
         descriptionEl = document.createElement('div');
-        descriptionEl.className = 'nostr-adspace-description';
+        descriptionEl.className = 'nostr-ddspace-description';
         el.appendChild(descriptionEl);
     }
 
@@ -80,10 +80,10 @@ function render(
         descriptionEl.style.visibility = 'visible';
     }
 
-    let callToActionEl = el.querySelector('.nostr-adspace-call-to-action');
+    let callToActionEl = el.querySelector('.nostr-ddspace-call-to-action');
     if (!callToActionEl) {
         callToActionEl = document.createElement('div');
-        callToActionEl.className = 'nostr-adspace-call-to-action';
+        callToActionEl.className = 'nostr-ddspace-call-to-action';
         el.appendChild(callToActionEl);
     }
 
@@ -95,10 +95,10 @@ function render(
         callToActionEl.style.visibility = 'hidden';
     }
 
-    let nostrIconEl = el.querySelector('.nostr-adspace-icon');
+    let nostrIconEl = el.querySelector('.nostr-ddspace-icon');
     if (!nostrIconEl) {
         nostrIconEl = document.createElement('div');
-        nostrIconEl.className = 'nostr-adspace-icon';
+        nostrIconEl.className = 'nostr-ddspace-icon';
         el.appendChild(nostrIconEl);
     }
  

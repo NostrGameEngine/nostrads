@@ -40,14 +40,14 @@
 
         function addSpace() {
             const space = document.createElement('div');
-            space.className = 'nostr-adspace';
+            space.className = 'nostr-ddspace';
             document.body.appendChild(space);
         }
 
         function addSlot(slot) {
             console.log("Adding slot:", slot);
             const space = document.createElement('div');
-            space.className = 'nostr-adspace';
+            space.className = 'nostr-ddspace';
             space.style.width = slot.w + "px";
             space.style.height = slot.h + "px";
             space.title = slot.title;

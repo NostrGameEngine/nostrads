@@ -306,7 +306,7 @@ async function auto(globalOptions, element) {
         mutations.forEach(async (mutation) => {
             for (const node of mutation.addedNodes) {
                 try {
-                    if (node.nodeType !== Node.ELEMENT_NODE || !node.classList.contains('nostr-adspace')) continue;
+                    if (node.nodeType !== Node.ELEMENT_NODE || !node.classList.contains('nostr-ddspace')) continue;
                     await prepareSpace(node, globalOptions);
                 } catch (e) {
                     console.error("Error processing added node:", e);
@@ -314,7 +314,7 @@ async function auto(globalOptions, element) {
             }
             for (const node of mutation.removedNodes) {
                 try {
-                    if (node.nodeType !== Node.ELEMENT_NODE || !node.classList.contains('nostr-adspace')) continue;
+                    if (node.nodeType !== Node.ELEMENT_NODE || !node.classList.contains('nostr-ddspace')) continue;
                     releaseSpace(node, globalOptions);
                 } catch (e) {
                     console.error("Error processing removed node:", e);
@@ -328,7 +328,7 @@ async function auto(globalOptions, element) {
         subtree: true
     });
 
-    element.querySelectorAll('.nostr-adspace').forEach(async (el) => {
+    element.querySelectorAll('.nostr-ddspace').forEach(async (el) => {
         try {
             prepareSpace(el, globalOptions);
         } catch (e) {
