@@ -4,7 +4,6 @@ const { AdvertiserClientWrapper, DisplayClientWrapper, generatePrivateKey, getPu
 
 
 const newAdvertiserClient = function (relays, auth, blossomEndpoints) {
-    console.log("Creating new AdvertiserClient with relays:", relays, "and auth:", auth, "and blossomEndpoints:", blossomEndpoints);
     const ads = new AdvertiserClientWrapper(
         relays,
         auth,

@@ -90,7 +90,6 @@ async function getInput(el, globalOptions) {
     } else {
         uid = uid.trim();
     }
-    console.log("Adspace UID:", uid);
     adspaceInput.uid = uid;
 
     if (!adspaceInput.appKey) {
@@ -138,10 +137,8 @@ async function prepareSpace(el, globalOptions, timeout) {
                 const exists = !!spacesList[adspaceInput.uid];
                 spacesList[adspaceInput.uid] = [el, adspaceInput, props];
 
-                console.log("Add space to list", adspaceInput.uid, spacesList);
 
     
-                console.log("Loading ad for element:", el, "with input:", adspaceInput);
                 if (!exists){
                     // if new register it
                     await executor.invoke("registerAdspace", adspaceInput)
@@ -156,9 +153,7 @@ async function prepareSpace(el, globalOptions, timeout) {
                 const  [ad, offerId] = await executor.invoke("loadAd", adspaceInput)
                 props.offerId = offerId;
  
-                console.log("Rendering ad for element:", el, "with ad:", ad);
                 Renderer.renderEvent(el, ad, async () => {
-                    console.log("Ad rendered successfully for element:", el);
                     await executor.invoke("confirmAd", offerId);
                     timeout = 0;
                 }, async (error) => {
@@ -168,7 +163,6 @@ async function prepareSpace(el, globalOptions, timeout) {
                         await prepareSpace(el, globalOptions, timeout); // re-prepare the space
                     }, timeout);
                 });
-                console.log(ad);
                 resolve();
             } catch (e) {
                 console.error("Error preparing ad space for element:", el, e);
@@ -189,7 +183,6 @@ async function releaseSpace(el, globalOptions) {
     if (spacesList[adspaceInput.uid]) {
         delete spacesList[adspaceInput.uid];
     }
-    console.log("Removed space from list", adspaceInput.uid, spacesList);
 
 }
 
@@ -204,31 +197,12 @@ async function onPing(){
 }
 
 async function onInvalidatedAd(offerId, globalOptions ){
-    // const entries = Object.entries(spacesList);
-    // for( let i = 0; i < entries.leng/th; i++){
-        // const [uid, [el, adspaceInput, props]] = entries[i];
-        // if (props.offerId === offerId) {
-        //     console.log("Invalidating ad for element:", el, "with UID:", uid, "and offerId:", offerId);
-        //     await prepareSpace(el, globalOptions);
-        //     break;
-        // }
-        // /c
-    // }
-    // const space = spacesList[uid];
-    // if(space){
-    //     const [el, adspaceInput, props] = space;
-    //     console.log("Invalidating ad for element:", el, "with UID:", uid);
-    //     await prepareSpace(el, globalOptions);
-    // }
+
     for (const [uid, [el, adspaceInput, props]] of Object.entries(spacesList)) {
-        console.log("Checking adspace with UID:", uid, "and props:", props);
         if (props.offerId === offerId) {
-            console.log("Invalidating ad for element:", el, "with UID:", uid, "and offerId:", offerId);
             await prepareSpace(el, globalOptions);
             break;
-        } else{
-            console.log("Skipping adspace with UID:", uid, "as it does not match offerId:", offerId);
-        }
+        } 
     }
 
 
@@ -290,14 +264,11 @@ async function auto(globalOptions, element) {
 
     if(initialize){
         executor.registerCallback("invalidateAd", (uid) => {
-            console.log("Ad invalidated:", uid);
             onInvalidatedAd(uid, globalOptions);
         });
         executor.registerCallback("ping", () => {
-            console.log("Ping received");
             onPing();
         });
-        console.log("Initializing display client with relays:", globalOptions.relays, "and auth:", globalOptions.auth);
         await executor.invoke("initDisplay", globalOptions);
      }
 

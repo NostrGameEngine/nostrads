@@ -15,11 +15,8 @@ const loop = async () => {
         executor.triggerCallback("ping");
         v[2] = setTimeout(() => { // if no ping response after 5 seconds release the adspace
             if (v[1] === 0) {
-                console.log("No activity for adspace:", v[0].uid, "unregistering it.");
                 displayClient.unregisterAdspace(v[0]);
                 delete managedSpaces[k];
-            } else {
-                console.log("Adspace still active:", v[0].uid);
             }
         }, 5000);
 
@@ -45,9 +42,7 @@ executor.bindToClient();
 
 // utility methods
 executor.registerMethod('generatePrivateKey', () => {
-    console.log("Creating new priv key");
     const v = NostrAds.generatePrivateKey();
-    console.log("New priv Key created:", v);
     return v;
 });
 
@@ -65,21 +60,10 @@ executor.registerMethod('initDisplay', async (globalOptions) => {
             auth = NostrAds.generatePrivateKey();
         }
         displayClient = await NostrAds.newDisplayClient(relays, auth, (offerId)=>{
-            console.log("Ad was invalidated:", offerId);
             executor.triggerCallback("invalidateAd", offerId);
             delete offerCallbacks[offerId]; // remove the callback for this offer
-            // for (const [uid, space] of Object.entries(managedSpaces)) {
-            //     if ( space[4] === offerId) {
-            //         console.log("Adspace invalidated:", uid);
-            //         executor.triggerCallback("invalidateAd", uid);
-            //         delete managedSpaces[uid]; // remove the adspace from managed spaces
-            //     }
-            // }
         });
-        console.log("Display client initialized with relays:", relays );
-    } else {
-        console.log("Display client already initialized, relays:", relays );
-    }
+    } 
 });
 
 
@@ -112,8 +96,6 @@ executor.registerMethod('loadAd', async (adspaceInput) => {
                  offerCallbacks[offerId] = (v) => {
                      delete offerCallbacks[offerId]; // remove the callback after use
                      if (v) {
-                         console.log("Ad was confirmed:", v);
-                         console.log(successCallback, errorCallback);
                          successCallback();
                      } else {
                          console.error("Ad was cancelled or failed to load.");
