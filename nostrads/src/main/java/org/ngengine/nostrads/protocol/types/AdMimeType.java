@@ -32,19 +32,25 @@
 package org.ngengine.nostrads.protocol.types;
 
 public enum AdMimeType {
-    IMAGE_JPEG("image/jpeg"),
-    IMAGE_PNG("image/png"),
-    IMAGE_GIF("image/gif"),
-    TEXT_PLAIN("text/plain");
+    IMAGE_JPEG("image/jpeg", "jpg", "jpeg"),
+    IMAGE_PNG("image/png", "png"),
+    IMAGE_GIF("image/gif", "gif"),
+    TEXT_PLAIN("text/plain", "txt");
 
     private final String value;
+    private final String[] extensions;
 
-    AdMimeType(String value) {
+    AdMimeType(String value, String... exts) {
         this.value = value;
+        this.extensions = exts;
     }
 
     public String toString() {
         return value;
+    }
+
+    public String[] getExtensions() {
+        return extensions;
     }
 
     public static AdMimeType fromString(String value) {

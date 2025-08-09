@@ -5,7 +5,7 @@
     border-radius: 4px;
     display: inline-flex;
     text-align: center;
-    min-width: 260px;
+    min-width: 100px;
     min-height: 60px;
     position: relative;
     box-sizing: border-box;

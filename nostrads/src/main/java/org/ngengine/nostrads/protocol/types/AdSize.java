@@ -36,32 +36,18 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 public enum AdSize {
-    // Standard horizontal
     HORIZONTAL_480x60("480x60", AdAspectRatio.RATIO_8_1),
     HORIZONTAL_720x90("720x90", AdAspectRatio.RATIO_8_1),
-    HORIZONTAL_300x50("300x50", AdAspectRatio.RATIO_6_1),
+    // --
+    HORIZONTAL_512x128("512x128", AdAspectRatio.RATIO_4_1),
+    HORIZONTAL_512x256("512x256", AdAspectRatio.RATIO_2_1),
+    // --
+    VERTICAL_256x512("256x512", AdAspectRatio.RATIO_1_2),
+    VERTICAL_128x512("128x512", AdAspectRatio.RATIO_1_4),  
+    // --
+    RECTANGLE_256x256("256x256", AdAspectRatio.RATIO_1_1),
+;
 
-    // Standard vertical
-    VERTICAL_300x600("300x600", AdAspectRatio.RATIO_1_2),
-    VERTICAL_160x600("160x600", AdAspectRatio.RATIO_1_3),
-    VERTICAL_120x600("120x600", AdAspectRatio.RATIO_1_5),
-
-    // Standard rectangles
-    RECTANGLE_250x250("250x250", AdAspectRatio.RATIO_1_1),
-    RECTANGLE_200x200("200x200", AdAspectRatio.RATIO_1_1),
-
-    // Immersive
-    IMMERSIVE_2048x2048("2048x2048", AdAspectRatio.RATIO_1_1),
-    IMMERSIVE_1024x1024("1024x1024", AdAspectRatio.RATIO_1_1),
-
-    IMMERSIVE_1024x512("1024x512", AdAspectRatio.RATIO_2_1),
-    IMMERSIVE_512x1024("512x1024", AdAspectRatio.RATIO_1_2),
-
-    IMMERSIVE_1280x720("1280x720", AdAspectRatio.RATIO_16_9),
-    IMMERSIVE_1920x1080("1920x1080", AdAspectRatio.RATIO_16_9),
-
-    IMMERSIVE_512x128("512x128", AdAspectRatio.RATIO_4_1),
-    IMMERSIVE_1920x120("1920x120", AdAspectRatio.RATIO_16_1);
 
     private final String dimensions;
     private final AdAspectRatio aspectRatio;

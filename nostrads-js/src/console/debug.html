@@ -20,24 +20,14 @@
 
     <script>
         const slots = [
-            { w: 480, h: 60, title: "Banner 480x60" },
-            { w: 720, h: 90, title: "Leaderboard 720x90" },
-            { w: 300, h: 50, title: "Mobile Leaderboard 300x50" },
-            { w: 300, h: 600, title: "Half Page 300x600" },
-            { w: 160, h: 600, title: "Wide Skyscraper 160x600" },
-            { w: 120, h: 600, title: "Skyscraper 120x600" },
-            { w: 250, h: 250, title: "Square 250x250" },
-            { w: 200, h: 200, title: "Small Square 200x200" },
-            { w: 2048, h: 2048, title: "High-quality Panel 2048x2048" },
-            { w: 1024, h: 1024, title: "Square Sign 1024x1024" },
-            { w: 1024, h: 512, title: "Billboard Wide 1024x512" },
-            { w: 512, h: 1024, title: "Billboard Tall 512x1024" },
-            { w: 1280, h: 720, title: "Billboard HD 1280x720" },
-            { w: 1920, h: 1080, title: "Billboard Full HD 1920x1080" },
-            { w: 512, h: 128, title: "Narrow Strip 512x128" },
-            { w: 1920, h: 120, title: "Wide Strip 1920x120" }
+            { w: 480, h: 60, title: "Banner (8:1) 480x60" },
+            { w: 720, h: 90, title: "Leaderboard (8:1) 720x90" },
+            { w: 512, h: 128, title: "Horizontal Banner (4:1) 512x128" },
+            { w: 512, h: 256, title: "Horizontal Narrow Banner (2:1) 512x256" },
+            { w: 256, h: 512, title: "Vertical Banner (1:2) 256x512" },
+            { w: 128, h: 512, title: "Vertical Narrow Banner (1:4) 128x512" },
+            { w: 256, h: 256, title: "Square (1:1) 256x256" }
         ];
-
         function addSpace() {
             const space = document.createElement('div');
             space.className = 'nostr-ddspace';

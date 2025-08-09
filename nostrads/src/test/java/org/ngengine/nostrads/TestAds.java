@@ -108,7 +108,7 @@ public class TestAds {
                 null,
                 AdMimeType.TEXT_PLAIN,
                 "This is a test bid",
-                AdSize.HORIZONTAL_300x50,
+                AdSize.HORIZONTAL_480x60,
                 "https://ngengine.org",
                 "Click here!",
                 AdActionType.VIEW,
@@ -148,9 +148,9 @@ public class TestAds {
         assertTrue(dTagValue.startsWith("nostr4j"));
         assertEquals("639", tags.get(1).get(1));
         assertEquals("text/plain", tags.get(2).get(1));
-        assertEquals("300x50", tags.get(3).get(1));
+        assertEquals("480x60", tags.get(3).get(1));
         assertEquals("view", tags.get(4).get(1));
-        assertEquals("6:1", tags.get(5).get(1));
+        assertEquals("8:1", tags.get(5).get(1));
         assertEquals("BTC1_000", tags.get(6).get(1));
         assertNotNull(expirationTagValue);
         assertNotNull(data.get("created_at"));
@@ -179,7 +179,7 @@ public class TestAds {
                     List.of(appKey),
                     AdMimeType.TEXT_PLAIN,
                     "This is a test bid",
-                    AdSize.HORIZONTAL_300x50,
+                    AdSize.HORIZONTAL_480x60,
                     "https://ngengine.org",
                     "Click here!",
                     AdActionType.VIEW,
@@ -202,14 +202,14 @@ public class TestAds {
             Adspace adspace = new Adspace(
                 appKey,
                 appKey,
-                AdAspectRatio.RATIO_16_1,
+                AdAspectRatio.RATIO_8_1,
                 AdPriceSlot.BTC1_000,
                 List.of(AdMimeType.TEXT_PLAIN)
             );
             RankedAdsQueue queue = new RankedAdsQueue(taxonomy, pool, penaltyStorage, new HashMap<>(), adspace);
             // no bid
             {
-                AdBidFilter filter = new AdBidFilter().onlyForApp(appKey).withSizes(AdSize.HORIZONTAL_480x60);
+                AdBidFilter filter = new AdBidFilter().onlyForApp(appKey).withSizes(AdSize.HORIZONTAL_720x90);
                 filter.withAuthor(advertiserKeyPair.getPublicKey());
 
                 List<RankedAd> bids = queue.fetchBids(List.of(filter), null).await();
@@ -218,7 +218,7 @@ public class TestAds {
 
             // find bid
             {
-                AdBidFilter filter = new AdBidFilter().onlyForApp(appKey).withSizes(AdSize.HORIZONTAL_300x50);
+                AdBidFilter filter = new AdBidFilter().onlyForApp(appKey).withSizes(AdSize.HORIZONTAL_480x60);
                 filter.withAuthor(advertiserKeyPair.getPublicKey());
 
                 System.out.println("Fetching bid with filter: " + filter);
@@ -250,7 +250,7 @@ public class TestAds {
                     null,
                     AdMimeType.TEXT_PLAIN,
                     "This is a test bid",
-                    AdSize.HORIZONTAL_300x50,
+                    AdSize.HORIZONTAL_480x60,
                     "https://ngengine.org",
                     "Click here!",
                     AdActionType.VIEW,
@@ -274,14 +274,14 @@ public class TestAds {
             Adspace adspace = new Adspace(
                 appKey,
                 appKey,
-                AdAspectRatio.RATIO_16_1,
+                AdAspectRatio.RATIO_8_1,
                 AdPriceSlot.BTC1_000,
                 List.of(AdMimeType.TEXT_PLAIN)
             );
             RankedAdsQueue queue = new RankedAdsQueue(taxonomy, pool, penaltyStorage, new HashMap<>(), adspace);
             // find bid
             {
-                AdBidFilter filter = new AdBidFilter().withSizes(AdSize.HORIZONTAL_300x50);
+                AdBidFilter filter = new AdBidFilter().withSizes(AdSize.HORIZONTAL_480x60);
                 filter.withAuthor(advertiserKeyPair.getPublicKey());
 
                 System.out.println("Fetching bid with filter: " + filter);
@@ -314,7 +314,7 @@ public class TestAds {
                     null,
                     AdMimeType.TEXT_PLAIN,
                     "This is a test bid",
-                    AdSize.HORIZONTAL_300x50,
+                    AdSize.HORIZONTAL_480x60,
                     "https://ngengine.org",
                     "Click here!",
                     AdActionType.VIEW,
@@ -339,7 +339,7 @@ public class TestAds {
             Adspace adspace = new Adspace(
                 appKey,
                 appKey,
-                AdAspectRatio.RATIO_16_1,
+                AdAspectRatio.RATIO_8_1,
                 AdPriceSlot.BTC1_000,
                 List.of(AdMimeType.TEXT_PLAIN)
             );
@@ -348,7 +348,7 @@ public class TestAds {
             {
                 AdBidFilter filter = new AdBidFilter()
                     .withCategories(taxonomy.getByPath("Technology & Computing/Virtual Reality"))
-                    .withSizes(AdSize.HORIZONTAL_300x50);
+                    .withSizes(AdSize.HORIZONTAL_480x60);
                 filter.withAuthor(advertiserKeyPair.getPublicKey());
 
                 System.out.println("Fetching bid with filter: " + filter);
@@ -359,7 +359,7 @@ public class TestAds {
             {
                 AdBidFilter filter = new AdBidFilter()
                     .withCategories(taxonomy.getByPath("Automotive"))
-                    .withSizes(AdSize.HORIZONTAL_300x50);
+                    .withSizes(AdSize.HORIZONTAL_480x60);
                 filter.withAuthor(advertiserKeyPair.getPublicKey());
 
                 System.out.println("Fetching bid with filter: " + filter);
@@ -388,7 +388,7 @@ public class TestAds {
                 null,
                 AdMimeType.TEXT_PLAIN,
                 "This is a test bid",
-                AdSize.HORIZONTAL_300x50,
+                AdSize.HORIZONTAL_480x60,
                 "https://ngengine.org",
                 "Click here!",
                 AdActionType.VIEW,
@@ -414,7 +414,7 @@ public class TestAds {
         Adspace adspace = new Adspace(
             appKey,
             appKey,
-            AdAspectRatio.RATIO_16_1,
+            AdAspectRatio.RATIO_8_1,
             AdPriceSlot.BTC1_000,
             List.of(AdMimeType.TEXT_PLAIN)
         );
@@ -422,7 +422,7 @@ public class TestAds {
 
         // should return no bid
         {
-            AdBidFilter filter = new AdBidFilter().withSizes(AdSize.HORIZONTAL_300x50).withPriceSlot(AdPriceSlot.BTC10_000);
+            AdBidFilter filter = new AdBidFilter().withSizes(AdSize.HORIZONTAL_480x60).withPriceSlot(AdPriceSlot.BTC10_000);
             filter.withAuthor(advertiserKeyPair.getPublicKey());
 
             System.out.println("Fetching bid with filter: " + filter);
@@ -432,7 +432,7 @@ public class TestAds {
 
         // should return bid
         {
-            AdBidFilter filter = new AdBidFilter().withSizes(AdSize.HORIZONTAL_300x50).withPriceSlot(AdPriceSlot.BTC2_000);
+            AdBidFilter filter = new AdBidFilter().withSizes(AdSize.HORIZONTAL_480x60).withPriceSlot(AdPriceSlot.BTC2_000);
             filter.withAuthor(advertiserKeyPair.getPublicKey());
 
             System.out.println("Fetching bid with filter: " + filter);
@@ -442,7 +442,7 @@ public class TestAds {
 
         // should return bid
         {
-            AdBidFilter filter = new AdBidFilter().withSizes(AdSize.HORIZONTAL_300x50).withPriceSlot(AdPriceSlot.BTC1_000);
+            AdBidFilter filter = new AdBidFilter().withSizes(AdSize.HORIZONTAL_480x60).withPriceSlot(AdPriceSlot.BTC1_000);
             filter.withAuthor(advertiserKeyPair.getPublicKey());
 
             System.out.println("Fetching bid with filter: " + filter);
@@ -484,7 +484,7 @@ public class TestAds {
                 null,
                 AdMimeType.TEXT_PLAIN,
                 "This is a test bid",
-                AdSize.HORIZONTAL_300x50,
+                AdSize.HORIZONTAL_480x60,
                 "https://ngengine.org",
                 "Click here!",
                 AdActionType.VIEW,
@@ -513,7 +513,7 @@ public class TestAds {
                     null,
                     AdMimeType.TEXT_PLAIN,
                     "This is a test bid",
-                    AdSize.HORIZONTAL_300x50,
+                    AdSize.HORIZONTAL_480x60,
                     "https://ngengine.org",
                     "Click here!",
                     AdActionType.VIEW,
@@ -530,9 +530,10 @@ public class TestAds {
         System.out.println("Publishing bid: " + bid);
         advClient.publishBid(bid).await();
 
-        PenaltyStorage penaltyStorage = new PenaltyStorage(NGEUtils.getPlatform().getDataStore("unit-tests-Ad", "penalty"));
+        PenaltyStorage penaltyStorage = new PenaltyStorage(NGEUtils.getPlatform().getDataStore("unit-tests-Ad"
+                + Math.random(), "penalty"));
 
-        Tracker dailyBudgetTracker = new Tracker(NGEPlatform.get().getDataStore("unit-tests-Ad", "tracker"));
+        Tracker dailyBudgetTracker = new Tracker(NGEPlatform.get().getDataStore("unit-tests-Ad"+Math.random(), "tracker"));
         DelegateService delegate = new DelegateService(
             pool,
             delegateSigner,
@@ -543,8 +544,7 @@ public class TestAds {
             dailyBudgetTracker
         );
 
-        delegate.listen(Instant.now().minusSeconds(60));
-
+        delegate.listen(Instant.now().minusSeconds(160));
         NGEPlatform
             .get()
             .wrapPromise((res2, rej2) -> {
@@ -557,8 +557,8 @@ public class TestAds {
                     penaltyStorage,
                     (neg, offer, reason) -> {}
                 );
-                int width = 256;
-                int height = 64;
+                int width = 480;
+                int height = 60;
                 Adspace adspace = new Adspace(
                     NostrPublicKey.fromBech32(APP_KEY),
                     NostrPrivateKey.generate().getPublicKey(),
