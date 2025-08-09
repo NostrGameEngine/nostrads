@@ -33,9 +33,11 @@ package org.ngengine.nostrads.client.services.display;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import org.ngengine.nostrads.protocol.AdBidEvent;
+import org.ngengine.nostrads.protocol.types.AdSize;
 import org.ngengine.nostrads.protocol.types.AdTaxonomy;
 
 public final class RankedAd {
@@ -54,7 +56,7 @@ public final class RankedAd {
     private final AdBidEvent bid;
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(RankedAd.class.getName());
 
-    private final List<DerankEvent> derankEvents = new ArrayList<>();
+    private final List<DerankEvent> derankEvents = new CopyOnWriteArrayList<>();
     private double penalty = 0;
 
     // Deranking configuration
@@ -246,9 +248,11 @@ public final class RankedAd {
     // }
 
     public double getContextualScore(Adspace space, int width, int height) {
+        AdSize size = bid.getDimensions();
+        if(size==null)return -1; // Invalid size
         // 0) Compute scaling on each axis (±20% allowed)
-        int bidW = bid.getDimensions().getWidth();
-        int bidH = bid.getDimensions().getHeight();
+        int bidW = size.getWidth();
+        int bidH = size.getHeight();
         double scaleX = (double) width / bidW;
         double scaleY = (double) height / bidH;
 
