@@ -197,6 +197,15 @@ public class Adspace {
         return this;
     }
 
+
+    public void setCategories(@Nullable List<AdTaxonomy.Term> categories) {
+        this.categories = categories;
+    }
+
+    public void setLanguages(@Nullable List<String> languages) {
+        this.languages = languages;
+    }
+
     public Adspace withLanguage(@Nonnull String language) {
         if (languages == null) {
             languages = List.of(language);
