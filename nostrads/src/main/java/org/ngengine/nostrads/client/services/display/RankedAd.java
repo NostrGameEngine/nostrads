@@ -35,7 +35,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-
 import org.ngengine.nostrads.protocol.AdBidEvent;
 import org.ngengine.nostrads.protocol.types.AdSize;
 import org.ngengine.nostrads.protocol.types.AdTaxonomy;
@@ -249,7 +248,7 @@ public final class RankedAd {
 
     public double getContextualScore(Adspace space, int width, int height) {
         AdSize size = bid.getDimensions();
-        if(size==null)return -1; // Invalid size
+        if (size == null) return -1; // Invalid size
         // 0) Compute scaling on each axis (±20% allowed)
         int bidW = size.getWidth();
         int bidH = size.getHeight();

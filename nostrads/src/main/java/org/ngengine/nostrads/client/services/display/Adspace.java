@@ -197,7 +197,6 @@ public class Adspace {
         return this;
     }
 
-
     public void setCategories(@Nullable List<AdTaxonomy.Term> categories) {
         this.categories = categories;
     }

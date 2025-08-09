@@ -530,10 +530,11 @@ public class TestAds {
         System.out.println("Publishing bid: " + bid);
         advClient.publishBid(bid).await();
 
-        PenaltyStorage penaltyStorage = new PenaltyStorage(NGEUtils.getPlatform().getDataStore("unit-tests-Ad"
-                + Math.random(), "penalty"));
+        PenaltyStorage penaltyStorage = new PenaltyStorage(
+            NGEUtils.getPlatform().getDataStore("unit-tests-Ad" + Math.random(), "penalty")
+        );
 
-        Tracker dailyBudgetTracker = new Tracker(NGEPlatform.get().getDataStore("unit-tests-Ad"+Math.random(), "tracker"));
+        Tracker dailyBudgetTracker = new Tracker(NGEPlatform.get().getDataStore("unit-tests-Ad" + Math.random(), "tracker"));
         DelegateService delegate = new DelegateService(
             pool,
             delegateSigner,
