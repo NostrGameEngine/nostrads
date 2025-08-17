@@ -1,0 +1,21 @@
+{
+    "default_delegate":"a36dc2b922341f5360aacd492a42eaa56643850fe1491930097805605df3b9c8",
+    "testmode":true,
+    "testmode_config":{
+        "nwc":"nostr+walletconnect://8e1e934ea0dd99cc2949805ed577abe76bb7d8c34d2d44a9e5f144a308b831f3?relay=wss://nostr.rblb.it&secret=85f597993fb3fcfc8664da95da19805d1580681cc6225aaf1c68f69e2b9e33b0",
+        "default_relays":[
+            "wss://nostr.rblb.it"
+        ]
+    },
+    "default_relays":[
+        "wss://relay.ngengine.org",
+        "wss://relay2.ngengine.org",
+        "wss://relay.damus.io",
+        "wss://relay.primal.net",
+        "wss://relay.nostr.band"
+    ],
+    "default_blossom_relays":[
+        "https://blossom.primal.net",
+        "https://blossom.band/"
+    ]
+}
