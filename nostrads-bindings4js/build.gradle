@@ -80,25 +80,23 @@ teavm.tests.js {
 task copyClasspathResources(type: Copy) {
     description = 'Copies all resources from the classpath (including dependencies) to the TeaVM output directory'
     
-    // Skip empty directories
     includeEmptyDirs = false
     
-    // Get all runtime classpath elements
+    duplicatesStrategy = DuplicatesStrategy.WARN
+    
     from {
         configurations.runtimeClasspath.collect { 
             it.isDirectory() ? it : zipTree(it).matching { 
-                // Only include resource files, exclude class files and META-INF
                 exclude '**/*.class', 'META-INF/**'
             }
         }
     }
     
-    // Also include resources from the main source set
     from sourceSets.main.resources
     
-    // Destination directory
     into 'build/generated/teavm/js'
 }
+
 // Make sure this task runs after TeaVM compilation
 tasks.named('generateJavaScript') {
     finalizedBy(copyClasspathResources)

@@ -146,9 +146,10 @@ afterEvaluate {
 
     tasks.named("processResources").configure { copySpec ->
         dependsOn(tasks.named("generateBuildDate"))
-        copySpec.duplicatesStrategy = DuplicatesStrategy.INCLUDE
+        copySpec.duplicatesStrategy = DuplicatesStrategy.WARN
         copySpec.from("${buildDir}/generated-resources/build-date") {
             into("")
+            duplicatesStrategy = DuplicatesStrategy.WARN
         }
     }
 }
