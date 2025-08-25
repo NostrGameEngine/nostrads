@@ -24,9 +24,9 @@ ext {
     licenseUrl="https://opensource.org/licenses/BSD-3-Clause"
     baseVersion="0.0.1-SNAPSHOT"
     baseGroup="org.ngengine"
-    nostr4jVersionSnapshot="0.1.0-SNAPSHOT"
+    nostr4jVersionSnapshot="0.1.2"
     nostr4jVersion="0.1.2"
-    ngePlatformVersionSnapshot = "0.1.0-SNAPSHOT"
+    ngePlatformVersionSnapshot = "0.1.2"
     ngePlatformVersion = "0.1.2"
 
 }
