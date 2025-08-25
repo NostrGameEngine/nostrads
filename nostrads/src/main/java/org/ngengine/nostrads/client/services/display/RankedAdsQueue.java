@@ -117,13 +117,15 @@ public class RankedAdsQueue {
             List<RankedAd> mergedBids = new ArrayList<>();
 
             // merge bids with the existing ranked bids and remove expired in the same pass
-            for (RankedAd r : rankedBids) {
-                AdBidEvent bid = r.get();
-                if (bid.getExpiration() != null && bid.getExpiration().isBefore(now)) {
-                    logger.finer("Removing expired bid: " + bid.getId() + " with expiration: " + bid.getExpiration());
-                    continue; // skip expired bids
+            synchronized (rankedBids) {
+                for (RankedAd r : rankedBids) {
+                    AdBidEvent bid = r.get();
+                    if (bid.getExpiration() != null && bid.getExpiration().isBefore(now)) {
+                        logger.finer("Removing expired bid: " + bid.getId() + " with expiration: " + bid.getExpiration());
+                        continue; // skip expired bids
+                    }
+                    mergedBids.add(r);
                 }
-                mergedBids.add(r);
             }
 
             // load a bunch of new bids
@@ -242,7 +244,7 @@ public class RankedAdsQueue {
         }
     }
 
-    public RankedAd get(int width, int height, Predicate<AdBidEvent> filter) {
+    public  RankedAd get(int width, int height, Predicate<AdBidEvent> filter) {
         update();
 
         // get best bid
