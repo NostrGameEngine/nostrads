@@ -78,7 +78,6 @@ public abstract class AdEvent extends SignedNostrEvent {
         try {
             checkValid();
         } catch (Exception e) {
-            e.printStackTrace();
             return false;
         }
         return true;

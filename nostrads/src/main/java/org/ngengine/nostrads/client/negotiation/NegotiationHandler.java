@@ -175,7 +175,6 @@ public abstract class NegotiationHandler {
             try {
                 listener.onClose(this, offer);
             } catch (Exception e) {
-                e.printStackTrace();
                 logger.log(Level.WARNING, "Error in onClose callback: ", e);
             }
         }

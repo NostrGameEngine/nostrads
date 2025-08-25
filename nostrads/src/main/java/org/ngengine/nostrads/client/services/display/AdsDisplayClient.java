@@ -259,7 +259,6 @@ public class AdsDisplayClient extends AbstractAdService {
                                     return filter.apply(bid).await();
                                 } catch (Exception e) {
                                     logger.log(Level.WARNING, "Error applying filter for bid: " + bid.getId(), e);
-                                    e.printStackTrace();
                                     return false;
                                 }
                             }
@@ -303,23 +302,15 @@ public class AdsDisplayClient extends AbstractAdService {
                                     .makeOffer()
                                     .catchException(ex -> {
                                         logger.log(
-                                            Level.WARNING,
+                                            Level.FINER,
                                             "Error making offer for bid: " + ad.getId() + " in adspace: " + adspace,
                                             ex
                                         );
-                                        ex.printStackTrace();
                                     });
                                 return ad;
                             })
                             .catchException(e -> {
-                                e.printStackTrace();
                                 gad.derank(true);
-
-                                logger.log(
-                                    Level.WARNING,
-                                    "Error opening negotiation for bid: " + ad.getId() + " in adspace: " + adspace,
-                                    e
-                                );
                                 rej.accept(
                                     new RuntimeException(
                                         "Error opening negotiation for bid: " + ad.getId() + " in adspace: " + adspace,
@@ -330,8 +321,6 @@ public class AdsDisplayClient extends AbstractAdService {
                         return null;
                     })
                     .catchException(ex -> {
-                        logger.log(Level.WARNING, "Error loading next ad for adspace: " + adspace, ex);
-                        ex.printStackTrace();
                         rej.accept(ex);
                     });
             });

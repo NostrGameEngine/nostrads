@@ -159,7 +159,7 @@ public class Tracker implements Closeable {
                 String json = NGEPlatform.get().toJSON(serializable);
                 store.writeFully("nostrads/tracker", json.getBytes(StandardCharsets.UTF_8)).await();
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING, "Failed to save tracker to store", e);
             }
         }
     }

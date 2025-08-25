@@ -284,7 +284,6 @@ public abstract class AbstractAdService implements Closeable {
                         }
                     } catch (Exception e) {
                         logger.log(Level.WARNING, "Error updating negotiation: " + negotiation.getBidEvent().getId(), e);
-                        e.printStackTrace();
                     }
                 }
                 loop();
