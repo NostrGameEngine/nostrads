@@ -102,6 +102,9 @@ tasks.named('generateJavaScript') {
     finalizedBy(copyClasspathResources)
 }
 
+task npmInstall(type: Exec) {
+    commandLine 'npm', 'install'
+}
 
 task buildJsLibrary(type: Exec) {
     description = 'Runs webpack to bundle the generated JavaScript files'
@@ -110,6 +113,8 @@ task buildJsLibrary(type: Exec) {
     dependsOn 'generateJavaScript'
     commandLine 'npx', 'webpack', '--config', 'webpack.config.js'
 }
+
+buildJsLibrary.dependsOn npmInstall
 
 
 

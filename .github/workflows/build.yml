@@ -87,7 +87,6 @@ jobs:
  
     - name: Build JS Client
       run: |
-        npm install webpack webpack-cli buffer  path-browserify buffer  crypto-browserify  babel-loader @babel/core @babel/preset-env  @noble/ciphers @noble/curves @noble/hashes @scure/base
         ./gradlew --no-daemon :nostrads-js:packJsClient
 
 
