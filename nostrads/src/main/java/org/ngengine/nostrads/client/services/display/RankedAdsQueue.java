@@ -244,7 +244,7 @@ public class RankedAdsQueue {
         }
     }
 
-    public  RankedAd get(int width, int height, Predicate<AdBidEvent> filter) {
+    public RankedAd get(int width, int height, Predicate<AdBidEvent> filter) {
         update();
 
         // get best bid
