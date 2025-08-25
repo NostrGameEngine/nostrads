@@ -75,7 +75,6 @@ import org.ngengine.wallets.nip47.NWCWallet;
 public class DelegateService extends AbstractAdService {
 
     private static final Logger logger = Logger.getLogger(DelegateService.class.getName());
-    // private final Map<AdBidEvent, NostrSubscription> handlingBids;
     private final BiFunction<DelegateNegotiationHandler, AdOfferEvent, AsyncTask<Boolean>> filterNegotiations;
     private final Function<AdBidEvent, AsyncTask<Boolean>> filterBids;
     private final PenaltyStorage penaltyStorage;
@@ -125,7 +124,7 @@ public class DelegateService extends AbstractAdService {
 
         String pubkeyHex = getSigner().getPublicKey().await().asHex();
 
-        logger.fine("Listening for bids since: " + since);
+        logger.info("Listening for bids since: " + since);
         NostrSubscription bidDelegationSub = getPool()
             .subscribe(new NostrFilter().withKind(AdBidEvent.KIND).withTag("D", pubkeyHex).since(since));
         bidDelegationSub.addEventListener(this::onNewBid);
@@ -145,7 +144,7 @@ public class DelegateService extends AbstractAdService {
             String dTag = event.getFirstTag("d").get(0);
             BoundBid b = negotiationListeners.get(dTag);
             if (b == null) return; // bid not handled
-            logger.finest("New negotiation event received: " + event);
+            logger.info(b.bidEvent().getId() + " New negotiation event received: " + event);
 
             Listener listener = b.listener();
             AdBidEvent bidEvent = b.bidEvent();
@@ -158,16 +157,20 @@ public class DelegateService extends AbstractAdService {
                 .then(ev -> {
                     if (!(ev instanceof AdOfferEvent)) return null;
                     if (isClosed()) return null;
-                    logger.finest("Processing offer event: " + ev.getId());
+                    logger.info(b.bidEvent().getId() + " Processing offer event: " + ev.getId());
                     AdOfferEvent offer = (AdOfferEvent) ev;
 
                     if (bidTargets != null && !bidTargets.contains(offer.getPubkey())) {
-                        logger.finest("Ignoring offer from non-targeted offerer: " + offer.getPubkey().asHex());
+                        logger.info(
+                            b.bidEvent().getId() + " Ignoring offer from non-targeted offerer: " + offer.getPubkey().asHex()
+                        );
                         return null;
                     }
 
                     if (appTargets != null && !appTargets.contains(offer.getAppPubkey())) {
-                        logger.finest("Ignoring offer from non-targeted app: " + offer.getAppPubkey().asHex());
+                        logger.info(
+                            b.bidEvent().getId() + " Ignoring offer from non-targeted app: " + offer.getAppPubkey().asHex()
+                        );
                         return null;
                     }
                     Nip01
@@ -175,7 +178,7 @@ public class DelegateService extends AbstractAdService {
                         .then(nip01 -> {
                             try {
                                 if (isClosed()) return null;
-                                logger.finest("Nip01 fetched for offer: " + offer.getId() + ":" + nip01);
+                                logger.info(b.bidEvent().getId() + " Nip01 fetched for offer: " + offer.getId() + ":" + nip01);
                                 LnUrl lnurl = nip01.getPaymentAddress();
 
                                 DelegateNegotiationHandler neg = new DelegateNegotiationHandler(
@@ -191,7 +194,9 @@ public class DelegateService extends AbstractAdService {
                                 long payoutResetInterval = bidEvent.getPayoutResetInterval().getSeconds();
                                 String bidId = bidEvent.getId();
                                 if (!tracker.canIncrement(bidId, "payouts", payoutResetInterval, maxPayouts)) {
-                                    logger.warning("Max payouts reached for bid: " + bidId + " (pre-accept)");
+                                    logger.warning(
+                                        b.bidEvent().getId() + " Max payouts reached for bid: " + bidId + " (pre-accept)"
+                                    );
                                     neg.bail(AdBailEvent.Reason.PAYOUT_LIMIT);
                                     return null;
                                 }
@@ -204,8 +209,12 @@ public class DelegateService extends AbstractAdService {
                                             .get(neg.getBidEvent())
                                             .then(penalty -> {
                                                 if (isClosed()) return null;
-                                                logger.fine(
-                                                    "Negotiation filter result for offer " + offer.getId() + ": " + accepted
+                                                logger.info(
+                                                    b.bidEvent().getId() +
+                                                    " Negotiation filter result for offer " +
+                                                    offer.getId() +
+                                                    ": " +
+                                                    accepted
                                                 );
                                                 if (accepted) {
                                                     registerNegotiation(neg);
@@ -213,26 +222,43 @@ public class DelegateService extends AbstractAdService {
 
                                                     neg.setCounterpartyPenalty(penalty);
                                                     if (penalty > 0) {
-                                                        logger.fine("Negotiation has a penalty: " + penalty + " msats");
+                                                        logger.info(
+                                                            b.bidEvent().getId() +
+                                                            " Negotiation has a penalty: " +
+                                                            penalty +
+                                                            " msats"
+                                                        );
                                                     } else {
-                                                        logger.fine("Negotiation has no penalty");
+                                                        logger.info(b.bidEvent().getId() + " Negotiation has no penalty");
                                                     }
 
-                                                    logger.fine("Accepting offer: " + offer.getId());
+                                                    logger.info("Accepting offer: " + offer.getId());
                                                     neg.acceptOffer(offer);
                                                 } else {
-                                                    logger.fine("Negotiation rejected by filter: " + offer.getId());
+                                                    logger.info(
+                                                        b.bidEvent().getId() +
+                                                        " Negotiation rejected by filter: " +
+                                                        offer.getId()
+                                                    );
                                                 }
 
                                                 return null;
                                             });
                                     })
                                     .catchException(ex -> {
-                                        logger.log(Level.WARNING, "Error filtering negotiation: " + bidEvent.getId(), ex);
+                                        logger.log(
+                                            Level.WARNING,
+                                            b.bidEvent().getId() + " Error filtering negotiation: " + bidEvent.getId(),
+                                            ex
+                                        );
                                         neg.close();
                                     });
                             } catch (Exception e) {
-                                logger.log(Level.WARNING, "Error processing event: " + event.getId(), e);
+                                logger.log(
+                                    Level.WARNING,
+                                    b.bidEvent().getId() + " Error processing event: " + event.getId(),
+                                    e
+                                );
                             }
                             return null;
                         })
@@ -273,8 +299,6 @@ public class DelegateService extends AbstractAdService {
     }
 
     protected void onNewBid(SignedNostrEvent event, boolean stored) {
-        logger.finest("New bid event received: " + event);
-
         if (isClosed()) return;
         AdBidEvent bid = new AdBidEvent(getTaxonomy(), event);
         if (!bid.isValid()) {
@@ -312,8 +336,7 @@ public class DelegateService extends AbstractAdService {
 
         @Override
         public synchronized void onBail(NegotiationHandler neg, AdBailEvent event, boolean initiatedByCounterparty) {
-            logger.fine("Bail event received: " + event);
-            // Optionally, you can reset counters here if needed
+            logger.info("Bail event received: " + event);
         }
 
         @Override
@@ -323,7 +346,7 @@ public class DelegateService extends AbstractAdService {
             String invoice,
             NotifyPayout notifyPayout
         ) {
-            logger.fine("Payment request event received: " + event);
+            logger.info("Payment request event received: " + event);
 
             AdBidEvent bidEvent = neg.getBidEvent();
             String bidId = bidEvent.getId();
@@ -344,7 +367,9 @@ public class DelegateService extends AbstractAdService {
 
                         // --- PAYOUT TRACKING ---
                         long maxPayouts = bidEvent.getMaxPayouts(); // Add getter to AdBidEvent if needed
-                        long payoutResetInterval = bidEvent.getPayoutResetInterval().getSeconds(); // Add getter to AdBidEvent if needed
+                        long payoutResetInterval = bidEvent.getPayoutResetInterval().getSeconds(); // Add getter to
+                        // AdBidEvent if
+                        // needed
 
                         if (!tracker.canIncrement(bidId, "payouts", payoutResetInterval, maxPayouts)) {
                             logger.warning("Max payouts reached for bid: " + bidId);
@@ -371,7 +396,7 @@ public class DelegateService extends AbstractAdService {
                                 maxFeeMsats,
                                 Math.max(minFeeMsats, (long) (bidEvent.getBidMsats() * percentFee))
                             );
-                            logger.fine("Collecting fee of " + fee + " msats");
+                            logger.info("Collecting fee of " + fee + " msats");
                             feeCollector
                                 .getService()
                                 .compose(serv -> {
@@ -399,9 +424,7 @@ public class DelegateService extends AbstractAdService {
         }
 
         @Override
-        public void onClose(NegotiationHandler neg, AdOfferEvent offer) {
-            // Optionally reset counters here if needed
-        }
+        public void onClose(NegotiationHandler neg, AdOfferEvent offer) {}
     }
 
     public synchronized AsyncTask<Void> handleBid(AdBidEvent bidEvent) {
@@ -409,7 +432,7 @@ public class DelegateService extends AbstractAdService {
             throw new IllegalStateException("Bid already being handled: " + bidEvent.getId());
         }
 
-        logger.fine("Handling bid: " + bidEvent.getId());
+        logger.info("Handling bid: " + bidEvent.getId());
         return bidEvent
             .getDecryptedDelegatePayload(getSigner())
             .then(payload -> {
