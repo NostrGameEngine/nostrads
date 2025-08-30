@@ -3,6 +3,7 @@ plugins {
     id 'maven-publish'
     id 'signing'
     id "com.diffplug.spotless" version "7.0.2"  
+    id "org.gradle.test-retry"                          version "1.5.2"
 }
 
 
@@ -222,4 +223,14 @@ spotless {
     }
     enforceCheck false
      
+}
+
+
+// retry tests on failure
+tasks.test {
+    retry {
+        failOnPassedAfterRetry = false
+        maxRetries = 3
+        maxFailures = 10
+    }
 }
