@@ -97,7 +97,7 @@ public class DelegateNegotiationHandler extends NegotiationHandler {
                 }
                 logger.fine("Received payment request event: " + event.getId() + " for bidding: " + getBidEvent().getId());
                 AdPaymentRequestEvent paymentRequestEvent = (AdPaymentRequestEvent) event;
-                logger.fine("Initiating payout to "+lnurl);
+                logger.fine("Initiating payout to " + lnurl);
                 lnurl
                     .getService()
                     .then(r -> {
