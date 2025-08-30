@@ -311,7 +311,12 @@ public class RankedAdsQueue {
                 filters,
                 fetchPolicy != null
                     ? fetchPolicy
-                    : NostrWaitForEventFetchPolicy.get(e -> true, maxLimit > 0 ? maxLimit : numBidsToLoad, true, Duration.ofSeconds(10)) // we are going to early stop as soon as we have up to maxLimit events or we receive an eose for every relay
+                    : NostrWaitForEventFetchPolicy.get(
+                        e -> true,
+                        maxLimit > 0 ? maxLimit : numBidsToLoad,
+                        true,
+                        Duration.ofSeconds(10)
+                    ) // we are going to early stop as soon as we have up to maxLimit events or we receive an eose for every relay
             )
             .then(events -> {
                 // turn all the events into bids
