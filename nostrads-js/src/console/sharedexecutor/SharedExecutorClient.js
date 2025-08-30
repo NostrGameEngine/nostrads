@@ -54,7 +54,11 @@ class SharedExecutorClient {
                     } else {
                         resolve(data.result);
                     }
-                    this.worker.removeEventListener('message', l);
+                    try {
+                        this.worker.removeEventListener('message', l);
+                    } catch (e) {
+                        console.warn('Could not remove event listener:', e);
+                    }
                 }
             };
             this.worker.addEventListener('message', l);
