@@ -85,7 +85,44 @@ public class DelegateService extends AbstractAdService {
     private LnUrl feeCollector = null;
     private final Map<String, BoundBid> negotiationListeners = new ConcurrentHashMap<>();
 
-    public static record BoundBid(@Nonnull AdBidEvent bidEvent, @Nonnull Listener listener) {}
+    public static class BoundBid {
+        private final @Nonnull AdBidEvent bidEvent;
+        private final @Nonnull Listener listener;
+
+        public BoundBid(@Nonnull AdBidEvent bidEvent, @Nonnull Listener listener) {
+            this.bidEvent = bidEvent;
+            this.listener = listener;
+        }
+
+        public @Nonnull AdBidEvent bidEvent() {
+            return bidEvent;
+        }
+
+        public @Nonnull Listener listener() {
+            return listener;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
+            BoundBid boundBid = (BoundBid) o;
+            return Objects.equals(bidEvent, boundBid.bidEvent) &&
+                    Objects.equals(listener, boundBid.listener);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(bidEvent, listener);
+        }
+
+        @Override
+        public String toString() {
+            return "BoundBid[bidEvent=" + bidEvent + ", listener=" + listener + "]";
+        }
+    }
 
     public DelegateService(
         @Nonnull NostrPool pool,

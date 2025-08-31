@@ -29,9 +29,8 @@ dependencies {
 }
 
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
     withJavadocJar()
     withSourcesJar()
 }
@@ -206,6 +205,7 @@ spotless {
     java {
         target 'src/*/**/*.java'      
 
+        
         
         importOrder()
         removeUnusedImports()

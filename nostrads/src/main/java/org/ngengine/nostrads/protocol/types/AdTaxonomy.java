@@ -38,11 +38,15 @@ import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import javax.swing.tree.TreeNode;
+
 import org.ngengine.platform.NGEPlatform;
 
 /**
@@ -71,25 +75,117 @@ public final class AdTaxonomy implements Serializable {
 
     private static final Logger logger = Logger.getLogger(AdTaxonomy.class.getName());
 
-    public static record Term(
-        String id,
-        String parent,
-        String name,
-        String tier1Name,
-        String tier2Name,
-        String tier3Name,
-        String tier4Name,
-        String path,
-        String extension
-    )
-        implements Serializable {
+    public static class Term implements Serializable {
+        private final String id;
+        private final String parent;
+        private final String name;
+        private final String tier1Name;
+        private final String tier2Name;
+        private final String tier3Name;
+        private final String tier4Name;
+        private final String path;
+        private final String extension;
+
+        public Term(
+                String id,
+                String parent,
+                String name,
+                String tier1Name,
+                String tier2Name,
+                String tier3Name,
+                String tier4Name,
+                String path,
+                String extension) {
+            this.id = id;
+            this.parent = parent;
+            this.name = name;
+            this.tier1Name = tier1Name;
+            this.tier2Name = tier2Name;
+            this.tier3Name = tier3Name;
+            this.tier4Name = tier4Name;
+            this.path = path;
+            this.extension = extension;
+        }
+
+        public String id() { return id; }
+        public String parent() { return parent; }
+        public String name() { return name; }
+        public String tier1Name() { return tier1Name; }
+        public String tier2Name() { return tier2Name; }
+        public String tier3Name() { return tier3Name; }
+        public String tier4Name() { return tier4Name; }
+        public String path() { return path; }
+        public String extension() { return extension; }
+
         @Override
         public String toString() {
             return path;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Term term = (Term) o;
+            return Objects.equals(id, term.id) &&
+                Objects.equals(parent, term.parent) &&
+                Objects.equals(name, term.name) &&
+                Objects.equals(tier1Name, term.tier1Name) &&
+                Objects.equals(tier2Name, term.tier2Name) &&
+                Objects.equals(tier3Name, term.tier3Name) &&
+                Objects.equals(tier4Name, term.tier4Name) &&
+                Objects.equals(path, term.path) &&
+                Objects.equals(extension, term.extension);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id, parent, name, tier1Name, tier2Name, 
+                                tier3Name, tier4Name, path, extension);
+        }
     }
 
-    private static record TreeNode(Term taxonomy, Map<String, TreeNode> children) implements Serializable {}
+    private static class TreeNode implements Serializable {
+        private final Term taxonomy;
+        private final Map<String, TreeNode> children;
+
+        public TreeNode(Term taxonomy, Map<String, TreeNode> children) {
+            this.taxonomy = taxonomy;
+            this.children = children;
+        }
+
+        public Term taxonomy() {
+            return taxonomy;
+        }
+
+        public Map<String, TreeNode> children() {
+            return children;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
+            TreeNode treeNode = (TreeNode) o;
+            return Objects.equals(taxonomy, treeNode.taxonomy) &&
+                    Objects.equals(children, treeNode.children);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(taxonomy, children);
+        }
+
+        @Override
+        public String toString() {
+            return "TreeNode[" +
+                    "taxonomy=" + taxonomy + ", " +
+                    "children=" + children + ']';
+        }
+    }
+
 
     private final Map<String, TreeNode> taxonomyFlat = new HashMap<>();
     private final TreeNode taxonomyTree = new TreeNode(null, new HashMap<>());
