@@ -501,7 +501,7 @@ public class TestAds {
         System.out.println("Publishing bid: " + bid);
         advClient.publishBid(bid).await();
 
-        bid =
+        AdBidEvent bid2 =
             advClient
                 .newBid(
                     null,
@@ -527,7 +527,7 @@ public class TestAds {
                 )
                 .await();
 
-        System.out.println("Publishing bid: " + bid);
+        System.out.println("Publishing bid2: " + bid);
         advClient.publishBid(bid).await();
 
         PenaltyStorage penaltyStorage = new PenaltyStorage(
@@ -546,6 +546,7 @@ public class TestAds {
         );
 
         delegate.listen(Instant.now().minusSeconds(160));
+        System.out.println("Starting display client...");
         NGEPlatform
             .get()
             .wrapPromise((res2, rej2) -> {
@@ -576,8 +577,8 @@ public class TestAds {
                     ad ->
                         NGEPlatform
                             .get()
-                            .wrapPromise((res, rej) -> {
-                                res.accept(true);
+                            .wrapPromise((res, rej) -> {        
+                                res.accept(ad.getId().equals(bid.getId()));
                             }),
                     (f, b) -> {
                         return NGEPlatform
