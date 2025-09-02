@@ -41,11 +41,7 @@ dependencies {
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
-        vendor = JvmVendorSpec.ADOPTIUM 
-        implementation = JvmImplementation.VENDOR_SPECIFIC
     }
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
 }
 
 tasks.register('addLicenseHeaders') {

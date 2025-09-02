@@ -234,7 +234,7 @@ public class AdvertiserClient {
                 return pool.fetch(new AdBidFilter().withAuthor(pubkey));
             })
             .then(events -> {
-                return events.stream().map(ev -> new AdBidEvent(taxonomy, ev)).toList();
+                return events.stream().map(ev -> new AdBidEvent(taxonomy, ev)).collect(java.util.stream.Collectors.toList());
             });
     }
 }
