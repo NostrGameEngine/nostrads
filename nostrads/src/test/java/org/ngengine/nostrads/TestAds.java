@@ -501,31 +501,30 @@ public class TestAds {
         System.out.println("Publishing bid: " + bid);
         advClient.publishBid(bid).await();
 
-        AdBidEvent bid2 =
-            advClient
-                .newBid(
-                    null,
-                    "Test Bid2" + Math.random() + Instant.now().toEpochMilli(),
-                    null,
-                    List.of(taxonomy.getByPath("Technology & Computing/Virtual Reality")),
-                    null,
-                    null,
-                    null,
-                    AdMimeType.TEXT_PLAIN,
-                    "This is a test bid",
-                    AdSize.HORIZONTAL_480x60,
-                    "https://ngengine.org",
-                    "Click here!",
-                    AdActionType.VIEW,
-                    1000,
-                    Duration.ofSeconds(60 * 5),
-                    delegateKeyPair.getPublicKey(),
-                    Map.of("nwc", nwc, "dailyBudget", 4000),
-                    Instant.now().plusSeconds(60 * 5),
-                    21,
-                    Duration.ofSeconds(1)
-                )
-                .await();
+        AdBidEvent bid2 = advClient
+            .newBid(
+                null,
+                "Test Bid2" + Math.random() + Instant.now().toEpochMilli(),
+                null,
+                List.of(taxonomy.getByPath("Technology & Computing/Virtual Reality")),
+                null,
+                null,
+                null,
+                AdMimeType.TEXT_PLAIN,
+                "This is a test bid",
+                AdSize.HORIZONTAL_480x60,
+                "https://ngengine.org",
+                "Click here!",
+                AdActionType.VIEW,
+                1000,
+                Duration.ofSeconds(60 * 5),
+                delegateKeyPair.getPublicKey(),
+                Map.of("nwc", nwc, "dailyBudget", 4000),
+                Instant.now().plusSeconds(60 * 5),
+                21,
+                Duration.ofSeconds(1)
+            )
+            .await();
 
         System.out.println("Publishing bid2: " + bid);
         advClient.publishBid(bid).await();
@@ -577,7 +576,7 @@ public class TestAds {
                     ad ->
                         NGEPlatform
                             .get()
-                            .wrapPromise((res, rej) -> {        
+                            .wrapPromise((res, rej) -> {
                                 res.accept(ad.getId().equals(bid.getId()));
                             }),
                     (f, b) -> {

@@ -86,8 +86,12 @@ public class DelegateService extends AbstractAdService {
     private final Map<String, BoundBid> negotiationListeners = new ConcurrentHashMap<>();
 
     public static class BoundBid {
-        private final @Nonnull AdBidEvent bidEvent;
-        private final @Nonnull Listener listener;
+
+        @Nonnull
+        private final AdBidEvent bidEvent;
+
+        @Nonnull
+        private final Listener listener;
 
         public BoundBid(@Nonnull AdBidEvent bidEvent, @Nonnull Listener listener) {
             this.bidEvent = bidEvent;
@@ -104,13 +108,10 @@ public class DelegateService extends AbstractAdService {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o)
-                return true;
-            if (o == null || getClass() != o.getClass())
-                return false;
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
             BoundBid boundBid = (BoundBid) o;
-            return Objects.equals(bidEvent, boundBid.bidEvent) &&
-                    Objects.equals(listener, boundBid.listener);
+            return Objects.equals(bidEvent, boundBid.bidEvent) && Objects.equals(listener, boundBid.listener);
         }
 
         @Override

@@ -44,9 +44,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.swing.tree.TreeNode;
-
 import org.ngengine.platform.NGEPlatform;
 
 /**
@@ -76,6 +74,7 @@ public final class AdTaxonomy implements Serializable {
     private static final Logger logger = Logger.getLogger(AdTaxonomy.class.getName());
 
     public static class Term implements Serializable {
+
         private final String id;
         private final String parent;
         private final String name;
@@ -87,15 +86,16 @@ public final class AdTaxonomy implements Serializable {
         private final String extension;
 
         public Term(
-                String id,
-                String parent,
-                String name,
-                String tier1Name,
-                String tier2Name,
-                String tier3Name,
-                String tier4Name,
-                String path,
-                String extension) {
+            String id,
+            String parent,
+            String name,
+            String tier1Name,
+            String tier2Name,
+            String tier3Name,
+            String tier4Name,
+            String path,
+            String extension
+        ) {
             this.id = id;
             this.parent = parent;
             this.name = name;
@@ -107,15 +107,41 @@ public final class AdTaxonomy implements Serializable {
             this.extension = extension;
         }
 
-        public String id() { return id; }
-        public String parent() { return parent; }
-        public String name() { return name; }
-        public String tier1Name() { return tier1Name; }
-        public String tier2Name() { return tier2Name; }
-        public String tier3Name() { return tier3Name; }
-        public String tier4Name() { return tier4Name; }
-        public String path() { return path; }
-        public String extension() { return extension; }
+        public String id() {
+            return id;
+        }
+
+        public String parent() {
+            return parent;
+        }
+
+        public String name() {
+            return name;
+        }
+
+        public String tier1Name() {
+            return tier1Name;
+        }
+
+        public String tier2Name() {
+            return tier2Name;
+        }
+
+        public String tier3Name() {
+            return tier3Name;
+        }
+
+        public String tier4Name() {
+            return tier4Name;
+        }
+
+        public String path() {
+            return path;
+        }
+
+        public String extension() {
+            return extension;
+        }
 
         @Override
         public String toString() {
@@ -127,7 +153,8 @@ public final class AdTaxonomy implements Serializable {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             Term term = (Term) o;
-            return Objects.equals(id, term.id) &&
+            return (
+                Objects.equals(id, term.id) &&
                 Objects.equals(parent, term.parent) &&
                 Objects.equals(name, term.name) &&
                 Objects.equals(tier1Name, term.tier1Name) &&
@@ -135,17 +162,18 @@ public final class AdTaxonomy implements Serializable {
                 Objects.equals(tier3Name, term.tier3Name) &&
                 Objects.equals(tier4Name, term.tier4Name) &&
                 Objects.equals(path, term.path) &&
-                Objects.equals(extension, term.extension);
+                Objects.equals(extension, term.extension)
+            );
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(id, parent, name, tier1Name, tier2Name, 
-                                tier3Name, tier4Name, path, extension);
+            return Objects.hash(id, parent, name, tier1Name, tier2Name, tier3Name, tier4Name, path, extension);
         }
     }
 
     private static class TreeNode implements Serializable {
+
         private final Term taxonomy;
         private final Map<String, TreeNode> children;
 
@@ -164,13 +192,10 @@ public final class AdTaxonomy implements Serializable {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o)
-                return true;
-            if (o == null || getClass() != o.getClass())
-                return false;
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
             TreeNode treeNode = (TreeNode) o;
-            return Objects.equals(taxonomy, treeNode.taxonomy) &&
-                    Objects.equals(children, treeNode.children);
+            return Objects.equals(taxonomy, treeNode.taxonomy) && Objects.equals(children, treeNode.children);
         }
 
         @Override
@@ -180,12 +205,9 @@ public final class AdTaxonomy implements Serializable {
 
         @Override
         public String toString() {
-            return "TreeNode[" +
-                    "taxonomy=" + taxonomy + ", " +
-                    "children=" + children + ']';
+            return "TreeNode[" + "taxonomy=" + taxonomy + ", " + "children=" + children + ']';
         }
     }
-
 
     private final Map<String, TreeNode> taxonomyFlat = new HashMap<>();
     private final TreeNode taxonomyTree = new TreeNode(null, new HashMap<>());
