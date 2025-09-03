@@ -1,3 +1,4 @@
+import { checkPostMessageOrigin } from './strict-origin.js';
 class SharedWorkerBackend {
     constructor(callback) {
        
@@ -19,6 +20,7 @@ class SharedWorkerBackend {
                 const port = e.ports[0];
                 // console.log("New port connected!:", port);
                     port.addEventListener('message', (args)=>{
+                        checkPostMessageOrigin(args);
                         // console.log("Message received on port:", args);
                         for(const listener of this.listeners) {
                             // console.log("Invoking listener with args:", args);

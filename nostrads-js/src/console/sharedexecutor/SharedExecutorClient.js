@@ -1,3 +1,4 @@
+import { checkPostMessageOrigin } from './strict-origin.js';
 class SharedExecutorClient {
     constructor(workerUrl, options) {
         this.callbacks = {};
@@ -88,6 +89,7 @@ class SharedExecutorClient {
     }   
     
     handleMessage(event) {
+        checkPostMessageOrigin(event);
         // console.log('Message received from worker:', event.data);
         if(typeof event.data === 'string') {
             const data = JSON.parse(event.data);

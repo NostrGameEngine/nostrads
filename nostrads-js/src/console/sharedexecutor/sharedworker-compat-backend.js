@@ -1,3 +1,5 @@
+import { checkPostMessageOrigin } from './strict-origin.js';
+
 class SharedWorkerCompatBackend {
     constructor(callback) {
         // Constants
@@ -61,12 +63,14 @@ class SharedWorkerCompatBackend {
     }
 
     addMainThreadMessageListener( callback) {
-        self.addEventListener('message', callback);
+        self.addEventListener('message', (ev)=>{
+            checkPostMessageOrigin(ev);
+            callback(ev);
+        });
     }
 
     async ready() {
         return this.readyPromise;
-      
     }
 
 
@@ -231,6 +235,8 @@ class SharedWorkerCompatBackend {
      */
     async handleMessage(e) {
 
+        checkPostMessageOrigin(e);
+        
         const msg = e.data;
 
         if (msg.type === 'heartbeat') {
