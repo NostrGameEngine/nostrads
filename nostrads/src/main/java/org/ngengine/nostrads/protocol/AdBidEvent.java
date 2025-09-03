@@ -94,7 +94,7 @@ public class AdBidEvent extends AdEvent {
 
     public String getLink() {
         String link = NGEUtils.safeString(getData("link", true));
-        if(linkedOffer!=null){
+        if (linkedOffer != null) {
             link = link.replace("$OFFER_ID", linkedOffer.getId());
         }
         return link;
