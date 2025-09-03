@@ -45,6 +45,7 @@ import org.ngengine.nostr4j.event.SignedNostrEvent;
 import org.ngengine.nostr4j.event.UnsignedNostrEvent;
 import org.ngengine.nostr4j.keypair.NostrPublicKey;
 import org.ngengine.nostr4j.signer.NostrSigner;
+import org.ngengine.nostrads.protocol.negotiation.AdOfferEvent;
 import org.ngengine.nostrads.protocol.types.AdActionType;
 import org.ngengine.nostrads.protocol.types.AdAspectRatio;
 import org.ngengine.nostrads.protocol.types.AdMimeType;
@@ -59,10 +60,22 @@ public class AdBidEvent extends AdEvent {
 
     public static final int KIND = 30100; // Ad Bid kind
     private final AdTaxonomy taxonomy;
+    private transient AdOfferEvent linkedOffer = null;
 
     public AdBidEvent(AdTaxonomy taxonomy, SignedNostrEvent event) {
         super(event.toMap(), null);
         this.taxonomy = taxonomy;
+    }
+
+    @Override
+    public AdBidEvent clone() {
+        AdBidEvent event = (AdBidEvent) super.clone();
+        event.linkedOffer = null;
+        return event;
+    }
+
+    public void linkOffer(AdOfferEvent offer) {
+        this.linkedOffer = offer;
     }
 
     public String getDescription() {
@@ -80,7 +93,11 @@ public class AdBidEvent extends AdEvent {
     }
 
     public String getLink() {
-        return NGEUtils.safeString(getData("link", true));
+        String link = NGEUtils.safeString(getData("link", true));
+        if(linkedOffer!=null){
+            link = link.replace("$OFFER_ID", linkedOffer.getId());
+        }
+        return link;
     }
 
     public int getMaxPayouts() {

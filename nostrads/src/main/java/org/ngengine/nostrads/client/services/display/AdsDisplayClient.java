@@ -266,7 +266,7 @@ public class AdsDisplayClient extends AbstractAdService {
                         if (gad == null) {
                             throw new IllegalStateException("No ads available for adspace: " + adspace);
                         }
-                        AdBidEvent ad = gad.get();
+                        AdBidEvent ad = gad.get().clone();
 
                         if (ad == null) {
                             throw new IllegalStateException("No ads available for adspace: " + adspace);
@@ -274,6 +274,7 @@ public class AdsDisplayClient extends AbstractAdService {
 
                         Listener l = new Listener(
                             (bid, offer) -> {
+                                ad.linkOffer(offer);
                                 return showCallback
                                     .apply(bid, offer)
                                     .then(result -> {

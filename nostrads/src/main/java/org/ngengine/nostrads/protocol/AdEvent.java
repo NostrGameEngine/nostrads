@@ -82,4 +82,13 @@ public abstract class AdEvent extends SignedNostrEvent {
         }
         return true;
     }
+
+    @Override
+    public AdEvent clone() {
+        AdEvent event = (AdEvent) super.clone();
+        if(data!=null){
+            event.data = Map.copyOf(data);
+        }
+        return event;    
+    }
 }
