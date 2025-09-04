@@ -392,6 +392,7 @@ public class DelegateService extends AbstractAdService {
                 .getDecryptedDelegatePayload(getSigner())
                 .then(payload -> {
                     try {
+                        logger.finer("With payload: "+payload);
                         // --- DAILY BUDGET TRACKING ---
                         long dailyBudgetMsats = NGEUtils.safeLong(Objects.requireNonNull(payload.get("dailyBudget")));
                         long budgetResetInterval = 86400; // 1 day in seconds
@@ -416,7 +417,9 @@ public class DelegateService extends AbstractAdService {
                         }
                         tracker.increment(bidId, "payouts", payoutResetInterval, maxPayouts);
 
+                        logger.finer("Paying invoice: " + invoice + " for " + bidEvent.getBidMsats() + " msats");
                         PayResponse res = wallet.payInvoice(invoice, bidEvent.getBidMsats()).await();
+                        logger.finer("Invoice paid, preimage: " + res.preimage());
 
                         notifyPayout
                             .call("NOSTR-Ads: Payout for " + bidEvent.getAdId() + " completed!", res.preimage())
@@ -458,6 +461,9 @@ public class DelegateService extends AbstractAdService {
                         neg.bail(AdBailEvent.Reason.FAILED_PAYMENT);
                     }
                     return null;
+                }).catchException(ex->{
+                    logger.log(Level.WARNING, "Failed to decrypt delegate payload for bid: " + bidEvent.getId(), ex);
+                    neg.bail(AdBailEvent.Reason.FAILED_PAYMENT);
                 });
         }
 
