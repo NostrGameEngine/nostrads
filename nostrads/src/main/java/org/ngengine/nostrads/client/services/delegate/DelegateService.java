@@ -178,7 +178,7 @@ public class DelegateService extends AbstractAdService {
                 new NostrFilter().withTag("p", pubkeyHex).withKind(AdNegotiationEvent.KIND).limit(0).since(Instant.now())
             );
 
-        negotiationsSub.addEventListener((event, stored) -> {
+        negotiationsSub.addEventListener((s,event, stored) -> {
             String dTag = event.getFirstTag("d").get(0);
             BoundBid b = negotiationListeners.get(dTag);
             if (b == null) return; // bid not handled
@@ -336,7 +336,7 @@ public class DelegateService extends AbstractAdService {
             });
     }
 
-    protected void onNewBid(SignedNostrEvent event, boolean stored) {
+    protected void onNewBid(NostrSubscription sub, SignedNostrEvent event, boolean stored) {
         if (isClosed()) return;
         AdBidEvent bid = new AdBidEvent(getTaxonomy(), event);
         if (!bid.isValid()) {
