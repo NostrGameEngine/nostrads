@@ -231,7 +231,7 @@ public class AdvertiserClient {
         return signer
             .getPublicKey()
             .compose(pubkey -> {
-                return pool.fetch(new AdBidFilter().withAuthor(pubkey),-1,true, Duration.ofSeconds(30));
+                return pool.fetch(new AdBidFilter().withAuthor(pubkey), -1, true, Duration.ofSeconds(30));
             })
             .then(events -> {
                 return events.stream().map(ev -> new AdBidEvent(taxonomy, ev)).collect(java.util.stream.Collectors.toList());
