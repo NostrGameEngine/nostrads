@@ -162,8 +162,8 @@ public class OffererNegotiationHandler extends NegotiationHandler {
             .build(getSigner(), getOffer(), getLocalPenalty())
             .compose(sevent -> {
                 logger.fine("Sending payment request event for bid: " + getBidEvent().getId() + ": " + sevent);
-                return getPool()
-                    .publish(sevent)
+                return AsyncTask
+                    .any(getPool().publish(sevent))
                     .then(ack -> {
                         return null;
                     });

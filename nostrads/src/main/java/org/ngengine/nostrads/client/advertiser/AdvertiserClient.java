@@ -198,7 +198,7 @@ public class AdvertiserClient {
      * @param ev the bid event to publish
      * @return a task that will complete when the bid is published.
      */
-    public AsyncTask<List<AsyncTask<NostrMessageAck>>> publishBid(AdBidEvent ev) {
+    public List<AsyncTask<NostrMessageAck>> publishBid(AdBidEvent ev) {
         return pool.publish(ev);
     }
 
@@ -211,7 +211,7 @@ public class AdvertiserClient {
     public AsyncTask<List<AsyncTask<NostrMessageAck>>> cancelBid(AdBidEvent ev, String reason) {
         UnsignedNostrEvent cancel = Nip09EventDeletion.createDeletionEvent(reason, ev);
         return this.signer.sign(cancel)
-            .compose(signed -> {
+            .then(signed -> {
                 return pool.publish(signed);
             });
     }
@@ -222,7 +222,7 @@ public class AdvertiserClient {
             new NostrEvent.Coordinates("e", String.valueOf(AdBidEvent.KIND), eventId)
         );
         return this.signer.sign(cancel)
-            .compose(signed -> {
+            .then(signed -> {
                 return pool.publish(signed);
             });
     }

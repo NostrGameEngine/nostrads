@@ -189,8 +189,8 @@ public class DelegateNegotiationHandler extends NegotiationHandler {
             .then(sevent -> {
                 logger.fine("Sending accept offer event for bid: " + getBidEvent().getId() + ": " + sevent);
                 // publish the accept event and return
-                getPool()
-                    .publish(sevent)
+                AsyncTask
+                    .allSettled(getPool().publish(sevent))
                     .then(ack -> {
                         return sevent;
                     });
@@ -218,8 +218,8 @@ public class DelegateNegotiationHandler extends NegotiationHandler {
             .compose(ev -> {
                 logger.fine("Sending notify payout event for bid: " + getBidEvent().getId() + ": " + ev);
 
-                return getPool()
-                    .publish(ev)
+                return AsyncTask
+                    .allSettled(getPool().publish(ev))
                     .then(ack -> {
                         return null;
                     });

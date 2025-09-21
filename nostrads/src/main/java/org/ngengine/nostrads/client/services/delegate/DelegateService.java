@@ -166,8 +166,8 @@ public class DelegateService extends AbstractAdService {
         NostrSubscription bidDelegationSub = getPool()
             .subscribe(new NostrFilter().withKind(AdBidEvent.KIND).withTag("D", pubkeyHex).since(since));
         bidDelegationSub.addEventListener(this::onNewBid);
-        bidDelegationSub
-            .open()
+        AsyncTask
+            .any(bidDelegationSub.open())
             .catchException(ex -> {
                 logger.log(Level.SEVERE, "Error opening subscription for bids", ex);
                 this.close();

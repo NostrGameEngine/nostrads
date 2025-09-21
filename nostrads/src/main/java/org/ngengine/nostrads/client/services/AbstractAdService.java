@@ -58,6 +58,7 @@ import org.ngengine.nostrads.protocol.negotiation.AdNegotiationEvent;
 import org.ngengine.nostrads.protocol.negotiation.AdOfferEvent;
 import org.ngengine.nostrads.protocol.types.AdTaxonomy;
 import org.ngengine.platform.AsyncExecutor;
+import org.ngengine.platform.AsyncTask;
 import org.ngengine.platform.NGEPlatform;
 
 /**
@@ -141,8 +142,8 @@ public abstract class AbstractAdService implements Closeable {
             cancellationSub.close();
         });
 
-        cancellationSub
-            .open()
+        AsyncTask
+            .any(cancellationSub.open())
             .catchException(ex -> {
                 logger.log(Level.SEVERE, "Error opening subscription for bids", ex);
                 this.close();
@@ -185,8 +186,8 @@ public abstract class AbstractAdService implements Closeable {
                 registerCloser(() -> {
                     sub.close();
                 });
-                sub
-                    .open()
+                AsyncTask
+                    .any(sub.open())
                     .catchException(ex -> {
                         logger.log(Level.SEVERE, "Error opening subscription for negotiations", ex);
                         this.close();

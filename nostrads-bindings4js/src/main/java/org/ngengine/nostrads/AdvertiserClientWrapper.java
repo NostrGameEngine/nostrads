@@ -58,6 +58,7 @@ import org.ngengine.nostrads.types.BidsCallback;
 import org.ngengine.nostrads.types.Nip01Callback;
 import org.ngengine.nostrads.types.PublicKeyCallback;
 import org.ngengine.nostrads.types.UploadCallback;
+import org.ngengine.platform.AsyncTask;
 import org.ngengine.platform.teavm.TeaVMJsConverter;
 import org.teavm.jso.JSExport;
 import org.teavm.jso.JSObject;
@@ -199,8 +200,8 @@ public class AdvertiserClientWrapper extends NostrAds {
                     payoutResetInterval
                 )
                 .then(bidEvent -> {
-                    advClient
-                        .publishBid(bidEvent)
+                    AsyncTask
+                        .any(advClient.publishBid(bidEvent))
                         .then(r -> {
                             callback.accept(TeaVMJsConverter.toJSObject(bidEvent.toMap()), null);
                             return null;

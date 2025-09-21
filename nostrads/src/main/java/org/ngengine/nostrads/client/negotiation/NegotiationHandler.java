@@ -214,8 +214,8 @@ public abstract class NegotiationHandler {
         return builder
             .build(signer, offer)
             .compose(sevent -> {
-                return pool
-                    .publish(sevent)
+                return AsyncTask
+                    .any(pool.publish(sevent))
                     .then(ack -> {
                         for (Listener listener : listeners) {
                             listener.onBail(this, sevent, false);

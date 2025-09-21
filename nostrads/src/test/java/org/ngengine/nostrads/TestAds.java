@@ -65,6 +65,7 @@ import org.ngengine.nostrads.protocol.types.AdMimeType;
 import org.ngengine.nostrads.protocol.types.AdPriceSlot;
 import org.ngengine.nostrads.protocol.types.AdSize;
 import org.ngengine.nostrads.protocol.types.AdTaxonomy;
+import org.ngengine.platform.AsyncTask;
 import org.ngengine.platform.NGEPlatform;
 import org.ngengine.platform.NGEUtils;
 
@@ -192,7 +193,7 @@ public class TestAds {
                     Duration.ofSeconds(1)
                 )
                 .await();
-            client.publishBid(bid).await();
+            AsyncTask.any(client.publishBid(bid)).await();
         }
 
         {
@@ -265,7 +266,7 @@ public class TestAds {
                 .await();
             System.out.println("Publishing bid: " + bid);
 
-            advClient.publishBid(bid).await();
+            AsyncTask.any(advClient.publishBid(bid)).await();
         }
 
         {
@@ -329,7 +330,7 @@ public class TestAds {
                 .await();
 
             System.out.println("Publishing bid: " + bid);
-            advClient.publishBid(bid).await();
+            AsyncTask.any(advClient.publishBid(bid)).await();
         }
 
         {
@@ -403,7 +404,7 @@ public class TestAds {
             .await();
 
         System.out.println("Publishing bid: " + bid);
-        advClient.publishBid(bid).await();
+        AsyncTask.any(advClient.publishBid(bid)).await();
 
         NostrKeyPair offererKeyPair = new NostrKeyPair(NostrPrivateKey.generate());
         NostrKeyPairSigner offererSigner = new NostrKeyPairSigner(offererKeyPair);
@@ -499,7 +500,7 @@ public class TestAds {
             .await();
 
         System.out.println("Publishing bid: " + bid);
-        advClient.publishBid(bid).await();
+        AsyncTask.any(advClient.publishBid(bid)).await();
 
         AdBidEvent bid2 = advClient
             .newBid(
@@ -527,7 +528,7 @@ public class TestAds {
             .await();
 
         System.out.println("Publishing bid2: " + bid);
-        advClient.publishBid(bid).await();
+        AsyncTask.any(advClient.publishBid(bid)).await();
 
         PenaltyStorage penaltyStorage = new PenaltyStorage(
             NGEUtils.getPlatform().getDataStore("unit-tests-Ad" + Math.random(), "penalty")
