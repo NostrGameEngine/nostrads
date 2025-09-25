@@ -52,14 +52,9 @@ public class AdPayoutEvent extends AdNegotiationEvent {
         if (msg == null) {
             throw new Exception("Payout event must have a message");
         }
-        getPreimage();
     }
 
-    @Nullable
-    public String getPreimage() {
-        Object preimage = getData("preimage", true);
-        return preimage != null ? NGEUtils.safeString(preimage) : null;
-    }
+   
 
     public static class PayoutBuilder extends AdNegotiationEvent.Builder<AdPayoutEvent> {
 
@@ -79,9 +74,6 @@ public class AdPayoutEvent extends AdNegotiationEvent {
             super(cstr, "payout");
         }
 
-        public PayoutBuilder withPreimage(String preimage) {
-            this.content.put("preimage", preimage);
-            return this;
-        }
+ 
     }
 }

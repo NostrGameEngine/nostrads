@@ -63,7 +63,7 @@ public class DelegateNegotiationHandler extends NegotiationHandler {
      * Callback to notify a payout to the offerer
      */
     public static interface NotifyPayout {
-        AsyncTask<Void> call(String message, String preimage);
+        AsyncTask<Void> call(String message);
     }
 
     public static interface AdvListener extends NegotiationHandler.Listener {
@@ -124,9 +124,9 @@ public class DelegateNegotiationHandler extends NegotiationHandler {
                                                     this,
                                                     paymentRequestEvent,
                                                     invoice,
-                                                    (message, preimage) -> {
+                                                    (message) -> {
                                                         if (!done.getAndSet(true)) {
-                                                            return notifyPayout(message, preimage);
+                                                            return notifyPayout(message);
                                                         }
                                                         return NGEPlatform
                                                             .get()
@@ -203,15 +203,13 @@ public class DelegateNegotiationHandler extends NegotiationHandler {
      * Notify the offerer of a payout.
      *
      * @param message a message to include in the payout event
-     * @param preimage the preimage of the payment request, used to prove the payment
      * @return an AsyncTask that will complete when the payout event is published
      */
-    protected AsyncTask<Void> notifyPayout(String message, String preimage) {
+    protected AsyncTask<Void> notifyPayout(String message) {
         AdPayoutEvent.PayoutBuilder builder = new AdPayoutEvent.PayoutBuilder();
 
         builder.withExpiration(Instant.now().plus(getBidEvent().getHoldTime()));
         builder.withMessage(message);
-        builder.withPreimage(preimage);
 
         return builder
             .build(getSigner(), this.getOffer())

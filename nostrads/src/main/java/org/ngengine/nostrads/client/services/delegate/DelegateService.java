@@ -419,10 +419,10 @@ public class DelegateService extends AbstractAdService {
 
                         logger.finer("Paying invoice: " + invoice + " for " + bidEvent.getBidMsats() + " msats");
                         PayResponse res = wallet.payInvoice(invoice, bidEvent.getBidMsats()).await();
-                        logger.finer("Invoice paid, preimage: " + res.preimage());
+                        logger.finer("Invoice paid");
 
                         notifyPayout
-                            .call("NOSTR-Ads: Payout for " + bidEvent.getAdId() + " completed!", res.preimage())
+                            .call("NOSTR-Ads: Payout for " + bidEvent.getAdId() + " completed!")
                             .then(v -> {
                                 neg.markCompleted();
                                 return null;
