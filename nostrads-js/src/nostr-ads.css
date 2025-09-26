@@ -64,12 +64,16 @@
     opacity:0;
 }
 
-.nostr-ddspace-icon::before {
-    opacity: 0.2;
-    font-family: sans-serif;
-    font-weight: bolder;
+
+.nostr-ddspace-icon {
     position: absolute;
     top: 5px;
     right: 5px;
-    content: "𓅦";
+    width: 24px;
+    height: 24px;
+    opacity: 0.2;
+    background-image: url('./imgs/312229.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
 }

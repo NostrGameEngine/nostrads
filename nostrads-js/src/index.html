@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nostr Ads 𓅦</title>
+    <title>Nostr Ads</title>
     <link rel="stylesheet" href="./console/common.css">
     <link rel="stylesheet" href="./console/index.css">
     <link rel="stylesheet" href="./nostr-ads.css">
@@ -110,6 +110,10 @@
             align-self: center;
         }
 
+        .nostr-ddspace-icon{
+            width:5rem;
+        }
+
         .nostr-ddspace-icon:before{
             content:"demo ad";
             color:var(--accent-purple);
@@ -199,7 +203,7 @@
 
 <body>
     <header>
-        <h1>𓅦</h1>
+        <img src="imgs/logo.webp" alt="Nostr Ads Logo" width="120" />
         <h1>Nostr Ads</h1>
         <h4>Nostr Ads is a privacy oriented decentralized advertising protocol that runs entirely on Nostr
         with Bitcoin Lightning payouts and self-regulation via proof of work.</h4>
@@ -282,8 +286,15 @@
         <section>
             <h2>Game Developers</h2>
             <p>
-                TBD
+                Since v0.1, Nostr Ads has been built into the <a href="https://ngengine.org">Nostr Game Engine</a>, allowing ads to be
+                displayed directly within game worlds for an immersive experience.
+                
             </p>
+            <button onclick="location.href='https://ngengine.org/docs/ads/'">
+                <a href="https://ngengine.org/docs/ads/">
+                    Checkout the documentation
+                </a>
+            </button>
         </section>
     
     
