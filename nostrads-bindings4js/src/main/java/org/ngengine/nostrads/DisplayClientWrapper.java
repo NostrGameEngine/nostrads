@@ -56,24 +56,23 @@ public class DisplayClientWrapper extends NostrAds {
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(
         DisplayClientWrapper.class.getName()
     );
-    private  AdsDisplayClient displayClient;
+    private AdsDisplayClient displayClient;
     private PenaltyStorage penaltyStore;
     private final String[] relays;
     private final String auth;
     private final InvalidateOfferCallback invalidateOffer;
-    private boolean initialized = false;
+    private final JavaContext ctx;
 
     @JSExport
     public DisplayClientWrapper(String[] relays, String auth, InvalidateOfferCallback invalidateOffer) throws Exception {
         this.relays = relays;
         this.auth = auth;
         this.invalidateOffer = invalidateOffer;
+        this.ctx = new JavaContext();
     }
 
     protected void init(){
-        if(initialized)return;
-        initialized=true;
-        super.init(relays, auth);
+        if(!super.init(relays, auth))return;
         VStore v = NGEPlatform.get().getDataStore("nostrads", "penaltyStore");
         penaltyStore = new PenaltyStorage(v);
         displayClient = new AdsDisplayClient(
@@ -85,89 +84,81 @@ public class DisplayClientWrapper extends NostrAds {
                     logger.log(Level.INFO, "Invalidating offer: " + off.getId() + " for reason: " + reason);
                     invalidateOffer.accept(off.getId());
                 });
-    
     }
 
     @JSExport
     public void close() {
-        JavaContext.run(() -> {
-            synchronized (this) {
-                init();
-                super.close();
-            }
+        ctx.run(() -> {
+            init();
+            super.close();
         });
     }
 
     @JSExport
     public void loadAd(NextAdInput adspaceInput, OnShowFunction onShow, JSFunction onSuccess, JSFunction onFail) {
-        JavaContext.run(() -> {
-            synchronized (this) {
-                init();
-                Adspace adspace = toAdSpace(adspaceInput);
-                displayClient
-                    .loadNextAd(
-                        adspace,
-                        adspaceInput.getWidth(),
-                        adspaceInput.getHeight(),
-                        bid -> {
-                            return NGEPlatform
-                                .get()
-                                .wrapPromise((res, rej) -> {
-                                    res.accept(true);
-                                });
-                        },
-                        (bid, off) -> {
-                            return NGEPlatform
-                                .get()
-                                .wrapPromise((res, rej) -> {
-                                    JSObject bidObject = TeaVMJsConverter.toJSObject(bid.toMap());
-                                    String id = off.getId();
-                                    onShow.accept(
-                                        id,
-                                        bidObject,
-                                        () -> {
-                                            res.accept(true);
-                                        },
-                                        () -> {
-                                            res.accept(false);
-                                        }
-                                    );
-                                });
-                        },
-                        (bid, off, success, message) -> {
-                            if (success) {
-                                onSuccess.call(null, JSString.valueOf(message));
-                            } else {
-                                onFail.call(null, JSString.valueOf(message));
-                            }
+        ctx.run(() -> {
+            init();
+            Adspace adspace = toAdSpace(adspaceInput);
+            displayClient
+                .loadNextAd(
+                    adspace,
+                    adspaceInput.getWidth(),
+                    adspaceInput.getHeight(),
+                    bid -> {
+                        return NGEPlatform
+                            .get()
+                            .wrapPromise((res, rej) -> {
+                                res.accept(true);
+                            });
+                    },
+                    (bid, off) -> {
+                        return NGEPlatform
+                            .get()
+                            .wrapPromise((res, rej) -> {
+                                JSObject bidObject = TeaVMJsConverter.toJSObject(bid.toMap());
+                                String id = off.getId();
+                                onShow.accept(
+                                    id,
+                                    bidObject,
+                                    () -> {
+                                        res.accept(true);
+                                    },
+                                    () -> {
+                                        res.accept(false);
+                                    }
+                                );
+                            });
+                    },
+                    (bid, off, success, message) -> {
+                        if (success) {
+                            onSuccess.call(null, JSString.valueOf(message));
+                        } else {
+                            onFail.call(null, JSString.valueOf(message));
                         }
-                    )
-                    .catchException(ex -> {
-                        onFail.call(null, JSString.valueOf(ex.getMessage()));
-                    });
-            }
+                    }
+                )
+                .catchException(ex -> {
+                    onFail.call(null, JSString.valueOf(ex.getMessage()));
+                });
+            
         });
     }
 
     @JSExport
     public void unregisterAdspace(NextAdInput adspaceInput) {
-        JavaContext.run(() -> {
-            synchronized (this) {
-                init();
-                Adspace adspace = toAdSpace(adspaceInput);
-                displayClient.unregisterAdspace(adspace);
-            }
+        ctx.run(() -> {
+            init();
+            Adspace adspace = toAdSpace(adspaceInput);
+            displayClient.unregisterAdspace(adspace);
         });
     }
 
     @JSExport
     public void registerAdspace(NextAdInput adspaceInput) {
-        JavaContext.run(() -> {
-            synchronized (this) {
-                init();
-                Adspace adspace = toAdSpace(adspaceInput);
-                displayClient.registerAdspace(adspace);
-            }
+        ctx.run(() -> {
+            init();
+            Adspace adspace = toAdSpace(adspaceInput);
+            displayClient.registerAdspace(adspace);
         });
     }
 

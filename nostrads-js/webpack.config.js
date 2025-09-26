@@ -15,6 +15,9 @@ module.exports = [
         },
         cache: { type: 'filesystem' },
         devtool: false,
+        // optimization: {
+        //     minimize: false
+        // },
         mode: 'production',
         module: {
             rules: [
@@ -39,6 +42,9 @@ module.exports = [
         },
         cache: { type: 'filesystem' },
         devtool: false,
+        // optimization: {
+        //     minimize: false
+        // },
         mode: 'production',
         module: {
             rules: [

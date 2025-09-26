@@ -56,37 +56,36 @@ public abstract class NostrAds implements Closeable {
     protected NostrPool pool;
     protected AdTaxonomy taxonomy;
     protected NostrSigner signer;
-    protected boolean initialized = false;
+    private boolean initialized = false;
 
     public void close() {
-        synchronized (this) {
-            pool.close();
-        }
+        pool.close();
+        
     }
 
     protected NostrAds() throws Exception {
- 
+        NostrAdsModule.initPlatform();
+
     }
 
-    protected void init(String[] relays, String auth) {
+    protected boolean init(String[] relays, String auth) {
         try {
-            synchronized(this){
-                if(initialized) return;
-                initialized = true;
-                NostrAdsModule.initPlatform();
+            if(initialized) return false;
 
-                pool = new NostrPool();
-                for (int i = 0; i < relays.length; i++) {
-                    pool.connectRelay(new NostrRelay(relays[i]));
-                }
-
-                signer = getSigner(auth);
-
-                taxonomy = new AdTaxonomy();
+            pool = new NostrPool();
+            for (int i = 0; i < relays.length; i++) {
+                pool.connectRelay(new NostrRelay(relays[i]));
             }
+
+            signer = getSigner(auth);
+
+            taxonomy = new AdTaxonomy();
+            initialized = true;
+
         } catch (Exception ex) {
             throw new RuntimeException("Error initializing NostrAds: " + ex.getMessage(), ex);
         }
+        return true;
     }
 
     protected NostrPublicKey pubkeyFromString(String pubkeyStr) {
@@ -122,7 +121,6 @@ public abstract class NostrAds implements Closeable {
     }
 
     protected void getPublicKey(PublicKeyCallback callback) throws Exception {
-        synchronized (this) {
             signer
                 .getPublicKey()
                 .then(pkey -> {
@@ -133,11 +131,10 @@ public abstract class NostrAds implements Closeable {
                     logger.log(Level.SEVERE, "Error getting public key " + err);
                     callback.accept(null, err.toString());
                 });
-        }
+        
     }
 
     protected void getNip01Meta(String pubkey, Nip01Callback callback) {
-        synchronized (this) {
             NostrPublicKey key = pubkeyFromString(pubkey);
             Nip01
                 .fetch(pool, key)
@@ -150,6 +147,6 @@ public abstract class NostrAds implements Closeable {
                     logger.log(Level.SEVERE, "Error fetching NIP-01 metadata", err);
                     callback.accept(null, err.getMessage());
                 });
-        }
+        
     }
 }

@@ -193,7 +193,7 @@ public class TestAds {
                     Duration.ofSeconds(1)
                 )
                 .await();
-            AsyncTask.any(client.publishBid(bid)).await();
+            (client.publishBid(bid)).await();
         }
 
         {
@@ -266,7 +266,7 @@ public class TestAds {
                 .await();
             System.out.println("Publishing bid: " + bid);
 
-            AsyncTask.any(advClient.publishBid(bid)).await();
+            (advClient.publishBid(bid)).await();
         }
 
         {
@@ -330,7 +330,7 @@ public class TestAds {
                 .await();
 
             System.out.println("Publishing bid: " + bid);
-            AsyncTask.any(advClient.publishBid(bid)).await();
+            (advClient.publishBid(bid)).await();
         }
 
         {
@@ -404,7 +404,7 @@ public class TestAds {
             .await();
 
         System.out.println("Publishing bid: " + bid);
-        AsyncTask.any(advClient.publishBid(bid)).await();
+        (advClient.publishBid(bid)).await();
 
         NostrKeyPair offererKeyPair = new NostrKeyPair(NostrPrivateKey.generate());
         NostrKeyPairSigner offererSigner = new NostrKeyPairSigner(offererKeyPair);
@@ -500,7 +500,7 @@ public class TestAds {
             .await();
 
         System.out.println("Publishing bid: " + bid);
-        AsyncTask.any(advClient.publishBid(bid)).await();
+        (advClient.publishBid(bid)).await();
 
         AdBidEvent bid2 = advClient
             .newBid(
@@ -528,7 +528,7 @@ public class TestAds {
             .await();
 
         System.out.println("Publishing bid2: " + bid);
-        AsyncTask.any(advClient.publishBid(bid)).await();
+        (advClient.publishBid(bid)).await();
 
         PenaltyStorage penaltyStorage = new PenaltyStorage(
             NGEUtils.getPlatform().getDataStore("unit-tests-Ad" + Math.random(), "penalty")
