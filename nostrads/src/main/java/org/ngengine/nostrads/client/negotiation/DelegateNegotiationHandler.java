@@ -124,7 +124,7 @@ public class DelegateNegotiationHandler extends NegotiationHandler {
                                                     this,
                                                     paymentRequestEvent,
                                                     invoice,
-                                                    (message) -> {
+                                                    message -> {
                                                         if (!done.getAndSet(true)) {
                                                             return notifyPayout(message);
                                                         }

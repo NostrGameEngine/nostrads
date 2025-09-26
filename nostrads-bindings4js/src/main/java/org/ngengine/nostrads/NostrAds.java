@@ -60,17 +60,15 @@ public abstract class NostrAds implements Closeable {
 
     public void close() {
         pool.close();
-        
     }
 
     protected NostrAds() throws Exception {
         NostrAdsModule.initPlatform();
-
     }
 
     protected boolean init(String[] relays, String auth) {
         try {
-            if(initialized) return false;
+            if (initialized) return false;
 
             pool = new NostrPool();
             for (int i = 0; i < relays.length; i++) {
@@ -81,7 +79,6 @@ public abstract class NostrAds implements Closeable {
 
             taxonomy = new AdTaxonomy();
             initialized = true;
-
         } catch (Exception ex) {
             throw new RuntimeException("Error initializing NostrAds: " + ex.getMessage(), ex);
         }
@@ -121,32 +118,30 @@ public abstract class NostrAds implements Closeable {
     }
 
     protected void getPublicKey(PublicKeyCallback callback) throws Exception {
-            signer
-                .getPublicKey()
-                .then(pkey -> {
-                    callback.accept(pkey.asHex(), null);
-                    return null;
-                })
-                .catchException(err -> {
-                    logger.log(Level.SEVERE, "Error getting public key " + err);
-                    callback.accept(null, err.toString());
-                });
-        
+        signer
+            .getPublicKey()
+            .then(pkey -> {
+                callback.accept(pkey.asHex(), null);
+                return null;
+            })
+            .catchException(err -> {
+                logger.log(Level.SEVERE, "Error getting public key " + err);
+                callback.accept(null, err.toString());
+            });
     }
 
     protected void getNip01Meta(String pubkey, Nip01Callback callback) {
-            NostrPublicKey key = pubkeyFromString(pubkey);
-            Nip01
-                .fetch(pool, key)
-                .then(meta -> {
-                    JSObject metaObj = TeaVMJsConverter.toJSObject(meta.metadata);
-                    callback.accept(metaObj, null);
-                    return null;
-                })
-                .catchException(err -> {
-                    logger.log(Level.SEVERE, "Error fetching NIP-01 metadata", err);
-                    callback.accept(null, err.getMessage());
-                });
-        
+        NostrPublicKey key = pubkeyFromString(pubkey);
+        Nip01
+            .fetch(pool, key)
+            .then(meta -> {
+                JSObject metaObj = TeaVMJsConverter.toJSObject(meta.metadata);
+                callback.accept(metaObj, null);
+                return null;
+            })
+            .catchException(err -> {
+                logger.log(Level.SEVERE, "Error fetching NIP-01 metadata", err);
+                callback.accept(null, err.getMessage());
+            });
     }
 }

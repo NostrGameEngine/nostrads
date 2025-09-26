@@ -31,11 +31,9 @@
 
 package org.ngengine.nostrads.protocol.negotiation;
 
-import jakarta.annotation.Nullable;
 import java.util.Map;
 import org.ngengine.nostr4j.event.SignedNostrEvent;
 import org.ngengine.nostr4j.signer.NostrSigner;
-import org.ngengine.platform.NGEUtils;
 
 public class AdPayoutEvent extends AdNegotiationEvent {
 
@@ -54,8 +52,6 @@ public class AdPayoutEvent extends AdNegotiationEvent {
         }
     }
 
-   
-
     public static class PayoutBuilder extends AdNegotiationEvent.Builder<AdPayoutEvent> {
 
         private static final Factory<AdPayoutEvent> cstr = new Factory<AdPayoutEvent>() {
@@ -73,7 +69,5 @@ public class AdPayoutEvent extends AdNegotiationEvent {
         public PayoutBuilder() {
             super(cstr, "payout");
         }
-
- 
     }
 }

@@ -71,11 +71,12 @@ public class DisplayClientWrapper extends NostrAds {
         this.ctx = new JavaContext();
     }
 
-    protected void init(){
-        if(!super.init(relays, auth))return;
+    protected void init() {
+        if (!super.init(relays, auth)) return;
         VStore v = NGEPlatform.get().getDataStore("nostrads", "penaltyStore");
         penaltyStore = new PenaltyStorage(v);
-        displayClient = new AdsDisplayClient(
+        displayClient =
+            new AdsDisplayClient(
                 pool,
                 signer,
                 taxonomy,
@@ -83,7 +84,8 @@ public class DisplayClientWrapper extends NostrAds {
                 (neg, off, reason) -> {
                     logger.log(Level.INFO, "Invalidating offer: " + off.getId() + " for reason: " + reason);
                     invalidateOffer.accept(off.getId());
-                });
+                }
+            );
     }
 
     @JSExport
@@ -140,7 +142,6 @@ public class DisplayClientWrapper extends NostrAds {
                 .catchException(ex -> {
                     onFail.call(null, JSString.valueOf(ex.getMessage()));
                 });
-            
         });
     }
 

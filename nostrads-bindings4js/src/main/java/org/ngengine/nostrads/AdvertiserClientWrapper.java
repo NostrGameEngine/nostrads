@@ -80,11 +80,10 @@ public class AdvertiserClientWrapper extends NostrAds {
         this.auth = auth;
         this.blossomEndpoints = blossomEndpoints;
         this.ctx = new JavaContext();
-        
     }
 
-    protected void init(){   
-        if(!super.init(relays, auth))return ;
+    protected void init() {
+        if (!super.init(relays, auth)) return;
         this.advClient = new AdvertiserClient(pool, signer, taxonomy);
         this.blossomPool = new BlossomPool(new BlossomAuth(signer));
         for (String server : blossomEndpoints) {
@@ -107,9 +106,8 @@ public class AdvertiserClientWrapper extends NostrAds {
     @JSExport
     protected void getNip01Meta(String pubkey, Nip01Callback callback) {
         ctx.run(() -> {
-                init();
-                super.getNip01Meta(pubkey, callback);
-            
+            init();
+            super.getNip01Meta(pubkey, callback);
         });
     }
 
@@ -225,7 +223,8 @@ public class AdvertiserClientWrapper extends NostrAds {
                     payoutResetInterval
                 )
                 .then(bidEvent -> {
-                    advClient.publishBid(bidEvent)
+                    advClient
+                        .publishBid(bidEvent)
                         .then(r -> {
                             callback.accept(TeaVMJsConverter.toJSObject(bidEvent.toMap()), null);
                             return null;
@@ -236,7 +235,6 @@ public class AdvertiserClientWrapper extends NostrAds {
                     logger.log(Level.SEVERE, "Error publishing bid" + err.getCause());
                     callback.accept(null, err.getMessage());
                 });
-            
         });
     }
 
@@ -254,7 +252,6 @@ public class AdvertiserClientWrapper extends NostrAds {
                     logger.log(Level.SEVERE, "Error cancelling bid", ex);
                     callback.accept(ex.getMessage());
                 });
-            
         });
     }
 
@@ -277,7 +274,6 @@ public class AdvertiserClientWrapper extends NostrAds {
                     logger.log(Level.SEVERE, "Error listing bids", err);
                     callback.accept(null, err.getMessage());
                 });
-            
         });
     }
 
@@ -304,7 +300,6 @@ public class AdvertiserClientWrapper extends NostrAds {
                 .catchException(ex -> {
                     callback.accept(null, ex.getMessage());
                 });
-            
         });
     }
 
@@ -321,7 +316,6 @@ public class AdvertiserClientWrapper extends NostrAds {
                     logger.log(Level.SEVERE, "Error deleting image", ex);
                     callback.accept(null, ex.getMessage());
                 });
-            
         });
     }
 }

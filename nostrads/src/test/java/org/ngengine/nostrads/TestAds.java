@@ -65,7 +65,6 @@ import org.ngengine.nostrads.protocol.types.AdMimeType;
 import org.ngengine.nostrads.protocol.types.AdPriceSlot;
 import org.ngengine.nostrads.protocol.types.AdSize;
 import org.ngengine.nostrads.protocol.types.AdTaxonomy;
-import org.ngengine.platform.AsyncTask;
 import org.ngengine.platform.NGEPlatform;
 import org.ngengine.platform.NGEUtils;
 
