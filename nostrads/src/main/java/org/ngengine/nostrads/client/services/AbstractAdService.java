@@ -120,7 +120,9 @@ public abstract class AbstractAdService implements Closeable {
         });
 
         NostrSubscription cancellationSub = getPool()
-            .subscribe(new NostrFilter().withKind(5).withTag("k", String.valueOf(AdBidEvent.KIND)));
+            .subscribe(new NostrFilter().withKind(5)
+            .limit(1)
+            .withTag("k", String.valueOf(AdBidEvent.KIND)));
         cancellationSub.addEventListener((sub, ev, eose) -> {
             List<TagValue> cancelledIds = ev.getTag("e");
             if (cancelledIds != null) {
