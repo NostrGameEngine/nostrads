@@ -53,28 +53,40 @@ public abstract class NostrAds implements Closeable {
 
     private static final Logger logger = Logger.getLogger(NostrAds.class.getName());
 
-    protected final NostrPool pool;
-    protected final AdTaxonomy taxonomy;
-    protected final NostrSigner signer;
+    protected NostrPool pool;
+    protected AdTaxonomy taxonomy;
+    protected NostrSigner signer;
+    protected boolean initialized = false;
 
     public void close() {
         synchronized (this) {
-            NostrAdsModule.initPlatform();
             pool.close();
         }
     }
 
-    protected NostrAds(String[] relays, String auth) throws Exception {
-        NostrAdsModule.initPlatform();
+    protected NostrAds() throws Exception {
+ 
+    }
 
-        pool = new NostrPool();
-        for (int i = 0; i < relays.length; i++) {
-            pool.connectRelay(new NostrRelay(relays[i]));
+    protected void init(String[] relays, String auth) {
+        try {
+            synchronized(this){
+                if(initialized) return;
+                initialized = true;
+                NostrAdsModule.initPlatform();
+
+                pool = new NostrPool();
+                for (int i = 0; i < relays.length; i++) {
+                    pool.connectRelay(new NostrRelay(relays[i]));
+                }
+
+                signer = getSigner(auth);
+
+                taxonomy = new AdTaxonomy();
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException("Error initializing NostrAds: " + ex.getMessage(), ex);
         }
-
-        signer = getSigner(auth);
-
-        taxonomy = new AdTaxonomy();
     }
 
     protected NostrPublicKey pubkeyFromString(String pubkeyStr) {
@@ -111,7 +123,6 @@ public abstract class NostrAds implements Closeable {
 
     protected void getPublicKey(PublicKeyCallback callback) throws Exception {
         synchronized (this) {
-            NostrAdsModule.initPlatform();
             signer
                 .getPublicKey()
                 .then(pkey -> {
@@ -127,7 +138,6 @@ public abstract class NostrAds implements Closeable {
 
     protected void getNip01Meta(String pubkey, Nip01Callback callback) {
         synchronized (this) {
-            NostrAdsModule.initPlatform();
             NostrPublicKey key = pubkeyFromString(pubkey);
             Nip01
                 .fetch(pool, key)
