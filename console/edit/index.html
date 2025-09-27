@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nostr Ads | Console | Edit</title>
+    <link rel="stylesheet" href="../common.css">
+    <link rel="stylesheet" href="./edit.css">
+    <link rel="stylesheet" href="../../nostr-ads.css">
+
+    <script type="module" src="./edit.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js@9.0.1/public/assets/styles/choices.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/choices.js@9.0.1/public/assets/scripts/choices.min.js"></script>
+
+    <!-- disable indexing for this page -->
+    <meta name="robots" content="noindex, nofollow">
+</head>
+
+<body>
+    <header>
+        <h1>Nostr Ads | Console</h1>
+        <div class="iconbtn" id="back">⌂</div>
+
+    </header>
+    <content>
+        <nav>
+            <div id="login"></div>
+
+            <p>
+                From this page you can configure a new ad to be shown in the Nostr Ads Network.
+            </p>
+
+        </nav>
+        <main>
+
+            <form id="adForm" autocomplete="off">
+                <section>
+                    <div>
+                        <h2>General</h2>
+                        <div>
+                            <label for="description">
+                                <span>Description</span>
+                                <small>Description of the product that may be shown to users depending on the
+                                    placement. <span class="required">* required</span>
+                                </small>
+                            </label>
+                            <textarea name="description" placeholder="E.g. Promote your product..." required></textarea>
+
+                            <label for="link">
+                                <span>Link</span>
+                                <small>Destination URL when clicked. <span class="required">* required</span>
+                                </small>
+                            </label>
+                            <input type="url" name="link" placeholder="https://example.com" required />
+
+
+                            <label for="bid">
+                                <span>Bid</span>
+                                <small>
+                                    Bid amount in satoshis.
+                                    <span class="required">* required</span>
+                                </small>
+                                
+                            </label>
+                            <input type="number" cnvTo="sats" name="bid" placeholder="E.g. 50" required />
+
+
+                            <label for="actionType">
+                                <span>Action Type</span>
+                                <small>Event that triggers payment. <span class="required">* required</span>
+                                </small>
+                            </label>
+                            <select name="actionType" alias="k" required>
+                                <option value="link" title="Paid when a user clicks the ad and opens the URL." selected>
+                                    Link Click
+                                </option>
+                                <option value="view" title="Paid when the ad is rendered and visible.">
+                                    View
+                                </option>
+                                <option value="attention" title="Paid when the user actively engages.">
+                                    Attention
+                                </option>
+                            </select>
+                            <div class="description-box" id="actionDesc"></div>
+
+                            <label for="expiration">
+                                <span>Expiration Date</span>
+                                <small>Ad expiration date. <span class="required">* required</span>
+                                </small>
+                            </label>
+                            <input type="date" alias="expiration" name="expire_at" required />
+
+                        </div>
+                    </div>
+
+                    <div class="grow">
+                        <h2>Targeting</h2>
+                        <div>
+                            <p>
+                                Add information about the ad to help with targeting and matching.
+                            </p>
+                            <label for="category">
+                                <span>Categories</span>
+                                <small>Select one or more product categories </small>
+                            </label>
+
+                            <select alias="t" name="category" multiple>
+                            </select>
+
+                            <label for="context">
+                                <span>Context</span>
+                                <small>
+                                    Write some info about the product to help AI understanding what it is about
+
+                                </small>
+
+                            </label>
+                            <textarea name="context" placeholder="Eg. This product will resolve the proble X using Y"
+                                required></textarea>
+
+                            <label for="offerersWhitelist">
+                                <span>Offerers Whitelist</span>
+                                <small>
+                                    Pubkeys of offerers that can answer to the bid (one per line).
+                                    <br>
+                                    Leave empty to allow all offerers.
+                                </small>
+
+                            </label>
+                            <textarea alias="p" cnvTo="array" name="offerersWhitelist" placeholder="Eg. npub1..."
+                                rows="5"></textarea>
+
+
+                            <label for="appsWhitelist">
+                                <span>Apps Whitelist</span>
+                                <small>
+                                    Pubkeys of apps that can show this ad (one per line).
+                                    <br>
+                                    Leave empty for unrestricted.
+                                </small>
+
+                            </label>
+                            <textarea alias="y" cnvTo="array" name="appsWhitelist" placeholder="Eg. npub1..."
+                                rows="5"></textarea>
+                        </div>
+                        <h2>Payments</h2>
+                        <div>
+                            <label for="nwc">
+                                <span>NWC url</span>
+                                <small>Budgeted NWC url used for payouts <span class="required">* required</span>
+                                </small>
+                            </label>
+                            <info id="nwcInfo"></info>
+                            <input type="password" name="nwc" required />
+                            <label for="dailyBudget">
+                                <span>Daily Budget</span>
+                                <small>
+                                    How many satoshis you want to spend per day
+                                    <span class="required">* required</span>
+
+                                </small>
+                            </label>
+                            <input type="number" required cnvTo="sats" name="dailyBudget" placeholder="E.g. 1000" />
+
+                            <label for="delegate">
+                                <span>Delegate</span>
+                                <small>Pubkey that will handle the ad. <span class="required">* required</span>
+                                </small>
+                            </label>
+
+                            <input type="text" cnvTo="pubkey" value="" name="delegate" placeholder="E.g. npub1..."
+                                required />
+                            <div id="delegateMetadata"></div>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <div>
+                        <h2>Asset</h2>
+                        <div>
+
+                            <label for="mimeType">
+                                <span>Type</span>
+                                <small>Specify the asset type <span class="required">* required</span>
+                                </small>
+                            </label>
+
+                            <select alias="m" name="mimeType" required>
+                                <optgroup label="Images">
+                                    <option value="image/png">image/png</option>
+                                    <option value="image/jpeg">image/jpeg</option>
+                                    <option value="image/gif">image/gif</option>
+                                    </optdiv>
+                                <optgroup label="Text">
+                                    <option value="text/plain">text/plain</option>
+                                    </optdiv>
+                            </select>
+
+                            <label>
+                                <span>Payload</span>
+                                <small>The ad content <span class="required">* required</span>
+                                </small>
+                            </label>
+                            <textarea id="payloadText" name="payload" placeholder="Enter text..." required></textarea>
+                            <input id="payloadImage" type="file" accept="image/*" name="payload" required />
+
+
+                            <label for="size">
+                                <span>Size Slot 
+                            </span>
+                                <small>The size slot big enought to contain this asset <span class="required">* required</span></small>
+                            </label>
+
+                            <select alias="s" name="size" required>
+                                <optgroup label="Horizontal Banners">
+                                    <option>480x60</option>
+                                    <option>720x90</option>
+                                    <option>512x128</option>
+                                    <option>512x256</option>
+                                </optgroup>
+                                <optgroup label="Vertical Banners">
+                                    <option>256x512</option>
+                                    <option>128x512</option>
+                                </optgroup>
+                                <optgroup label="Square">
+                                    <option>256x256</option>
+                                </optgroup>
+                            </select>
+
+                            <label for="callToAction">
+                                <span>Call To Action
+                            </span>
+                                <small>Text for the action button. <span class="required">* required</span></small>
+                            </label>
+                            <input alias="call_to_action" type="text" name="callToAction" placeholder="E.g. Learn More"
+                                required />
+
+                            <label for="languages">
+                                <span>Languages</span>
+                                <small>One or more languages for the asset</small>
+                            </label>
+
+                            <select alias="l" name="languages" multiple>
+                            </select>
+
+                            <label for="preview">
+                                <span>Preview</span>
+                            </label>
+                            <div id="previewContainer">
+                                <div id="preview" class="nostr-ddspace"></div>
+                            </div>
+
+                        </div>
+                    </div>
+                </section>
+                <div id="error"></div>
+
+                <section>
+                    <div>
+                        <div>
+                            <button id="submit">Publish</button>
+                            <button id="clone">Clone and Edit</button>
+                        </div>
+                    </div>
+                    <div>
+                        <div>
+                           
+                            <button id="back">Back to ad list</button>
+
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <div>
+                       
+                    </div>
+                    <div>
+                        <div>
+                            <button id="cancel">Stop</button>
+                            <button id="delete">Delete</button>
+                 
+                        </div>
+                    </div>
+                </section>
+            </form>
+        </main>
+    </content>
+</body>
+
+</html>
