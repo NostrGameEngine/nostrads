@@ -112,6 +112,7 @@
 
         .nostr-ddspace-icon{
             width:5rem;
+            opacity: 1;
         }
 
         .nostr-ddspace-icon:before{
@@ -182,6 +183,72 @@
             }
             
         }
+
+        #logo{
+            width: 120px;
+            height: 120px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            position: relative;
+                        cursor: pointer;
+
+        }
+
+        #logo:before{
+            display:block;
+            background-image: url('imgs/logo2.webp');
+            width: 120px;
+            height: 120px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            content:"";
+            position: absolute;
+            top:0;
+            left:0;
+            opacity:0;
+            pointer-events: none;
+          
+        }
+        #logo:after{
+            display:block;
+            background-image: url('imgs/logo.webp');
+            width: 100%;
+            height: 100%;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            content:"";
+            position: absolute;
+            top:0;
+            left:0;
+            opacity:1;
+            pointer-events: none;
+          
+        }
+        #logo:hover:before{
+            animation: logofadeIn 15s linear forwards;
+
+        }
+        #logo:hover:after{
+            animation: logofadeOut 15s linear forwards;
+        }
+        @keyframes logofadeIn {
+            0% {opacity: 0;}
+            69% {opacity: 0;}
+            70% {opacity: 1;}
+            100% {opacity: 1;}
+        }
+
+        @keyframes logofadeOut {
+            0% {opacity: 1;}
+            69% {opacity: 1;}
+            70% {opacity: 0;}
+            100% {opacity: 0;}
+        }
+       
+
     </style>
     <script src="./nostrads-client.js"></script>
     <script>
@@ -203,10 +270,10 @@
 
 <body>
     <header>
-        <img src="imgs/logo.webp" alt="Nostr Ads Logo" width="120" />
+        <div id="logo" ></div>
         <h1>Nostr Ads</h1>
-        <h4>Nostr Ads is a privacy oriented decentralized advertising protocol that runs entirely on Nostr
-        with Bitcoin Lightning payouts and self-regulation via proof of work.</h4>
+        <h4>Nostr Ads is a decentralized protocol that connects advertisers, apps, and users to trade offers and settle payments
+        privately over Bitcoin Lightning</h4>
         <button onclick='window.location.href="https://ngengine.org/docs/nip-drafts/nip-ADS/"'>
             <a href="https://ngengine.org/docs/nip-drafts/nip-ADS/">Read more on the specification doc</a>
         </button>
@@ -244,7 +311,6 @@
         
     </content>
     <div class="nostr-ddspace  no-pt" style="width: 720px; height: 90px;"></div>
-    <div class="nostr-ddspace only-pt" style="width: 250px; height: 250px;  "></div>
 
     <p>
         You can try the <a href="https://demo.nostr-ads.ngengine.org/console">[demo console]</a> and publish ads here for free.
@@ -281,15 +347,15 @@
         </section>
         <section>
             <div class="nostr-ddspace"   style="width: 250px; height: 250px;  "></div>
-            <div class="nostr-ddspace no-pt" style="width: 480px; height: 60px;"></div>
         </section>
         <section>
             <h2>Game Developers</h2>
             <p>
                 Since v0.1, Nostr Ads has been built into the <a href="https://ngengine.org">Nostr Game Engine</a>, allowing ads to be
                 displayed directly within game worlds for an immersive experience.
-                
             </p>
+            <img src="https://ngengine.org/nge-nobg1024.webp" alt="Nostr Game Engine Logo" style="max-width:min(1024px,100%); display:block; margin:1rem auto;" />
+
             <button onclick="location.href='https://ngengine.org/docs/ads/'">
                 <a href="https://ngengine.org/docs/ads/">
                     Checkout the documentation
