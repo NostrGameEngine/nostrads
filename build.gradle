@@ -25,9 +25,9 @@ ext {
     baseVersion="0.2.0-SNAPSHOT"
     baseGroup="org.ngengine"
     nostr4jVersionSnapshot="0.2.0-SNAPSHOT"
-    nostr4jVersion="0.2.1"
+    nostr4jVersion="0.2.2"
     ngePlatformVersionSnapshot = "0.2.0-SNAPSHOT"
-    ngePlatformVersion = "0.2.0"
+    ngePlatformVersion = "0.2.1"
 
 }
 
