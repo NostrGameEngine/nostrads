@@ -29,14 +29,19 @@ repositories {
 }
 
 dependencies {
-    implementation "org.ngengine:nge-platform-common:${project.version.endsWith('-SNAPSHOT') ? rootProject.ext.ngePlatformVersionSnapshot : rootProject.ext.ngePlatformVersion}"
-    implementation "org.ngengine:nge-platform-teavm:${project.version.endsWith('-SNAPSHOT') ? rootProject.ext.ngePlatformVersionSnapshot : rootProject.ext.ngePlatformVersion}"
+    def catalogVersions = libs.versions
+    def versionFor = { String baseName ->
+        project.version.toString().endsWith('-SNAPSHOT') ? catalogVersions."${baseName}Snapshot".get() : catalogVersions."${baseName}Release".get()
+    }
+
+    implementation "org.ngengine:nge-platform-common:${versionFor("ngePlatform")}"
+    implementation "org.ngengine:nge-platform-teavm:${versionFor("ngePlatform")}"
     implementation project(":nostrads")
     implementation teavm.libs.jso
     implementation teavm.libs.jsoApis
-    implementation 'jakarta.annotation:jakarta.annotation-api:2.1.1'
+    implementation "jakarta.annotation:jakarta.annotation-api:${catalogVersions.jakartaAnnotation.get()}"
 
-    testImplementation "junit:junit:4.13.2"
+    testImplementation libs.junit
     testImplementation teavm.libs.jso
     testImplementation teavm.libs.jsoApis
     

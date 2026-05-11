@@ -5,8 +5,22 @@
 commons-math3 = "3.6.1"
 guava = "33.3.1-jre"
 junit = "4.13.2"
+jakartaAnnotation = "2.1.1"
+nostr4jRelease = "0.3.0"
+nostr4jSnapshot = "0.3.0-SNAPSHOT"
+ngePlatformRelease = "0.2.3"
+ngePlatformSnapshot = "0.3.0-SNAPSHOT"
 
 [libraries]
 commons-math3 = { module = "org.apache.commons:commons-math3", version.ref = "commons-math3" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 junit = { module = "junit:junit", version.ref = "junit" }
+jakarta-annotation = { module = "jakarta.annotation:jakarta.annotation-api", version.ref = "jakartaAnnotation" }
+nostr4j = { module = "org.ngengine:nostr4j", version.ref = "nostr4jRelease" }
+nostr4j-snapshot = { module = "org.ngengine:nostr4j", version.ref = "nostr4jSnapshot" }
+nge-platform-common = { module = "org.ngengine:nge-platform-common", version.ref = "ngePlatformRelease" }
+nge-platform-common-snapshot = { module = "org.ngengine:nge-platform-common", version.ref = "ngePlatformSnapshot" }
+nge-platform-jvm = { module = "org.ngengine:nge-platform-jvm", version.ref = "ngePlatformRelease" }
+nge-platform-jvm-snapshot = { module = "org.ngengine:nge-platform-jvm", version.ref = "ngePlatformSnapshot" }
+nge-platform-teavm = { module = "org.ngengine:nge-platform-teavm", version.ref = "ngePlatformRelease" }
+nge-platform-teavm-snapshot = { module = "org.ngengine:nge-platform-teavm", version.ref = "ngePlatformSnapshot" }

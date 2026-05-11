@@ -15,17 +15,21 @@ repositories {
     maven {
         url = uri("https://central.sonatype.com/repository/maven-snapshots")
     }
- 
+
 }
 
 dependencies {
-    implementation "jakarta.annotation:jakarta.annotation-api:2.1.1"
-    implementation "org.ngengine:nge-platform-common:${project.version.endsWith('-SNAPSHOT') ? rootProject.ext.ngePlatformVersionSnapshot : rootProject.ext.ngePlatformVersion}"
-    api "org.ngengine:nostr4j:${project.version.endsWith('-SNAPSHOT') ? rootProject.ext.nostr4jVersionSnapshot : rootProject.ext.nostr4jVersion}"
+    def catalogVersions = libs.versions
+    def versionFor = { String baseName ->
+        project.version.toString().endsWith('-SNAPSHOT') ? catalogVersions."${baseName}Snapshot".get() : catalogVersions."${baseName}Release".get()
+    }
+
+    implementation "jakarta.annotation:jakarta.annotation-api:${catalogVersions.jakartaAnnotation.get()}"
+    implementation "org.ngengine:nge-platform-common:${versionFor("ngePlatform")}"
+    api "org.ngengine:nostr4j:${versionFor("nostr4j")}"
     
     testImplementation libs.junit
-    testImplementation "org.ngengine:nge-platform-jvm:${project.version.endsWith('-SNAPSHOT') ? rootProject.ext.ngePlatformVersionSnapshot : rootProject.ext.ngePlatformVersion}"
-    testImplementation "junit:junit:4.13.2"   
+    testImplementation "org.ngengine:nge-platform-jvm:${versionFor("ngePlatform")}"
 }
 
 java {

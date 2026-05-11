@@ -29,13 +29,17 @@ repositories {
 }
 
 dependencies {
-    implementation "jakarta.annotation:jakarta.annotation-api:2.1.1"
+    def catalogVersions = libs.versions
+    def versionFor = { String baseName ->
+        project.version.toString().endsWith('-SNAPSHOT') ? catalogVersions."${baseName}Snapshot".get() : catalogVersions."${baseName}Release".get()
+    }
+
+    implementation "jakarta.annotation:jakarta.annotation-api:${catalogVersions.jakartaAnnotation.get()}"
     implementation project(":nostrads")
-    implementation "org.ngengine:nge-platform-jvm:${project.version.endsWith('-SNAPSHOT') ? rootProject.ext.ngePlatformVersionSnapshot : rootProject.ext.ngePlatformVersion}"
+    implementation "org.ngengine:nge-platform-jvm:${versionFor("ngePlatform")}"
 
     testImplementation libs.junit
-    testImplementation "org.ngengine:nge-platform-jvm:${project.version.endsWith('-SNAPSHOT') ? rootProject.ext.ngePlatformVersionSnapshot : rootProject.ext.ngePlatformVersion}"
-    testImplementation "junit:junit:4.13.2"   
+    testImplementation "org.ngengine:nge-platform-jvm:${versionFor("ngePlatform")}"
 }
 
 java {
