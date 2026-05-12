@@ -1,0 +1,10 @@
+<script src="<your_path>/nostrads-client.js"></script>
+<script>
+    NostrAds({
+        appKey: "<npub>", // your app npub, payouts will go to the lud16 
+                          // or lud06 address specified in the kind 0 event 
+        // relays = [...],// list of relays to use, leave unset to use the default relays
+        worker: "<your_path>/nostrads-worker.js", // url of the worker script
+        // auth: "<npriv>" // optional anonymous privatekey of the user in the advertising network, random if unset
+    });
+</script>

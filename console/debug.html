@@ -1,0 +1,59 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <script type="module">
+        import NostrAds from './nostrads-client.js';
+        NostrAds({
+            devMode: true,
+            appKey: "npub13rugy09zg5pssxtjfvgkhjjzkx8swpvwr7e2gymnr2jp2ltveeqs88pjk4",
+            forceCompatModeForWorker: false
+        });
+    </script>
+    <link rel="stylesheet" href="../nostr-ads.css">
+
+</head>
+
+<body>
+    <button onclick="addSpace()">Add invalid Ad Space</button>
+    <div id="slot-buttons"></div>
+
+    <script>
+        const slots = [
+            { w: 480, h: 60, title: "Banner (8:1) 480x60" },
+            { w: 720, h: 90, title: "Leaderboard (8:1) 720x90" },
+            { w: 512, h: 128, title: "Horizontal Banner (4:1) 512x128" },
+            { w: 512, h: 256, title: "Horizontal Narrow Banner (2:1) 512x256" },
+            { w: 256, h: 512, title: "Vertical Banner (1:2) 256x512" },
+            { w: 128, h: 512, title: "Vertical Narrow Banner (1:4) 128x512" },
+            { w: 256, h: 256, title: "Square (1:1) 256x256" }
+        ];
+        function addSpace() {
+            const space = document.createElement('div');
+            space.className = 'nostr-ddspace';
+            document.body.appendChild(space);
+        }
+
+        function addSlot(slot) {
+            const space = document.createElement('div');
+            space.className = 'nostr-ddspace';
+            space.style.width = slot.w + "px";
+            space.style.height = slot.h + "px";
+            space.title = slot.title;
+            document.body.appendChild(space);
+        }
+
+        // Create a button for each slot type
+        window.onload = function () {
+            const container = document.getElementById('slot-buttons');
+            slots.forEach(slot => {
+                const btn = document.createElement('button');
+                btn.textContent = "Add " + slot.title;
+                btn.onclick = () => addSlot(slot);
+                container.appendChild(btn);
+            });
+        };
+    </script>
+</body>
+
+</html>
