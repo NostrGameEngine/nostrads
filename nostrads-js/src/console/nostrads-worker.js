@@ -68,7 +68,9 @@ executor.registerMethod('initDisplay', async (globalOptions) => {
 
 
 executor.registerMethod('pong', async (uid) => {
-    managedSpaces[uid][1] += 1; // increment usage count
+    if (managedSpaces[uid]) {
+        managedSpaces[uid][1] += 1; // increment usage count
+    }
 });
 
 executor.registerMethod('registerAdspace', async (adspaceInput) => {
@@ -83,6 +85,7 @@ executor.registerMethod('registerAdspace', async (adspaceInput) => {
 
 executor.registerMethod('unregisterAdspace', async (adspaceInput) => {
     if (!displayClient) throw new Error("Display client not initialized. Call initDisplay first.");
+    delete managedSpaces[adspaceInput.uid];
     return displayClient.unregisterAdspace(adspaceInput);
 }); 
 
@@ -114,10 +117,21 @@ executor.registerMethod('loadAd', async (adspaceInput) => {
 
 executor.registerMethod('confirmAd', async (offerId) => {
     console.log("Confirming ad offer:", offerId,offerCallbacks);
-    offerCallbacks[offerId] (true);
+    const callback = offerCallbacks[offerId];
+    if (!callback) {
+        console.warn("No pending callback found for confirmed offer:", offerId);
+        return false;
+    }
+    callback(true);
+    return true;
 });
 
 executor.registerMethod('cancelAd', async (offerId) => {
-    offerCallbacks[offerId] (false);
+    const callback = offerCallbacks[offerId];
+    if (!callback) {
+        console.warn("No pending callback found for cancelled offer:", offerId);
+        return false;
+    }
+    callback(false);
+    return true;
 });
-

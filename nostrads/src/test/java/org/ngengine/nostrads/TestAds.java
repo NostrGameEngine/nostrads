@@ -32,11 +32,13 @@
 package org.ngengine.nostrads;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +47,7 @@ import java.util.logging.Logger;
 import org.junit.Test;
 import org.ngengine.nostr4j.NostrPool;
 import org.ngengine.nostr4j.NostrRelay;
+import org.ngengine.nostr4j.event.SignedNostrEvent;
 import org.ngengine.nostr4j.keypair.NostrKeyPair;
 import org.ngengine.nostr4j.keypair.NostrPrivateKey;
 import org.ngengine.nostr4j.keypair.NostrPublicKey;
@@ -174,6 +177,71 @@ public class TestAds {
 
         assertEquals(List.of("en", "it"), adspace.getLanguages());
         assertEquals(2, adspace.getCategories().size());
+    }
+
+    @Test
+    public void testSquare250SlotIsSupported() {
+        AdSize size = AdSize.fromString("250x250");
+        assertNotNull(size);
+        assertEquals(250, size.getWidth());
+        assertEquals(250, size.getHeight());
+        assertEquals(AdAspectRatio.RATIO_1_1, size.getAspectRatio());
+    }
+
+    @Test
+    public void testUnsupportedBidDimensionsAreRejected() throws Exception {
+        NostrKeyPair advertiserKeyPair = new NostrKeyPair(NostrPrivateKey.generate());
+        NostrKeyPairSigner advertiserSigner = new NostrKeyPairSigner(advertiserKeyPair);
+
+        AdTaxonomy taxonomy = new AdTaxonomy();
+        AdvertiserClient client = new AdvertiserClient(pool, advertiserSigner, taxonomy);
+
+        AdBidEvent bid = client
+            .newBid(
+                null,
+                "Unsupported size " + Instant.now().toEpochMilli(),
+                null,
+                null,
+                null,
+                null,
+                null,
+                AdMimeType.TEXT_PLAIN,
+                "payload",
+                AdSize.HORIZONTAL_480x60,
+                "https://ngengine.org",
+                "Click here!",
+                AdActionType.VIEW,
+                1000,
+                Duration.ofSeconds(30),
+                NostrPrivateKey.generate().getPublicKey(),
+                null,
+                Instant.now().plusSeconds(60),
+                21,
+                Duration.ofSeconds(1)
+            )
+            .await();
+
+        Map<String, Object> rawEvent = new HashMap<>(bid.toMap());
+        List<List<String>> tags = new ArrayList<>((List<List<String>>) rawEvent.get("tags"));
+        List<List<String>> mutatedTags = new ArrayList<>();
+        for (List<String> tag : tags) {
+            if (!"s".equals(tag.get(0))) {
+                mutatedTags.add(new ArrayList<>(tag));
+            }
+        }
+        mutatedTags.add(List.of("s", "468x60"));
+        rawEvent.put("tags", mutatedTags);
+
+        AdBidEvent mutatedBid = new AdBidEvent(taxonomy, new SignedNostrEvent(rawEvent));
+        assertNull(mutatedBid.getDimensions());
+
+        try {
+            mutatedBid.checkValid();
+        } catch (Exception ex) {
+            assertTrue(ex.getMessage().contains("Unsupported dimensions"));
+            return;
+        }
+        throw new AssertionError("Expected unsupported dimensions to be rejected");
     }
 
     @Test

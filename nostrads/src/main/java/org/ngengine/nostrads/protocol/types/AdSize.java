@@ -45,6 +45,7 @@ public enum AdSize {
     VERTICAL_256x512("256x512", AdAspectRatio.RATIO_1_2),
     VERTICAL_128x512("128x512", AdAspectRatio.RATIO_1_4),
     // --
+    RECTANGLE_250x250("250x250", AdAspectRatio.RATIO_1_1),
     RECTANGLE_256x256("256x256", AdAspectRatio.RATIO_1_1);
 
     private final String dimensions;

@@ -246,11 +246,20 @@ public class AdBidEvent extends AdEvent {
         getActionType();
         getMIMEType();
 
-        getAspectRatio();
-        getDimensions();
+        AdAspectRatio aspectRatio = getAspectRatio();
+        if (aspectRatio == null) {
+            throw new Exception("Unsupported aspect ratio: " + getTagData("S", true));
+        }
+        AdSize dimensions = getDimensions();
+        if (dimensions == null) {
+            throw new Exception("Unsupported dimensions: " + getTagData("s", true));
+        }
         getAdId();
         getDelegate();
         AdPriceSlot slot = getPriceSlot();
+        if (slot == null) {
+            throw new Exception("Unsupported price slot: " + getTagData("f", true));
+        }
         if (slot.getValueMsats() > this.getBidMsats()) {
             throw new Exception("Invalid bid slot " + slot + " for amount " + this.getBidMsats() + " msats");
         }
