@@ -94,7 +94,7 @@ public abstract class NostrAds implements Closeable {
     }
 
     protected NostrSigner getSigner(String signerProps) throws Exception {
-        if (signerProps.equals("nip07")) {
+        if ("nip07".equals(signerProps)) {
             NostrNIP07Signer signer = new NostrNIP07Signer();
             boolean v = signer.isAvailable().await();
             if (!v) {

@@ -235,7 +235,7 @@ public class DelegateService extends AbstractAdService {
                                     logger.warning(
                                         b.bidEvent().getId() + " Max payouts reached for bid: " + bidId + " (pre-accept)"
                                     );
-                                    neg.bail(AdBailEvent.Reason.PAYOUT_LIMIT);
+                                    neg.bail(AdBailEvent.Reason.PAYOUT_LIMIT, offer);
                                     return null;
                                 }
 

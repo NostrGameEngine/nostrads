@@ -185,7 +185,7 @@ spotless {
         
         bumpThisNumberIfACustomStepChanges(1)
     }
-    enforceCheck false
+    enforceCheck = false
      
 }
 
@@ -200,12 +200,12 @@ import org.objectweb.asm.ClassWriter
 
 // Define the serialization method removal task
 task removeTeaVMIncompatibleMethods {
-    description 'Removes Java serialization methods from classes for TeaVM compatibility'
+    description = 'Removes Java serialization methods from classes for TeaVM compatibility'
     dependsOn classes  // This ensures the task runs after compilation
     
     doLast {
         // Path to compiled classes
-        def dest = compileJava.destinationDir.toPath()
+        def dest = compileJava.destinationDirectory.get().asFile.toPath()
         
         println "Scanning for serialization methods in: ${dest}"
         

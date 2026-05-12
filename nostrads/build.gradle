@@ -237,7 +237,7 @@ spotless {
         
         bumpThisNumberIfACustomStepChanges(1)
     }
-    enforceCheck false
+    enforceCheck = false
      
 }
 

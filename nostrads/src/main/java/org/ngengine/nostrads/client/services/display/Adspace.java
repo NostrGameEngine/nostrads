@@ -33,6 +33,7 @@ package org.ngengine.nostrads.client.services.display;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import org.ngengine.nostr4j.NostrFilter;
 import org.ngengine.nostr4j.keypair.NostrPublicKey;
@@ -190,10 +191,9 @@ public class Adspace {
 
     public Adspace withCategory(@Nonnull AdTaxonomy.Term category) {
         if (categories == null) {
-            categories = List.of(category);
-        } else {
-            categories.add(category);
+            categories = new ArrayList<>();
         }
+        categories.add(category);
         return this;
     }
 
@@ -207,10 +207,9 @@ public class Adspace {
 
     public Adspace withLanguage(@Nonnull String language) {
         if (languages == null) {
-            languages = List.of(language);
-        } else {
-            languages.add(language);
+            languages = new ArrayList<>();
         }
+        languages.add(language);
         return this;
     }
 

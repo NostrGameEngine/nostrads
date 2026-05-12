@@ -157,6 +157,26 @@ public class TestAds {
     }
 
     @Test
+    public void testAdspaceFluentMutatorsAcceptMultipleValues() throws Exception {
+        AdTaxonomy taxonomy = new AdTaxonomy();
+        Adspace adspace = new Adspace(
+            NostrPublicKey.fromBech32(APP_KEY),
+            NostrPrivateKey.generate().getPublicKey(),
+            AdAspectRatio.RATIO_8_1,
+            AdPriceSlot.BTC1_000,
+            List.of(AdMimeType.TEXT_PLAIN)
+        );
+
+        adspace.withLanguage("en").withLanguage("it");
+        adspace
+            .withCategory(taxonomy.getByPath("Technology & Computing/Virtual Reality"))
+            .withCategory(taxonomy.getByPath("Automotive"));
+
+        assertEquals(List.of("en", "it"), adspace.getLanguages());
+        assertEquals(2, adspace.getCategories().size());
+    }
+
+    @Test
     public void testTargetedBids() throws Exception {
         AdTaxonomy taxonomy = new AdTaxonomy();
         NostrKeyPair advertiserKeyPair = new NostrKeyPair(NostrPrivateKey.generate());
@@ -526,8 +546,8 @@ public class TestAds {
             )
             .await();
 
-        System.out.println("Publishing bid2: " + bid);
-        (advClient.publishBid(bid)).await();
+        System.out.println("Publishing bid2: " + bid2);
+        (advClient.publishBid(bid2)).await();
 
         PenaltyStorage penaltyStorage = new PenaltyStorage(
             NGEUtils.getPlatform().getDataStore("unit-tests-Ad" + Math.random(), "penalty")

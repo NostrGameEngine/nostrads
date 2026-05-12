@@ -203,7 +203,7 @@ public class AdsDisplayClient extends AbstractAdService {
                     if (neg.getLocalPenalty() > 0) {
                         int p = neg.getCounterpartyPenalty();
                         if (neg.getLocalPenalty() > p) {
-                            neg.setCounterpartyPenalty(p);
+                            neg.setCounterpartyPenalty(neg.getLocalPenalty());
                         }
                     }
                     notifyShown.accept("Ad shown successfully");
