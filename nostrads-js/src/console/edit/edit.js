@@ -8,6 +8,17 @@ import showError from "../components/error.js";
 import { saveAd, deleteAd } from "../components/adstore.js";
 import loadHeader from "../components/header.js";
 
+function getReplacementContext(urlParams) {
+    const payload = urlParams.get('see') || urlParams.get('edit');
+    if (!payload) {
+        return null;
+    }
+    return {
+        event: JSON.parse(decodeURIComponent(payload)),
+        isLive: urlParams.get('isLive') === 'true'
+    };
+}
+
 function getInputs(view) {
     const adForm = view.querySelector('#adForm');
     if (!adForm) {
@@ -306,6 +317,16 @@ async function loadProps(view, urlParams) {
     return editable;
 }
 
+async function replaceAd(ads, originalEvent, replacementEvent, isLive) {
+    await saveAd(replacementEvent);
+    if (originalEvent?.id) {
+        if (isLive) {
+            await ads.cancel(originalEvent.id);
+        }
+        await deleteAd(originalEvent.id);
+    }
+}
+
 async function showNewForm(view) {
 
     const adForm = view.querySelector('#adForm');
@@ -341,6 +362,8 @@ async function showNewForm(view) {
     let isLive = urlParams.get('isLive') === 'true';
     let isEdit = urlParams.get('edit') !== null;
     let isSee = urlParams.get('see') !== null;
+    const replacementContext = getReplacementContext(urlParams);
+    const isReplacing = editable && replacementContext !== null;
 
     const cloneBtn = view.querySelector('#clone');
     const saveBtn = view.querySelector('#submit');
@@ -359,6 +382,10 @@ async function showNewForm(view) {
             window.location.href = url.toString();
         });
         cloneBtn.style.display = !editable ? 'inline-block' : 'none';
+    }
+
+    if (saveBtn && isReplacing) {
+        saveBtn.textContent = isLive ? 'Publish replacement' : 'Republish ad';
     }
 
 
@@ -399,7 +426,11 @@ async function showNewForm(view) {
         console.log("Submitting data:", data);
         try {
             const event = await ads.publish(data);
-            await saveAd(event);
+            if (isReplacing) {
+                await replaceAd(ads, replacementContext.event, event, replacementContext.isLive);
+            } else {
+                await saveAd(event);
+            }
             console.log("Ad published:", event);
 
             await ads.close();

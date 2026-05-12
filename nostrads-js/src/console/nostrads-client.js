@@ -183,6 +183,11 @@ async function releaseSpace(el, globalOptions) {
     if (spacesList[adspaceInput.uid]) {
         delete spacesList[adspaceInput.uid];
     }
+    try {
+        await executor.invoke("unregisterAdspace", adspaceInput);
+    } catch (e) {
+        console.error("Error unregistering adspace for element:", el, e);
+    }
 
 }
 
