@@ -37,6 +37,7 @@ dependencies {
     compileOnly catalogLibrary("nge-platform-common")
     implementation catalogLibrary("nge-platform-teavm")
     implementation project(":nostrads")
+    implementation catalogLibrary("nostr4j")
     implementation teavm.libs.jso
     implementation teavm.libs.jsoApis
     implementation libs.jakarta.annotation.api

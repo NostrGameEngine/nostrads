@@ -26,9 +26,10 @@ dependencies {
 
     implementation libs.jakarta.annotation.api
     compileOnly catalogLibrary("nge-platform-common")
-    api catalogLibrary("nostr4j")
+    compileOnly catalogLibrary("nostr4j")
     
     testImplementation libs.junit
+    testImplementation catalogLibrary("nostr4j")
     testImplementation catalogLibrary("nge-platform-jvm")
 }
 

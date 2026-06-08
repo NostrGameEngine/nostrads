@@ -36,6 +36,7 @@ dependencies {
 
     implementation libs.jakarta.annotation.api
     implementation project(":nostrads")
+    implementation catalogLibrary("nostr4j")
     implementation catalogLibrary("nge-platform-jvm")
 
     testImplementation libs.junit
