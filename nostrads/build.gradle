@@ -19,17 +19,17 @@ repositories {
 }
 
 dependencies {
-    def catalogVersions = libs.versions
-    def versionFor = { String baseName ->
-        project.version.toString().endsWith('-SNAPSHOT') ? catalogVersions."${baseName}Snapshot".get() : catalogVersions."${baseName}Release".get()
+    def versionCatalog = project.extensions.getByType(org.gradle.api.artifacts.VersionCatalogsExtension).named("libs")
+    def catalogLibrary = { String alias ->
+        versionCatalog.findLibrary(project.version.toString().endsWith('-SNAPSHOT') ? "${alias}-snapshot" : alias).get()
     }
 
-    implementation "jakarta.annotation:jakarta.annotation-api:${catalogVersions.jakartaAnnotation.get()}"
-    implementation "org.ngengine:nge-platform-common:${versionFor("ngePlatform")}"
-    api "org.ngengine:nostr4j:${versionFor("nostr4j")}"
+    implementation libs.jakarta.annotation.api
+    compileOnly catalogLibrary("nge-platform-common")
+    api catalogLibrary("nostr4j")
     
     testImplementation libs.junit
-    testImplementation "org.ngengine:nge-platform-jvm:${versionFor("ngePlatform")}"
+    testImplementation catalogLibrary("nge-platform-jvm")
 }
 
 java {

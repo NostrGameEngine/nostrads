@@ -29,17 +29,17 @@ repositories {
 }
 
 dependencies {
-    def catalogVersions = libs.versions
-    def versionFor = { String baseName ->
-        project.version.toString().endsWith('-SNAPSHOT') ? catalogVersions."${baseName}Snapshot".get() : catalogVersions."${baseName}Release".get()
+    def versionCatalog = project.extensions.getByType(org.gradle.api.artifacts.VersionCatalogsExtension).named("libs")
+    def catalogLibrary = { String alias ->
+        versionCatalog.findLibrary(project.version.toString().endsWith('-SNAPSHOT') ? "${alias}-snapshot" : alias).get()
     }
 
-    implementation "org.ngengine:nge-platform-common:${versionFor("ngePlatform")}"
-    implementation "org.ngengine:nge-platform-teavm:${versionFor("ngePlatform")}"
+    compileOnly catalogLibrary("nge-platform-common")
+    implementation catalogLibrary("nge-platform-teavm")
     implementation project(":nostrads")
     implementation teavm.libs.jso
     implementation teavm.libs.jsoApis
-    implementation "jakarta.annotation:jakarta.annotation-api:${catalogVersions.jakartaAnnotation.get()}"
+    implementation libs.jakarta.annotation.api
 
     testImplementation libs.junit
     testImplementation teavm.libs.jso
