@@ -14,8 +14,9 @@ It uses a subset of the protocol but should be sufficient for the most common us
 ### Building
 
 ```bash
-# Install dependencies
-npm install webpack webpack-cli buffer  path-browserify buffer  crypto-browserify  babel-loader @babel/core @babel/preset-env  @noble/ciphers @noble/curves @noble/hashes @scure/base
+# Install the exact, audited dependency lockfiles
+(cd nostrads-bindings4js && npm ci)
+(cd nostrads-js && npm ci)
 
 # Compile the js library
 ./gradlew --no-daemon :nostrads-js:packJsClient
@@ -42,10 +43,16 @@ Add this to your pages, make sure to replace `<your_path>` with the path to the 
         // category: [],
         // languages: [],
         // advertisersWhitelist: []
-        // mimeTypes: []
+        // mimeTypes: [],
+        // Exact trusted Blossom/CDN origins allowed to serve image ads:
+        allowedImageOrigins: ["https://blossom.primal.net", "https://blossom.band"]
     });
 </script>
 ```
+
+Image ads are same-origin by default. Add only Blossom/CDN origins you trust to
+`allowedImageOrigins`; arbitrary HTTPS image hosts are intentionally rejected to
+avoid browser-side requests to attacker-selected or internal hosts.
 
 In this snippet:
 
@@ -89,7 +96,7 @@ a list of mime types to allow in the ad space,   Must be chosen from this list: 
 
 
 > [!TIP]
-> The library runs automatically in a shared web worker, so it will share the same session across all tabs of the same origin.
+> The library runs in a dedicated worker for each page. Private session material is not shared across tabs.
 
 
 ### Usage
@@ -135,9 +142,14 @@ They are the same attributes set in the [Initialization](#initialization) phase 
 
 If you are an advertiser that wants to self-host, or you want to offer a service to advertisers, you can run a delegate service
 
+The published delegate is a JVM application. Its native safe allocator requires glibc 2.34 or newer; the supported container
+uses Eclipse Temurin 21 on Ubuntu Noble and runs as an unprivileged user.
+
 ```bash
 docker run -d --name nostrads-delegate \
-    -v/srv/nostrads-delegate:/data \
+    --read-only --cap-drop=ALL --security-opt=no-new-privileges \
+    --tmpfs /tmp:rw,noexec,nosuid,size=16m \
+    -v /srv/nostrads-delegate:/data \
     ghcr.io/nostrgameengine/nostrads/nostrads-delegate:latest
 ```
 
@@ -166,11 +178,7 @@ To collect a fee for each successful negotiation, we can use:
 docker run -d --name nostrads-delegate \
     -v/srv/nostrads-delegate:/data \
     ghcr.io/nostrgameengine/nostrads/nostrads-delegate:latest \
-    --fee 1000:2:21000:zap@rblb.it
+    --fee 1000:0.02:21000:zap@rblb.it
 ```
 
 this will collect a fee of 2% with a minimum of 1 sats and a maximum of 21 sats per negotiation, and will send the fee to `zap@rblb.it`.
-
-
-
-
