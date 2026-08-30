@@ -124,7 +124,7 @@ public class RankedAdsQueue {
                         logger.finer("Removing expired bid: " + bid.getId() + " with expiration: " + bid.getExpiration());
                         continue; // skip expired bids
                     }
-                    mergedBids.add(r);
+                    mergeReplaceableBid(mergedBids, r);
                 }
             }
 
@@ -206,10 +206,8 @@ public class RankedAdsQueue {
                                 oldestBidTime = bid.getCreatedAt();
                                 logger.finest("New oldest bid time: " + oldestBidTime);
                             }
-                            if (!mergedBids.stream().anyMatch(ro -> ro.get().getAdId().equals(bid.getAdId()))) {
-                                mergedBids.add(r);
-                                logger.finest("Added bid: " + bid.getId() + " to merged bids, total: " + mergedBids.size());
-                            }
+                            mergeReplaceableBid(mergedBids, r);
+                            logger.finest("Merged bid: " + bid.getId() + ", total: " + mergedBids.size());
                         } catch (Exception e) {
                             logger.log(Level.WARNING, "Error processing bid: " + bid.getId(), e);
                         }
@@ -242,6 +240,20 @@ public class RankedAdsQueue {
         } catch (Exception e) {
             logger.log(Level.WARNING, "Error updating ads queue", e);
         }
+    }
+
+    private void mergeReplaceableBid(List<RankedAd> bids, RankedAd candidate) {
+        String coordinates = candidate.get().getCoordinates().coords();
+        for (int i = 0; i < bids.size(); i++) {
+            AdBidEvent existing = bids.get(i).get();
+            if (!existing.getCoordinates().coords().equals(coordinates)) continue;
+            int byTimestamp = candidate.get().getCreatedAt().compareTo(existing.getCreatedAt());
+            boolean candidateWins =
+                byTimestamp > 0 || (byTimestamp == 0 && candidate.get().getId().compareTo(existing.getId()) < 0);
+            if (candidateWins) bids.set(i, candidate);
+            return;
+        }
+        bids.add(candidate);
     }
 
     public RankedAd get(int width, int height, Predicate<AdBidEvent> filter) {

@@ -37,7 +37,6 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
 import org.ngengine.platform.AsyncExecutor;
 import org.ngengine.platform.NGEPlatform;
 import org.ngengine.platform.VStore;
@@ -45,6 +44,9 @@ import org.ngengine.platform.VStore;
 public class Tracker implements Closeable {
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Tracker.class.getName());
+    private static final int MAX_TRACKED_KEYS = 4096;
+    private static final int MAX_COUNTERS_PER_KEY = 8;
+    private static final int MAX_PERSISTED_BYTES = 4 * 1024 * 1024;
     private final VStore store;
     private final Map<String, Map<String, TrackedCounter>> tracked = new HashMap<>();
     private final AsyncExecutor cleanupExecutor;
@@ -57,17 +59,27 @@ public class Tracker implements Closeable {
         try {
             if (store.exists(path).await()) {
                 byte[] json = store.readFully(path).await();
+                if (json.length > MAX_PERSISTED_BYTES) {
+                    throw new IllegalStateException("Persisted payout tracker exceeds maximum size");
+                }
                 data = NGEPlatform.get().fromJSON(new String(json, StandardCharsets.UTF_8), Map.class);
             }
         } catch (Exception e) {
-            logger.log(Level.WARNING, "Failed to load tracker from store", e);
+            throw new IllegalStateException("Failed to load persisted payout tracker", e);
         }
         if (data != null) {
             for (Map.Entry<String, Map<String, Object>> entry : data.entrySet()) {
+                if (tracked.size() >= MAX_TRACKED_KEYS) throw new IllegalStateException("Too many persisted tracker keys");
                 String key = entry.getKey();
+                validateName(key, "tracker key");
                 Map<String, Object> counters = entry.getValue();
+                if (counters == null || counters.size() > MAX_COUNTERS_PER_KEY) {
+                    throw new IllegalStateException("Invalid persisted tracker counters");
+                }
                 Map<String, TrackedCounter> counterMap = new HashMap<>();
                 for (Map.Entry<String, Object> c : counters.entrySet()) {
+                    validateName(c.getKey(), "counter name");
+                    if (!(c.getValue() instanceof Map<?, ?>)) throw new IllegalStateException("Invalid persisted counter");
                     counterMap.put(c.getKey(), TrackedCounter.fromMap((Map<String, Object>) c.getValue()));
                 }
                 tracked.put(key, counterMap);
@@ -78,27 +90,59 @@ public class Tracker implements Closeable {
         this.closer = NGEPlatform.get().registerFinalizer(this, () -> cleanupExecutor.close());
     }
 
-    public synchronized void increment(String key, String counter, long resetIntervalSeconds, long maxValue) {
+    public synchronized boolean tryConsume(String key, String counter, long resetIntervalSeconds, long maxValue, long amount) {
+        validateName(key, "tracker key");
+        validateName(counter, "counter name");
+        if (resetIntervalSeconds <= 0 || maxValue < 0 || amount <= 0) {
+            throw new IllegalArgumentException("Invalid tracker interval, maximum, or amount");
+        }
+        if (!tracked.containsKey(key) && tracked.size() >= MAX_TRACKED_KEYS) {
+            throw new IllegalStateException("Payout tracker capacity reached");
+        }
         Map<String, TrackedCounter> counters = tracked.computeIfAbsent(key, k -> new HashMap<>());
+        if (!counters.containsKey(counter) && counters.size() >= MAX_COUNTERS_PER_KEY) {
+            throw new IllegalStateException("Payout counter capacity reached");
+        }
         TrackedCounter tc = counters.computeIfAbsent(counter, k -> new TrackedCounter(0, 0, resetIntervalSeconds, maxValue));
+        tc.resetIntervalSeconds = resetIntervalSeconds;
+        tc.maxValue = maxValue;
         Instant now = Instant.now();
         if (tc.lastReset == 0 || now.getEpochSecond() - tc.lastReset >= tc.resetIntervalSeconds) {
             tc.value = 0;
             tc.lastReset = now.getEpochSecond();
         }
-        tc.value++;
-        commit();
+        if (tc.value > maxValue || amount > maxValue - tc.value) {
+            return false;
+        }
+        long previous = tc.value;
+        tc.value += amount;
+        try {
+            commit();
+        } catch (RuntimeException e) {
+            tc.value = previous;
+            throw e;
+        }
+        return true;
     }
 
-    public synchronized boolean canIncrement(String key, String counter, long resetIntervalSeconds, long maxValue) {
-        Map<String, TrackedCounter> counters = tracked.computeIfAbsent(key, k -> new HashMap<>());
-        TrackedCounter tc = counters.computeIfAbsent(counter, k -> new TrackedCounter(0, 0, resetIntervalSeconds, maxValue));
+    public synchronized void refund(String key, String counter, long amount) {
+        if (amount <= 0) return;
+        Map<String, TrackedCounter> counters = tracked.get(key);
+        if (counters == null) return;
+        TrackedCounter tc = counters.get(counter);
+        if (tc == null) return;
         Instant now = Instant.now();
         if (tc.lastReset == 0 || now.getEpochSecond() - tc.lastReset >= tc.resetIntervalSeconds) {
-            tc.value = 0;
-            tc.lastReset = now.getEpochSecond();
+            return;
         }
-        return tc.value < maxValue;
+        long previous = tc.value;
+        tc.value = Math.max(0, tc.value - amount);
+        try {
+            commit();
+        } catch (RuntimeException e) {
+            tc.value = previous;
+            throw e;
+        }
     }
 
     public synchronized long getValue(String key, String counter) {
@@ -119,20 +163,29 @@ public class Tracker implements Closeable {
                     synchronized (this) {
                         Instant now = Instant.now();
                         AtomicBoolean changed = new AtomicBoolean(false);
-                        for (Map<String, TrackedCounter> counters : tracked.values()) {
-                            counters
-                                .entrySet()
-                                .removeIf(entry -> {
-                                    TrackedCounter tc = entry.getValue();
-                                    if (
-                                        tc.lastReset != 0 && now.getEpochSecond() - tc.lastReset >= tc.resetIntervalSeconds * 3
-                                    ) {
-                                        changed.set(true);
-                                        return true;
-                                    }
-                                    return false;
-                                });
-                        }
+                        tracked
+                            .entrySet()
+                            .removeIf(trackedEntry -> {
+                                Map<String, TrackedCounter> counters = trackedEntry.getValue();
+                                counters
+                                    .entrySet()
+                                    .removeIf(entry -> {
+                                        TrackedCounter tc = entry.getValue();
+                                        if (
+                                            tc.lastReset != 0 &&
+                                            now.getEpochSecond() - tc.lastReset >= tc.resetIntervalSeconds * 3
+                                        ) {
+                                            changed.set(true);
+                                            return true;
+                                        }
+                                        return false;
+                                    });
+                                if (counters.isEmpty()) {
+                                    changed.set(true);
+                                    return true;
+                                }
+                                return false;
+                            });
                         if (changed.get()) {
                             commit();
                         }
@@ -159,8 +212,14 @@ public class Tracker implements Closeable {
                 String json = NGEPlatform.get().toJSON(serializable);
                 store.writeFully("nostrads/tracker", json.getBytes(StandardCharsets.UTF_8)).await();
             } catch (Exception e) {
-                logger.log(Level.WARNING, "Failed to save tracker to store", e);
+                throw new IllegalStateException("Failed to persist payout tracker", e);
             }
+        }
+    }
+
+    private static void validateName(String value, String label) {
+        if (value == null || value.length() == 0 || value.length() > 128 || !value.matches("[A-Za-z0-9:_-]+")) {
+            throw new IllegalArgumentException("Invalid " + label);
         }
     }
 

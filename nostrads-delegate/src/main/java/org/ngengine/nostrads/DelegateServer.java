@@ -34,7 +34,11 @@ package org.ngengine.nostrads;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -44,8 +48,8 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.logging.Logger;
+import org.ngengine.bolt11.Bolt11NetworkType;
 import org.ngengine.lnurl.LnAddress;
-import org.ngengine.nostr4j.NostrPool;
 import org.ngengine.nostr4j.NostrRelay;
 import org.ngengine.nostr4j.keypair.NostrKeyPair;
 import org.ngengine.nostr4j.keypair.NostrPrivateKey;
@@ -59,9 +63,12 @@ import org.ngengine.nostrads.client.services.delegate.Tracker;
 import org.ngengine.nostrads.protocol.AdBidEvent;
 import org.ngengine.nostrads.protocol.negotiation.AdOfferEvent;
 import org.ngengine.nostrads.protocol.types.AdTaxonomy;
+import org.ngengine.nostrads.security.VerifiedNostrPool;
 import org.ngengine.platform.AsyncTask;
 import org.ngengine.platform.NGEPlatform;
+import org.ngengine.platform.NGEUtils;
 import org.ngengine.platform.VStore;
+import org.ngengine.saferalloc.SaferAlloc;
 
 public class DelegateServer {
 
@@ -78,6 +85,29 @@ public class DelegateServer {
     );
     private static final String TEST_RELAY = "wss://nostr.rblb.it";
 
+    private static String readSecretKeyFile(String filename) throws Exception {
+        Path path = Path.of(filename).toAbsolutePath().normalize();
+        if (!Files.isRegularFile(path) || Files.size(path) > 256) {
+            throw new IllegalArgumentException("Key file must be a small regular file");
+        }
+        try {
+            var permissions = Files.getPosixFilePermissions(path);
+            if (
+                permissions.contains(PosixFilePermission.GROUP_READ) ||
+                permissions.contains(PosixFilePermission.GROUP_WRITE) ||
+                permissions.contains(PosixFilePermission.OTHERS_READ) ||
+                permissions.contains(PosixFilePermission.OTHERS_WRITE)
+            ) {
+                throw new IllegalArgumentException("Key file permissions must not grant group or other access");
+            }
+        } catch (UnsupportedOperationException ignored) {
+            // Non-POSIX filesystems cannot expose these mode bits.
+        }
+        String key = Files.readString(path, StandardCharsets.UTF_8).trim();
+        if (!key.matches("[0-9a-fA-F]{64}")) throw new IllegalArgumentException("Key file does not contain a private key");
+        return key;
+    }
+
     @SuppressWarnings("unchecked")
     private static void load() throws Exception {
         String name = (String) config.getOrDefault("name", "Nostr Ads Delegate");
@@ -85,6 +115,7 @@ public class DelegateServer {
 
         VStore penaltyStore = NGEPlatform.get().getDataStore("nostrads-delegate-" + name, "penalty");
         VStore trackerStore = NGEPlatform.get().getDataStore("nostrads-delegate-" + name, "tracker");
+        VStore cancellationStore = NGEPlatform.get().getDataStore("nostrads-delegate-" + name, "cancellations");
         String key = (String) config.getOrDefault("key", null);
         List<String> relays = (List<String>) config.getOrDefault("relays", DEFAULT_RELAYS);
         List<String> biddersBlacklist = (List<String>) config.computeIfAbsent("biddersBlacklist", r -> null);
@@ -158,7 +189,7 @@ public class DelegateServer {
                 });
         };
 
-        NostrPool pool = new NostrPool();
+        VerifiedNostrPool pool = new VerifiedNostrPool();
         for (String relay : relays) {
             System.out.println("Connecting to relay: " + relay);
             pool.connectRelay(new NostrRelay(relay));
@@ -168,6 +199,7 @@ public class DelegateServer {
 
         AdTaxonomy taxonomy = new AdTaxonomy();
 
+        Tracker tracker = new Tracker(trackerStore);
         DelegateService service = new DelegateService(
             pool,
             new NostrKeyPairSigner(keyPair),
@@ -175,13 +207,30 @@ public class DelegateServer {
             filterOffers,
             filterBids,
             new PenaltyStorage(penaltyStore),
-            new Tracker(trackerStore)
+            tracker
         );
+        Runtime
+            .getRuntime()
+            .addShutdownHook(
+                new Thread(
+                    () -> {
+                        service.close();
+                        tracker.close();
+                        pool.close();
+                    },
+                    "nostrads-delegate-shutdown"
+                )
+            );
+        service.setInvoiceNetwork(
+            Bolt11NetworkType.valueOf(((String) config.getOrDefault("invoiceNetwork", "MAINNET")).toUpperCase())
+        );
+        service.setCancellationStore(cancellationStore);
+        service.setMaxRoutingFeeMsats(NGEUtils.safeLong(config.getOrDefault("maxRoutingFeeMsats", 10000L)));
         String collectorLnAddress = (String) config.getOrDefault("feeCollectorLnAddress", null);
         service.setFee(
-            (long) config.getOrDefault("minFeeMsats", 0L),
-            (double) config.getOrDefault("percentFee", 0.01),
-            (long) config.getOrDefault("maxFeeMsats", 10000L),
+            NGEUtils.safeLong(config.getOrDefault("minFeeMsats", 0L)),
+            NGEUtils.safeDouble(config.getOrDefault("percentFee", 0.01)),
+            NGEUtils.safeLong(config.getOrDefault("maxFeeMsats", 10000L)),
             collectorLnAddress == null ? null : new LnAddress(collectorLnAddress)
         );
 
@@ -241,11 +290,11 @@ public class DelegateServer {
         }
         System.out.println("");
         System.out.println("Connecting to relays: " + String.join(", ", relays));
-        service.listen(Instant.now().minus(360, ChronoUnit.DAYS)).await();
+        service.listen(Instant.now().minus(30, ChronoUnit.DAYS)).await();
     }
 
     private static String envName(String delegateId) {
-        return delegateId.toUpperCase().replace(" ", "_");
+        return delegateId.toUpperCase().replaceAll("[^A-Z0-9]+", "_");
     }
 
     private static String[] processEnvironmentVariables(String args[], String delegateId) {
@@ -281,6 +330,7 @@ public class DelegateServer {
                         envArgs.add(v.trim());
                     }
                 } else {
+                    envArgs.add(arg);
                     envArgs.add(value);
                 }
             }
@@ -294,13 +344,13 @@ public class DelegateServer {
 
     public static void main(String[] args) throws Exception {
         System.out.println("Nostr Ads Delegate Server");
-        System.out.println("Starting with args: " + String.join(" ", args));
+        System.out.println("Starting with " + args.length + " command-line argument(s).");
         String id = null;
 
         for (int i = 0; i < args.length; i++) {
             String type = args[i];
-            if (type.equals("--id")) {
-                config.put("id", args[++i]);
+            if (type.equals("--id") && i + 1 < args.length) {
+                id = args[i + 1];
                 break;
             }
         }
@@ -308,8 +358,8 @@ public class DelegateServer {
         if (id == null) {
             for (int i = 0; i < args.length; i++) {
                 String type = args[i];
-                if (type.equals("--name")) {
-                    config.put("id", args[++i].replaceAll(" ", "-").toLowerCase());
+                if (type.equals("--name") && i + 1 < args.length) {
+                    id = args[i + 1].replaceAll(" ", "-").toLowerCase();
                     break;
                 }
             }
@@ -318,10 +368,11 @@ public class DelegateServer {
         if (id == null) {
             id = "default";
         }
+        config.put("id", id);
 
         args = processEnvironmentVariables(args, id);
 
-        boolean isTestMode = System.getenv().get(envName(id) + "_TEST_MODE") != null;
+        boolean isTestMode = System.getenv().get("NOSTRADS_DELEGATE_" + envName(id) + "_TEST_MODE") != null;
         isTestMode = isTestMode || java.util.Arrays.asList(args).contains("--test");
         if (isTestMode) {
             System.out.println("Running in test mode.");
@@ -335,6 +386,9 @@ public class DelegateServer {
 
             devArgs.add("--relay");
             devArgs.add(TEST_RELAY);
+
+            devArgs.add("--network");
+            devArgs.add("TESTNET");
 
             devArgs.addAll(List.of(args));
             args = devArgs.toArray(new String[0]);
@@ -358,7 +412,15 @@ public class DelegateServer {
                         }
                     case "--key":
                         {
+                            System.err.println(
+                                "Warning: --key exposes the secret in process metadata; use --key-file instead."
+                            );
                             config.put("key", args[++i]);
+                            break;
+                        }
+                    case "--key-file":
+                        {
+                            config.put("key", readSecretKeyFile(args[++i]));
                             break;
                         }
                     case "--disallowBidder":
@@ -423,6 +485,20 @@ public class DelegateServer {
                             config.put("maxFeeMsats", maxFeeMsats);
                             break;
                         }
+                    case "--network":
+                        {
+                            String network = args[++i].toUpperCase();
+                            Bolt11NetworkType.valueOf(network);
+                            config.put("invoiceNetwork", network);
+                            break;
+                        }
+                    case "--max-routing-fee-msats":
+                        {
+                            long maxRoutingFeeMsats = Long.parseLong(args[++i]);
+                            if (maxRoutingFeeMsats < 0) throw new IllegalArgumentException("Routing fee cannot be negative");
+                            config.put("maxRoutingFeeMsats", maxRoutingFeeMsats);
+                            break;
+                        }
                     case "--config":
                         {
                             String configFile = args[++i];
@@ -446,6 +522,9 @@ public class DelegateServer {
                             System.out.println("Options:");
                             System.out.println("  --relay <url>                Add a relay URL to connect to");
                             System.out.println("  --key <private_key>          Set the private key for the delegate");
+                            System.out.println(
+                                "  --key-file <path>            Read the private key from a mode 0400 secret file"
+                            );
                             System.out.println("  --disallowBidder <pubkey>    Disallow a bidder by their public key");
                             System.out.println("  --allowBidder <pubkey>       Allow a bidder by their public key");
                             System.out.println("  --disallowOfferer <pubkey>   Disallow an offerer by their public key");
@@ -458,8 +537,21 @@ public class DelegateServer {
                                 "  --fee <minFeeMsats:percentFee:maxFeeMsats:collectorLnAddress> Set the fee structure. eg. 2000:0.05:10000:nostr4j@ln.rblb.it"
                             );
                             System.out.println("  --config <file>              Load configuration from a JSON file");
+                            System.out.println(
+                                "  --network <network>          Expected BOLT11 network (mainnet, testnet, signet, regtest)"
+                            );
+                            System.out.println(
+                                "  --max-routing-fee-msats <n> Maximum Lightning routing fee per payment (default 10000)"
+                            );
                             System.out.println("  --help                       Show this help message");
                             System.out.println("  --test                       Run in test mode (preconfigured for testing)");
+                            System.out.println("  --verify-runtime             Verify the native safe allocator and exit");
+                            System.exit(0);
+                            break;
+                        }
+                    case "--verify-runtime":
+                        {
+                            verifyRuntime();
                             System.exit(0);
                             break;
                         }
@@ -471,5 +563,22 @@ public class DelegateServer {
             }
         }
         load();
+    }
+
+    static void verifyRuntime() {
+        SaferAlloc.ensureLoaded();
+        ByteBuffer buffer = SaferAlloc.malloc(32);
+        try {
+            if (!buffer.isDirect() || buffer.capacity() < 32) {
+                throw new IllegalStateException("Safe allocator returned an invalid buffer");
+            }
+            buffer.putLong(0, 0x4e4f535452414453L);
+            if (buffer.getLong(0) != 0x4e4f535452414453L) {
+                throw new IllegalStateException("Safe allocator memory verification failed");
+            }
+        } finally {
+            SaferAlloc.free(buffer);
+        }
+        System.out.println("Native safe allocator verified successfully.");
     }
 }

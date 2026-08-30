@@ -91,6 +91,7 @@ public class AdsDisplayClient extends AbstractAdService {
         super(pool, signer, taxonomy);
         this.penaltyStorage = penaltyStorage;
         this.refreshCallback = refreshCallback;
+        startService();
     }
 
     /**
@@ -296,19 +297,14 @@ public class AdsDisplayClient extends AbstractAdService {
                         logger.finer("Creating negotiation handler for bid: " + ad.getId());
 
                         openNegotiation(adspace.getAppKey(), ad, l)
-                            .then(n -> {
+                            .compose(n -> {
                                 OffererNegotiationHandler oneg = (OffererNegotiationHandler) n;
                                 logger.finer("Negotiation opened for bid: " + ad.getId());
-                                oneg
+                                return oneg
                                     .makeOffer()
-                                    .catchException(ex -> {
-                                        logger.log(
-                                            Level.FINER,
-                                            "Error making offer for bid: " + ad.getId() + " in adspace: " + adspace,
-                                            ex
-                                        );
+                                    .then(ignored -> {
+                                        return ad;
                                     });
-                                return ad;
                             })
                             .catchException(e -> {
                                 gad.derank(true);
@@ -368,7 +364,11 @@ public class AdsDisplayClient extends AbstractAdService {
                 // add the listener if provided
                 if (listener != null) neg.addListener(listener);
                 // we register the negotiation, the parent class will track and close it when needed (eg. if it expires)
-                registerNegotiation(neg);
+                registerNegotiation(neg, bid.getDelegate());
+                if (isCancelled(bid)) {
+                    unregisterNegotiation(neg);
+                    throw new IllegalStateException("Cannot negotiate a cancelled bid");
+                }
                 return neg;
             });
     }
