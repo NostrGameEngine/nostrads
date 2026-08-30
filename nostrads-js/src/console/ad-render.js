@@ -1,3 +1,42 @@
+const LINK_PROTOCOLS = new Set(["https:"]);
+const IMAGE_PROTOCOLS = new Set(["https:"]);
+
+function parseAbsoluteUrl(value) {
+    if (typeof value !== "string" || value.length > 2048) return null;
+    try {
+        return new URL(value);
+    } catch (_) {
+        return null;
+    }
+}
+
+export function safeLinkUrl(value) {
+    const url = parseAbsoluteUrl(value);
+    return url && LINK_PROTOCOLS.has(url.protocol) && !url.username && !url.password ? url.href : null;
+}
+
+export function safeImageUrl(value, allowedOrigins = []) {
+    if (typeof value === "string" && value.startsWith("/") && typeof window !== "undefined") {
+        try {
+            const sameOriginUrl = new URL(value, window.location.origin);
+            return sameOriginUrl.origin === window.location.origin ? sameOriginUrl.href : null;
+        } catch (_) {
+            return null;
+        }
+    }
+    const url = parseAbsoluteUrl(value);
+    if (!url) return null;
+    if (
+        IMAGE_PROTOCOLS.has(url.protocol) &&
+        typeof window !== "undefined" &&
+        (url.origin === window.location.origin || allowedOrigins.includes(url.origin))
+    ) return url.href;
+    if (url.protocol === "blob:" && typeof window !== "undefined" && url.origin === window.location.origin) {
+        return url.href;
+    }
+    return null;
+}
+
 function renderEvent(
     el,
     bid,
@@ -46,22 +85,68 @@ function render(
     options = {}
 ){
     const disposer = [];
+    const safeLink = safeLinkUrl(link);
+    let rendered = false;
+    let successSent = false;
+    let viewabilityTimer = null;
+    let updateViewability = () => {};
 
-    if (mimeType === "image/jpeg" || mimeType === "image/png" || mimeType === "image/png" || mimeType === "image/gif") {
+    const reportSuccess = () => {
+        if (!successSent) {
+            successSent = true;
+            try {
+                Promise.resolve(successCallback()).catch(error => errorCallback(`Ad confirmation failed: ${error}`));
+            } catch (error) {
+                errorCallback(`Ad confirmation failed: ${error}`);
+            }
+        }
+    };
+    const markRendered = () => {
+        rendered = true;
+        if (actionType === "view") reportSuccess();
+        updateViewability();
+    };
+
+    if (!safeLink) {
+        console.error("Unsafe ad link rejected");
+        errorCallback("Unsafe ad link");
+        return disposer;
+    }
+
+    if (mimeType === "image/jpeg" || mimeType === "image/png" || mimeType === "image/gif") {
+        const safePayload = safeImageUrl(payload, options.allowedImageOrigins || []);
+        if (!safePayload) {
+            console.error("Unsafe image URL rejected");
+            errorCallback("Unsafe image URL");
+            return disposer;
+        }
         el.textContent = '';
-        el.style.backgroundImage = `url(${payload})`;
+        el.style.backgroundImage = '';
         el.style.backgroundSize = "contain";
         el.style.backgroundRepeat = "no-repeat";
         el.style.backgroundPosition = "center";
         el.style.cursor = "pointer";
-        
+
+        const image = new Image();
+        image.referrerPolicy = "no-referrer";
+        image.onload = () => {
+            el.style.backgroundImage = `url("${safePayload}")`;
+            markRendered();
+        };
+        image.onerror = () => errorCallback("Ad image failed to load");
+        image.src = safePayload;
+        disposer.push(() => {
+            image.onload = null;
+            image.onerror = null;
+            image.src = "";
+        });
     } else if (mimeType === "text/plain") {
         el.style.backgroundImage = '';
         el.textContent = payload;
     } else {
         console.error("Unsupported mime type:", mimeType);
         errorCallback("Unsupported mime type: " + mimeType);
-        return;
+        return disposer;
     }
 
 
@@ -103,37 +188,59 @@ function render(
     }
  
     if (!options.noLink){
-        el.addEventListener('click', (e) => {
+        const clickHandler = (e) => {
             e.preventDefault();
             e.stopPropagation();
             if (actionType === "link") {
-                successCallback();
+                reportSuccess();
             }
-            window.open(link, '_blank');
+            window.open(safeLink, '_blank', 'noopener,noreferrer');
 
-        });
+        };
+        el.addEventListener('click', clickHandler);
+        disposer.push(() => el.removeEventListener('click', clickHandler));
     }
 
     if (actionType === "attention") {
-        // call successCallback only when the add enters the viewport for the first time
-        let hasBeenShown = false;
+        let currentEntry = null;
+        const isViewable = () =>
+            rendered &&
+            currentEntry?.isIntersecting &&
+            currentEntry.intersectionRatio >= 0.5 &&
+            document.visibilityState === "visible" &&
+            document.hasFocus();
+        updateViewability = () => {
+            if (isViewable() && viewabilityTimer === null) {
+                viewabilityTimer = setTimeout(() => {
+                    viewabilityTimer = null;
+                    if (isViewable()) {
+                        reportSuccess();
+                        observer.disconnect();
+                    }
+                }, 1000);
+            } else if (!isViewable() && viewabilityTimer !== null) {
+                clearTimeout(viewabilityTimer);
+                viewabilityTimer = null;
+            }
+        };
         const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting && !hasBeenShown) {
-                    hasBeenShown = true;
-                    successCallback();
-                    observer.disconnect(); // stop observing after the first show
-                }
-            });
-        });
+            currentEntry = entries[entries.length - 1] || null;
+            updateViewability();
+        }, {threshold: [0.5]});
+        document.addEventListener("visibilitychange", updateViewability);
+        window.addEventListener("blur", updateViewability);
+        window.addEventListener("focus", updateViewability);
         disposer.push(() => {
+            if (viewabilityTimer !== null) clearTimeout(viewabilityTimer);
             observer.disconnect();
+            document.removeEventListener("visibilitychange", updateViewability);
+            window.removeEventListener("blur", updateViewability);
+            window.removeEventListener("focus", updateViewability);
         });
         observer.observe(el);
-    } else if (actionType === "view") {
-        // call successCallback as soon as the ad is loaded
-        successCallback();
     }
+
+    if (mimeType === "text/plain") markRendered();
 
     return disposer;
 }

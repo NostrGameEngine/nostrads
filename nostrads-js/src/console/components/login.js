@@ -1,4 +1,5 @@
 import NostrAds from '../nostr-ads.js';
+import {safeImageUrl} from '../ad-render.js';
 
 
 
@@ -33,10 +34,13 @@ async function login(view, { relays, blossomEndpoints }) {
             name = pubkey.substring(0, 8) + "..." + pubkey.substring(pubkey.length - 8);
         }
         
-        userEl.innerHTML = `
-            <img src="${picture}" />
-            <span>${name}</span>
-        `;
+        userEl.textContent = '';
+        const pictureEl = document.createElement('img');
+        pictureEl.src = safeImageUrl(picture) || "/console/imgs/default.png";
+        pictureEl.alt = '';
+        const nameEl = document.createElement('span');
+        nameEl.textContent = name;
+        userEl.append(pictureEl, nameEl);
         ads.close();
 
     }

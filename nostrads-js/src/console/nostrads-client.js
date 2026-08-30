@@ -90,6 +90,9 @@ async function getInput(el, globalOptions) {
     } else {
         uid = uid.trim();
     }
+    if (!/^[A-Za-z0-9_-]{1,128}$/.test(uid)) {
+        throw new Error("Invalid nostrads-uid");
+    }
     adspaceInput.uid = uid;
 
     if (!adspaceInput.appKey) {
@@ -121,68 +124,88 @@ async function getInput(el, globalOptions) {
 }
 
 
-const spacesList = {};
+const spacesList = Object.create(null);
+let spaceGeneration = 0;
 
 async function prepareSpace(el, globalOptions, timeout) {
-    return new Promise((resolve, reject) => {  
-        requestAnimationFrame(async () => {
-            try{
-                const adspaceInput = await getInput(el, globalOptions);
-                if(!adspaceInput) {
-                    resolve();
-                    return;
-                }
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    const retryDelay = timeout ? Math.floor(Math.min(timeout * 1.8, 20000)) : 1500;
+    let props = null;
+    try {
+        const adspaceInput = await getInput(el, globalOptions);
+        if (!adspaceInput || !el.isConnected) return;
 
-                const props = {};
-                const exists = !!spacesList[adspaceInput.uid];
-                spacesList[adspaceInput.uid] = [el, adspaceInput, props];
-
-
-    
-                if (!exists){
-                    // if new register it
-                    await executor.invoke("registerAdspace", adspaceInput)
-                }
-
-                if (!timeout){
-                    timeout=1500;
-                } else {
-                    timeout = Math.floor(Math.min(timeout*1.8,20000));
-                }
-
-                const  [ad, offerId] = await executor.invoke("loadAd", adspaceInput)
-                props.offerId = offerId;
- 
-                Renderer.renderEvent(el, ad, async () => {
-                    await executor.invoke("confirmAd", offerId);
-                    timeout = 0;
-                }, async (error) => {
-                    console.error("Error rendering ad for element:", el, error);
-                    await executor.invoke("cancelAd", offerId);
-                    setTimeout(async() => {
-                        await prepareSpace(el, globalOptions, timeout); // re-prepare the space
-                    }, timeout);
-                });
-                resolve();
-            } catch (e) {
-                console.error("Error preparing ad space for element:", el, e);
-                console.log("Retrying in ", timeout, "ms");
-                setTimeout(async () => {
-                    await prepareSpace(el, globalOptions, timeout); // re-prepare the space
-                }, timeout);
+        const generation = ++spaceGeneration;
+        const previous = spacesList[adspaceInput.uid];
+        const exists = !!previous;
+        previous?.[2]?.dispose?.();
+        props = {
+            generation,
+            offerId: null,
+            retryTimer: null,
+            renderDisposers: [],
+            disposed: false,
+            dispose() {
+                if (this.disposed) return;
+                this.disposed = true;
+                if (this.retryTimer !== null) clearTimeout(this.retryTimer);
+                this.renderDisposers.forEach(dispose => dispose());
+                this.renderDisposers = [];
+                if (this.offerId) executor.invoke("cancelAd", this.offerId).catch(() => {});
             }
+        };
+        spacesList[adspaceInput.uid] = [el, adspaceInput, props];
+        const isCurrent = () => spacesList[adspaceInput.uid]?.[2] === props && !props.disposed;
+        const retry = () => {
+            if (!isCurrent() || props.retryTimer !== null) return;
+            props.retryTimer = setTimeout(() => {
+                props.retryTimer = null;
+                if (isCurrent()) prepareSpace(el, globalOptions, retryDelay);
+            }, retryDelay);
+        };
+
+        if (!exists) await executor.invoke("registerAdspace", adspaceInput);
+        if (!isCurrent()) return;
+
+        const [ad, offerId] = await executor.invoke("loadAd", adspaceInput);
+        if (!isCurrent()) {
+            await executor.invoke("cancelAd", offerId);
+            return;
+        }
+        props.offerId = offerId;
+        props.renderDisposers = Renderer.renderEvent(el, ad, async () => {
+            if (!isCurrent() || props.offerId !== offerId) return;
+            const confirmed = await executor.invoke("confirmAd", offerId);
+            if (confirmed !== true) throw new Error("Worker did not confirm the ad offer");
+            props.offerId = null;
+        }, async (error) => {
+            if (!isCurrent() || props.offerId !== offerId) return;
+            console.error("Error rendering ad for element:", el, error);
+            const cancelled = await executor.invoke("cancelAd", offerId);
+            props.offerId = null;
+            retry();
+            if (cancelled !== true) throw new Error("Worker did not cancel the ad offer");
+        }, {
+            allowedImageOrigins: globalOptions.allowedImageOrigins ?? []
         });
-     });
+    } catch (e) {
+        console.error("Error preparing ad space for element:", el, e);
+        if (props && !props.disposed) {
+            props.retryTimer = setTimeout(() => {
+                props.retryTimer = null;
+                if (!props.disposed) prepareSpace(el, globalOptions, retryDelay);
+            }, retryDelay);
+        }
+    }
 }
 
 async function releaseSpace(el, globalOptions) {
-    const adspaceInput = await getInput(el, globalOptions);
-    if (adspaceInput == null) {
-        return;
-    }
-    if (spacesList[adspaceInput.uid]) {
-        delete spacesList[adspaceInput.uid];
-    }
+    const uid = el.getAttribute("nostrads-uid")?.trim();
+    const entry = uid ? spacesList[uid] : null;
+    if (!entry) return;
+    const adspaceInput = entry[1];
+    entry[2]?.dispose?.();
+    delete spacesList[uid];
     try {
         await executor.invoke("unregisterAdspace", adspaceInput);
     } catch (e) {
@@ -222,7 +245,7 @@ async function auto(globalOptions, element) {
             if (document.readyState === 'loading') {
                 window.addEventListener("load", () => {
                     auto(globalOptions, document.body).then(resolve).catch(reject);
-                });
+                }, {once: true});
                 return;
             } else {
                 auto(globalOptions, document.body).then(resolve).catch(reject);
@@ -263,10 +286,6 @@ async function auto(globalOptions, element) {
     }
 
     
-    if (!globalOptions.userKey) {
-        globalOptions.userKey = await executor.invoke("generatePrivateKey");
-    }    
-
     if(initialize){
         executor.registerCallback("invalidateAd", (uid) => {
             onInvalidatedAd(uid, globalOptions);
@@ -278,22 +297,31 @@ async function auto(globalOptions, element) {
      }
 
     // load and unload ads for existing elements
+    const slotsInNode = (node) => {
+        if (node.nodeType !== Node.ELEMENT_NODE) return [];
+        const slots = [];
+        if (node.matches('.nostr-ddspace')) slots.push(node);
+        slots.push(...node.querySelectorAll('.nostr-ddspace'));
+        return slots;
+    };
     const observer = new MutationObserver((mutations) => {
         mutations.forEach(async (mutation) => {
             for (const node of mutation.addedNodes) {
-                try {
-                    if (node.nodeType !== Node.ELEMENT_NODE || !node.classList.contains('nostr-ddspace')) continue;
-                    await prepareSpace(node, globalOptions);
-                } catch (e) {
-                    console.error("Error processing added node:", e);
+                for (const slot of slotsInNode(node)) {
+                    try {
+                        await prepareSpace(slot, globalOptions);
+                    } catch (e) {
+                        console.error("Error processing added node:", e);
+                    }
                 }
             }
             for (const node of mutation.removedNodes) {
-                try {
-                    if (node.nodeType !== Node.ELEMENT_NODE || !node.classList.contains('nostr-ddspace')) continue;
-                    releaseSpace(node, globalOptions);
-                } catch (e) {
-                    console.error("Error processing removed node:", e);
+                for (const slot of slotsInNode(node)) {
+                    try {
+                        await releaseSpace(slot, globalOptions);
+                    } catch (e) {
+                        console.error("Error processing removed node:", e);
+                    }
                 }
             }
         });
@@ -304,13 +332,18 @@ async function auto(globalOptions, element) {
         subtree: true
     });
 
-    element.querySelectorAll('.nostr-ddspace').forEach(async (el) => {
+    await Promise.all(Array.from(element.querySelectorAll('.nostr-ddspace')).map(async (el) => {
         try {
-            prepareSpace(el, globalOptions);
+            await prepareSpace(el, globalOptions);
         } catch (e) {
             console.error("Error loading ad for element:", el, e);
         }
-    });
+    }));
+
+    return async () => {
+        observer.disconnect();
+        await Promise.all(Array.from(element.querySelectorAll('.nostr-ddspace')).map(el => releaseSpace(el, globalOptions)));
+    };
 }
 
 export default auto;

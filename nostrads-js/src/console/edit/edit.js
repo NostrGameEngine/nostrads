@@ -1,6 +1,6 @@
 
 
-import Renderer from "../ad-render.js";
+import Renderer, {safeLinkUrl} from "../ad-render.js";
 import NostrAds from '../nostr-ads.js';
 import showSettingsDialog, { getConfig, getRelays, getBlossomEndpoints } from "../components/options.js";
 import showLogin from "../components/login.js";
@@ -235,12 +235,9 @@ async function loadProps(view, urlParams) {
         console.log("Is test mode:", isTestMode);
         if(isTestMode){
             const nwcInput = view.querySelector('input[name="nwc"]');
-            if(!nwcInput.value){
-                nwcInput.value = config.testmode_config.nwc || "";
-            }
             const nwcInfo = view.querySelector('#nwcInfo');
             if(nwcInfo){
-                nwcInfo.innerHTML = `This field is in test mode and pre-filled with a working NWC URL thay you can use to test`;
+                nwcInfo.textContent = "Test mode: provide a dedicated, budget-limited NWC URL. Credentials are never bundled with this application.";
             }
             nwcInput.style.display = 'block';
         }
@@ -488,7 +485,7 @@ async function showNewForm(view) {
 
     actionTypeEl.addEventListener('change', e => {
         const titleAttribute = e.target.selectedOptions[0].getAttribute('title');
-        actionDescription.innerHTML = titleAttribute || 'No description available.';
+        actionDescription.textContent = titleAttribute || 'No description available.';
     });
     actionTypeEl.dispatchEvent(new Event('change'));
 
@@ -547,9 +544,13 @@ async function showNewForm(view) {
                     delegateInfoEl.appendChild(descEl);
 
                     const websiteEl = document.createElement('a');
-                    websiteEl.href = meta.website || '#';
-                    websiteEl.textContent = meta.website || 'No website available';
-                    websiteEl.target = '_blank';
+                    const website = safeLinkUrl(meta.website);
+                    websiteEl.textContent = website || 'No website available';
+                    if (website) {
+                        websiteEl.href = website;
+                        websiteEl.target = '_blank';
+                        websiteEl.rel = 'noopener noreferrer';
+                    }
                     delegateInfoEl.appendChild(websiteEl);
 
                     delegateMetadataEl.appendChild(delegateInfoEl);
@@ -580,7 +581,11 @@ async function showNewForm(view) {
                 }
             } catch (e) {
                 console.error("Error fetching delegate metadata:", e);
-                delegateMetadataEl.innerHTML = `<span class="error">Error fetching metadata: ${e.message}</span>`;
+                delegateMetadataEl.textContent = '';
+                const errorEl = document.createElement('span');
+                errorEl.className = 'error';
+                errorEl.textContent = `Error fetching metadata: ${e.message}`;
+                delegateMetadataEl.appendChild(errorEl);
             }
         }
     }
