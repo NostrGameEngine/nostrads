@@ -29,6 +29,10 @@ ext {
 
 allprojects {
 
+    dependencyLocking {
+        lockAllConfigurations()
+    }
+
     def projectVersion = System.getenv("VERSION")
     if (projectVersion == null || projectVersion.trim().isEmpty()) {
         projectVersion = rootProject.ext.baseVersion

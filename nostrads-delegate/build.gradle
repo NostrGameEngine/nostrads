@@ -2,7 +2,7 @@ plugins {
     id 'application'
     id 'com.gradleup.shadow' version '8.3.10'
     id "com.diffplug.spotless" version "7.0.2"  
-    id "org.gradle.test-retry"                          version "1.5.2" 
+    id "org.gradle.test-retry" version "1.6.5"
 }
 
  
@@ -20,24 +20,18 @@ group   = projectGroup
 
 
 repositories {
-    mavenLocal()
     mavenCentral()
-    maven {
-        url = uri("https://central.sonatype.com/repository/maven-snapshots")
-    }
- 
 }
 
 dependencies {
     def versionCatalog = project.extensions.getByType(org.gradle.api.artifacts.VersionCatalogsExtension).named("libs")
-    def catalogLibrary = { String alias ->
-        versionCatalog.findLibrary(project.version.toString().endsWith('-SNAPSHOT') ? "${alias}-snapshot" : alias).get()
-    }
+    def catalogLibrary = { String alias -> versionCatalog.findLibrary(alias).get() }
 
     implementation libs.jakarta.annotation.api
     implementation project(":nostrads")
     implementation catalogLibrary("nostr4j")
     implementation catalogLibrary("nge-platform-jvm")
+    implementation libs.saferalloc
 
     testImplementation libs.junit
     testImplementation catalogLibrary("nge-platform-jvm")

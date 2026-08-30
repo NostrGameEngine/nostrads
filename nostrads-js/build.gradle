@@ -9,7 +9,20 @@ task prepareJsClient(type: Copy) {
 
 
 task npmInstall(type: Exec) {
-    commandLine 'npm', 'install'
+    commandLine 'npm', 'ci'
+}
+
+task vendorConsoleDependencies(type: Copy) {
+    dependsOn npmInstall
+    from('node_modules/choices.js/public/assets/styles') {
+        include 'choices.min.css'
+        into 'styles'
+    }
+    from('node_modules/choices.js/public/assets/scripts') {
+        include 'choices.min.js'
+        into 'scripts'
+    }
+    into file('src/console/vendor/choices')
 }
 
 
@@ -18,15 +31,19 @@ task packJsClient(type: Exec) {
     commandLine 'npx', 'webpack', '--config', 'webpack.config.js'
 }
 packJsClient.dependsOn npmInstall
+packJsClient.dependsOn vendorConsoleDependencies
 
 
- 
  
 task startWebServer(type: Exec) {
     dependsOn prepareJsClient
     commandLine 'npx', 'http-server', 'src', '-p', '8082'
-    
 }
 startWebServer.dependsOn packJsClient
 
- 
+task browserRendererTest(type: Exec) {
+    dependsOn packJsClient
+    group = 'verification'
+    description = 'Runs deterministic renderer security checks in headless Chrome'
+    commandLine 'bash', 'scripts/test-browser-renderer.sh'
+}

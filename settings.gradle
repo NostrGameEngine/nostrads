@@ -8,7 +8,6 @@ pluginManagement {
     repositories {
         mavenCentral()
         gradlePluginPortal()
-        mavenLocal()
         maven { url = uri("https://teavm.org/maven/repository") }
     }
 }
