@@ -44,6 +44,7 @@ import org.ngengine.nostr4j.signer.NostrKeyPairSigner;
 import org.ngengine.nostr4j.signer.NostrNIP07Signer;
 import org.ngengine.nostr4j.signer.NostrSigner;
 import org.ngengine.nostrads.protocol.types.AdTaxonomy;
+import org.ngengine.nostrads.security.VerifiedNostrPool;
 import org.ngengine.nostrads.types.Nip01Callback;
 import org.ngengine.nostrads.types.PublicKeyCallback;
 import org.ngengine.platform.teavm.TeaVMJsConverter;
@@ -58,8 +59,10 @@ public abstract class NostrAds implements Closeable {
     protected NostrSigner signer;
     private boolean initialized = false;
 
-    public void close() {
-        pool.close();
+    public synchronized void close() {
+        if (!initialized) return;
+        initialized = false;
+        if (pool != null) pool.close();
     }
 
     protected NostrAds() throws Exception {
@@ -70,7 +73,7 @@ public abstract class NostrAds implements Closeable {
         try {
             if (initialized) return false;
 
-            pool = new NostrPool();
+            pool = new VerifiedNostrPool();
             for (int i = 0; i < relays.length; i++) {
                 pool.connectRelay(new NostrRelay(relays[i]));
             }

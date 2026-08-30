@@ -114,9 +114,8 @@ public class AdvertiserClientWrapper extends NostrAds {
     @JSExport
     public void close() {
         ctx.run(() -> {
-            init();
             super.close();
-            blossomPool.close();
+            if (blossomPool != null) blossomPool.close();
         });
     }
 

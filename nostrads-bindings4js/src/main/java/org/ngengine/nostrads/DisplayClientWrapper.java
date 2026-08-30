@@ -91,7 +91,7 @@ public class DisplayClientWrapper extends NostrAds {
     @JSExport
     public void close() {
         ctx.run(() -> {
-            init();
+            if (displayClient != null) displayClient.close();
             super.close();
         });
     }
