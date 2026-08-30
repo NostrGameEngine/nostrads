@@ -36,6 +36,7 @@ import java.time.Instant;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.ngengine.bolt11.Bolt11NetworkType;
 import org.ngengine.lnurl.LnUrl;
 import org.ngengine.lnurl.LnUrlPay;
 import org.ngengine.nostr4j.NostrPool;
@@ -57,6 +58,7 @@ public class DelegateNegotiationHandler extends NegotiationHandler {
 
     private static final Logger logger = Logger.getLogger(DelegateNegotiationHandler.class.getName());
     private final LnUrl lnurl;
+    private final Bolt11NetworkType invoiceNetwork;
     private final AtomicBoolean paid = new AtomicBoolean(false);
 
     /**
@@ -75,10 +77,12 @@ public class DelegateNegotiationHandler extends NegotiationHandler {
         @Nonnull NostrPool pool,
         @Nonnull NostrSigner signer,
         @Nonnull AdBidEvent bid,
-        int maxDiff
+        int maxDiff,
+        @Nonnull Bolt11NetworkType invoiceNetwork
     ) {
         super(pool, signer, bid, maxDiff);
         this.lnurl = lnurl;
+        this.invoiceNetwork = invoiceNetwork;
     }
 
     /**
@@ -114,8 +118,14 @@ public class DelegateNegotiationHandler extends NegotiationHandler {
                                 .fetchInvoice(getBidEvent().getBidMsats(), "Payment for " + this.getBidEvent().getId(), null)
                                 .then(res -> {
                                     String invoice = res.getPr();
+                                    InvoiceValidator.validateLnurlInvoice(
+                                        invoice,
+                                        payRequest,
+                                        getBidEvent().getBidMsats(),
+                                        invoiceNetwork
+                                    );
                                     logger.fine(
-                                        "Fetched invoice for payment request: " + paymentRequestEvent.getId() + ": " + invoice
+                                        "Fetched and validated invoice for payment request: " + paymentRequestEvent.getId()
                                     );
                                     AtomicBoolean done = new AtomicBoolean(false); // we make sure to notify only once even if we have many listeners
                                     for (Listener listener : getListeners()) {
@@ -186,16 +196,11 @@ public class DelegateNegotiationHandler extends NegotiationHandler {
 
                 return builder.build(getSigner(), offer, getLocalPenalty());
             })
-            .then(sevent -> {
+            .compose(sevent -> {
                 logger.fine("Sending accept offer event for bid: " + getBidEvent().getId() + ": " + sevent);
-                // publish the accept event and return
-                AsyncTask
+                return AsyncTask
                     .allSettled(getPool().publish(sevent))
-                    .then(ack -> {
-                        return sevent;
-                    });
-
-                return null;
+                    .then(DelegateNegotiationHandler::requireRelayAcknowledgement);
             });
     }
 
@@ -218,9 +223,7 @@ public class DelegateNegotiationHandler extends NegotiationHandler {
 
                 return AsyncTask
                     .allSettled(getPool().publish(ev))
-                    .then(ack -> {
-                        return null;
-                    });
+                    .then(DelegateNegotiationHandler::requireRelayAcknowledgement);
             });
     }
 }

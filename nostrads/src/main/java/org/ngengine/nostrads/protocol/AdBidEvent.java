@@ -33,6 +33,7 @@ package org.ngengine.nostrads.protocol;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -59,6 +60,15 @@ import org.ngengine.platform.NGEUtils;
 public class AdBidEvent extends AdEvent {
 
     public static final int KIND = 30100; // Ad Bid kind
+    private static final int MAX_DESCRIPTION_LENGTH = 2048;
+    private static final int MAX_TEXT_PAYLOAD_LENGTH = 16 * 1024;
+    private static final int MAX_CONTEXT_LENGTH = 4096;
+    private static final int MAX_CALL_TO_ACTION_LENGTH = 256;
+    private static final int MAX_DELEGATE_PAYLOAD_LENGTH = 16 * 1024;
+    private static final int MAX_URL_LENGTH = 2048;
+    private static final Duration MAX_HOLD_TIME = Duration.ofDays(1);
+    private static final Duration MAX_PAYOUT_RESET_INTERVAL = Duration.ofDays(30);
+    private static final Duration MAX_EVENT_LIFETIME = Duration.ofDays(30);
     private final AdTaxonomy taxonomy;
     private transient AdOfferEvent linkedOffer = null;
 
@@ -217,10 +227,25 @@ public class AdBidEvent extends AdEvent {
 
     public AsyncTask<Map<String, Object>> getDecryptedDelegatePayload(NostrSigner signer) {
         TagValue data = getFirstTag("D");
-        String encryptedPayload = Objects.requireNonNull(Objects.requireNonNull(data).get(1));
+        if (data == null || data.size() < 2) {
+            return AsyncTask.failed(new IllegalArgumentException("Bid has no encrypted delegate payload"));
+        }
+        String encryptedPayload = Objects.requireNonNull(data.get(1));
+        if (encryptedPayload.length() > MAX_DELEGATE_PAYLOAD_LENGTH) {
+            return AsyncTask.failed(new IllegalArgumentException("Encrypted delegate payload is too large"));
+        }
         return signer
             .decrypt(encryptedPayload, getPubkey())
-            .then(decrypted -> NGEPlatform.get().fromJSON(decrypted, Map.class));
+            .then(decrypted -> {
+                if (decrypted.length() > MAX_DELEGATE_PAYLOAD_LENGTH) {
+                    throw new IllegalArgumentException("Decrypted delegate payload is too large");
+                }
+                Map<String, Object> payload = NGEPlatform.get().fromJSON(decrypted, Map.class);
+                if (payload == null || payload.size() > 8) {
+                    throw new IllegalArgumentException("Invalid delegate payload");
+                }
+                return payload;
+            });
     }
 
     public AdPriceSlot getPriceSlot() {
@@ -238,13 +263,57 @@ public class AdBidEvent extends AdEvent {
     @Override
     public void checkValid() throws Exception {
         super.checkValid();
-        getDescription();
-        getPayload();
-        getLink();
-        getBidMsats();
-        getHoldTime();
+        Instant expiration = getExpiration();
+        if (expiration == null || expiration.isAfter(Instant.now().plus(MAX_EVENT_LIFETIME))) {
+            throw new Exception("Bid expiration is missing or exceeds the maximum lifetime");
+        }
+        String description = getDescription();
+        if (description.length() > MAX_DESCRIPTION_LENGTH) throw new Exception("Description is too long");
+        String context = getContext();
+        if (context != null && context.length() > MAX_CONTEXT_LENGTH) throw new Exception("Context is too long");
+        String callToAction = getCallToAction();
+        if (callToAction != null && callToAction.length() > MAX_CALL_TO_ACTION_LENGTH) {
+            throw new Exception("Call to action is too long");
+        }
+        if (getContent().length() > 256 * 1024) throw new Exception("Bid content is too large");
+        TagValue delegateData = getFirstTag("D");
+        if (
+            delegateData == null ||
+            delegateData.size() < 1 ||
+            delegateData.size() > 3 ||
+            (
+                delegateData.size() > 1 &&
+                (delegateData.get(1) == null || delegateData.get(1).length() > MAX_DELEGATE_PAYLOAD_LENGTH)
+            )
+        ) {
+            throw new Exception("Invalid encrypted delegate payload");
+        }
+        String payload = getPayload();
+        String link = getLink();
+        validateHttpsUrl(link, "link");
+        long bidMsats = getBidMsats();
+        if (bidMsats <= 0) throw new Exception("Bid amount must be positive");
+        Duration holdTime = getHoldTime();
+        if (holdTime.isNegative() || holdTime.compareTo(MAX_HOLD_TIME) > 0) {
+            throw new Exception("Invalid hold time");
+        }
+        int maxPayouts = getMaxPayouts();
+        if (maxPayouts <= 0 || maxPayouts > 10000) throw new Exception("Invalid maximum payout count");
+        Duration payoutResetInterval = getPayoutResetInterval();
+        if (
+            payoutResetInterval.isZero() ||
+            payoutResetInterval.isNegative() ||
+            payoutResetInterval.compareTo(MAX_PAYOUT_RESET_INTERVAL) > 0
+        ) {
+            throw new Exception("Invalid payout reset interval");
+        }
         getActionType();
-        getMIMEType();
+        AdMimeType mimeType = getMIMEType();
+        if (mimeType == AdMimeType.TEXT_PLAIN) {
+            if (payload.length() > MAX_TEXT_PAYLOAD_LENGTH) throw new Exception("Text payload is too long");
+        } else {
+            validateHttpsUrl(payload, "image payload");
+        }
 
         AdAspectRatio aspectRatio = getAspectRatio();
         if (aspectRatio == null) {
@@ -262,6 +331,14 @@ public class AdBidEvent extends AdEvent {
         }
         if (slot.getValueMsats() > this.getBidMsats()) {
             throw new Exception("Invalid bid slot " + slot + " for amount " + this.getBidMsats() + " msats");
+        }
+    }
+
+    private static void validateHttpsUrl(String value, String field) throws Exception {
+        if (value == null || value.length() > MAX_URL_LENGTH) throw new Exception("Invalid " + field + " URL");
+        URI uri = URI.create(value);
+        if (!"https".equalsIgnoreCase(uri.getScheme()) || uri.getHost() == null || uri.getUserInfo() != null) {
+            throw new Exception("Invalid " + field + " URL");
         }
     }
 

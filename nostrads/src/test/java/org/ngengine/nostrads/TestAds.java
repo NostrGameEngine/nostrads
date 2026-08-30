@@ -45,9 +45,11 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.Test;
+import org.ngengine.nostr4j.NostrFilter;
 import org.ngengine.nostr4j.NostrPool;
 import org.ngengine.nostr4j.NostrRelay;
 import org.ngengine.nostr4j.event.SignedNostrEvent;
+import org.ngengine.nostr4j.event.UnsignedNostrEvent;
 import org.ngengine.nostr4j.keypair.NostrKeyPair;
 import org.ngengine.nostr4j.keypair.NostrPrivateKey;
 import org.ngengine.nostr4j.keypair.NostrPublicKey;
@@ -77,6 +79,17 @@ public class TestAds {
 
     private static final Logger logger = TestLogger.getRoot(Level.FINEST);
     NostrPool pool;
+
+    private List<RankedAd> fetchBidsEventually(RankedAdsQueue queue, List<NostrFilter> filters) throws Exception {
+        List<RankedAd> bids = List.of();
+        for (int attempt = 0; attempt < 10 && bids.isEmpty(); attempt++) {
+            bids = queue.fetchBids(filters, null).await();
+            if (bids.isEmpty()) {
+                Thread.sleep(200);
+            }
+        }
+        return bids;
+    }
 
     // run before all tests
     public TestAds() {
@@ -232,7 +245,8 @@ public class TestAds {
         mutatedTags.add(List.of("s", "468x60"));
         rawEvent.put("tags", mutatedTags);
 
-        AdBidEvent mutatedBid = new AdBidEvent(taxonomy, new SignedNostrEvent(rawEvent));
+        SignedNostrEvent resigned = advertiserSigner.sign(new UnsignedNostrEvent(rawEvent)).await();
+        AdBidEvent mutatedBid = new AdBidEvent(taxonomy, resigned);
         assertNull(mutatedBid.getDimensions());
 
         try {
@@ -310,7 +324,7 @@ public class TestAds {
                 filter.withAuthor(advertiserKeyPair.getPublicKey());
 
                 System.out.println("Fetching bid with filter: " + filter);
-                List<RankedAd> bids = queue.fetchBids(List.of(filter), null).await();
+                List<RankedAd> bids = fetchBidsEventually(queue, List.of(filter));
                 assertTrue(bids.size() > 0);
             }
         }
@@ -373,7 +387,7 @@ public class TestAds {
                 filter.withAuthor(advertiserKeyPair.getPublicKey());
 
                 System.out.println("Fetching bid with filter: " + filter);
-                List<RankedAd> bids = queue.fetchBids(List.of(filter), null).await();
+                List<RankedAd> bids = fetchBidsEventually(queue, List.of(filter));
 
                 assertTrue(bids.size() > 0);
             }
@@ -440,7 +454,7 @@ public class TestAds {
                 filter.withAuthor(advertiserKeyPair.getPublicKey());
 
                 System.out.println("Fetching bid with filter: " + filter);
-                List<RankedAd> bids = queue.fetchBids(List.of(filter), null).await();
+                List<RankedAd> bids = fetchBidsEventually(queue, List.of(filter));
                 assertTrue(bids.size() > 0);
             }
             // find no bid
@@ -524,7 +538,7 @@ public class TestAds {
             filter.withAuthor(advertiserKeyPair.getPublicKey());
 
             System.out.println("Fetching bid with filter: " + filter);
-            List<RankedAd> bids = queue.fetchBids(List.of(filter), null).await();
+            List<RankedAd> bids = fetchBidsEventually(queue, List.of(filter));
             assertTrue(bids.size() > 0);
         }
 
@@ -534,16 +548,18 @@ public class TestAds {
             filter.withAuthor(advertiserKeyPair.getPublicKey());
 
             System.out.println("Fetching bid with filter: " + filter);
-            List<RankedAd> bids = queue.fetchBids(List.of(filter), null).await();
+            List<RankedAd> bids = fetchBidsEventually(queue, List.of(filter));
             assertTrue(bids.size() > 0);
         }
     }
 
     @Test
     public void testDisplayFlow() throws Exception {
-        String nwc =
-            "nostr+walletconnect://8e1e934ea0dd99cc2949805ed577abe76bb7d8c34d2d44a9e5f144a308b831f3?relay=wss://nostr.rblb.it&secret=520eaf4b4e7fcc0bb1498829955179e0693eeed59a2453807096e6bfd81cfb12";
-
+        String nwc = System.getenv("NOSTRADS_TEST_NWC");
+        org.junit.Assume.assumeTrue(
+            "Set NOSTRADS_TEST_NWC to run the wallet-backed display integration test",
+            nwc != null && nwc.startsWith("nostr+walletconnect://")
+        );
         AdTaxonomy taxonomy = new AdTaxonomy();
 
         NostrKeyPair advertiserKeyPair = new NostrKeyPair(NostrPrivateKey.generate());

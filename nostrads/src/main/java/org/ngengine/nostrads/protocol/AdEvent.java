@@ -69,6 +69,9 @@ public abstract class AdEvent extends SignedNostrEvent {
     }
 
     public void checkValid() throws Exception {
+        if (!verify()) {
+            throw new SecurityException("Invalid Nostr event signature or id");
+        }
         if (getExpiration() != null && getExpiration().isBefore(Instant.now())) {
             throw new Exception("Event has expired: " + getExpiration());
         }

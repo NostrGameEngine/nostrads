@@ -39,6 +39,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.ngengine.nostr4j.NostrPool;
 import org.ngengine.nostr4j.event.SignedNostrEvent;
+import org.ngengine.nostr4j.proto.NostrMessageAck;
 import org.ngengine.nostr4j.signer.NostrSigner;
 import org.ngengine.nostrads.protocol.AdBidEvent;
 import org.ngengine.nostrads.protocol.negotiation.AdBailEvent;
@@ -79,6 +80,16 @@ public abstract class NegotiationHandler {
     private int localPenalty = 0;
 
     private volatile boolean closed = false;
+
+    protected static Void requireRelayAcknowledgement(List<AsyncTask<NostrMessageAck>> acknowledgements) {
+        for (AsyncTask<NostrMessageAck> acknowledgement : acknowledgements) {
+            try {
+                if (acknowledgement.await().getStatus() == NostrMessageAck.Status.SUCCESS) return null;
+            } catch (Exception ignored) {}
+        }
+        throw new IllegalStateException("No relay acknowledged the negotiation event");
+    }
+
     private volatile boolean completed = false;
     private volatile boolean accepted = false;
 
@@ -167,7 +178,7 @@ public abstract class NegotiationHandler {
      * Close the negotiation, stop listening for events and free resources.
      * Once a negotiation is closed, it cannot be reopened.
      */
-    public void close() {
+    public synchronized void close() {
         if (closed) return; // already closed
         closed = true;
 
@@ -215,8 +226,9 @@ public abstract class NegotiationHandler {
             .build(signer, offer)
             .compose(sevent -> {
                 return AsyncTask
-                    .any(pool.publish(sevent))
+                    .allSettled(pool.publish(sevent))
                     .then(ack -> {
+                        requireRelayAcknowledgement(ack);
                         for (Listener listener : listeners) {
                             listener.onBail(this, sevent, false);
                         }

@@ -163,6 +163,11 @@ public abstract class AdNegotiationEvent extends AdEvent {
 
     @SuppressWarnings("unchecked")
     public static <T extends AdNegotiationEvent> AsyncTask<T> cast(NostrSigner signer, SignedNostrEvent e, AdOfferEvent offer) {
+        try {
+            if (!e.verify()) return AsyncTask.failed(new SecurityException("Invalid Nostr negotiation signature or id"));
+        } catch (Exception verificationError) {
+            return AsyncTask.failed(verificationError);
+        }
         return (AsyncTask<T>) signer
             .decrypt(e.getContent(), e.getPubkey())
             .then(decrypted -> {
