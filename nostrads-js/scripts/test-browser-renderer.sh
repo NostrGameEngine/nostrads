@@ -7,7 +7,7 @@ if [[ ! -s "$bundle" ]]; then
     echo "Built JavaScript client bundle is missing." >&2
     exit 1
 fi
-if rg -q 'nostrads-worker-session-v1|new SharedWorker|new BroadcastChannel' "$bundle"; then
+if grep -qE 'nostrads-worker-session-v1|new SharedWorker|new BroadcastChannel' "$bundle"; then
     echo "Built JavaScript client still contains a shared cross-tab worker transport." >&2
     exit 1
 fi
@@ -45,7 +45,7 @@ timeout 45s google-chrome \
     --dump-dom \
     http://127.0.0.1:18732/browser-tests/renderer.html >"$test_tmp/dom.html"
 
-if ! rg -q 'data-test-status="passed"' "$test_tmp/dom.html"; then
+if ! grep -qE 'data-test-status="passed"' "$test_tmp/dom.html"; then
     sed -n '1,160p' "$test_tmp/dom.html"
     exit 1
 fi
