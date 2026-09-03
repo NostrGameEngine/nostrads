@@ -17,10 +17,14 @@ LABEL org.opencontainers.image.description="NostrAds delegate service"
 
 RUN groupadd --system --gid 10001 nostrads \
     && useradd --system --uid 10001 --gid 10001 --home-dir /data --shell /usr/sbin/nologin nostrads \
-    && install -d -o nostrads -g nostrads -m 0700 /data
+    && install -d -o nostrads -g nostrads -m 0700 /data \
+    && install -d -m 0555 /app /app/native
 
 COPY --chmod=0444 dist/portable/nostrads-delegate-fat-all.jar /app/nostrads-delegate.jar
 COPY --from=native --chmod=0555 /native/libsaferalloc.so /app/native/libsaferalloc.so
+
+
+RUN chmod 0555 /app /app/native
 
 ENV APP_DATA_DIR=/data
 

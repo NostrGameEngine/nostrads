@@ -162,6 +162,13 @@ docker logs nostrads-delegate
 >[!TIP]
 > In the snipped above, `/srv/nostrads-delegate` is the path where all persistent data will be stored, including the private key of the delegate service. Change it to a path that suits your needs.
 
+> [!IMPORTANT]
+> The container runs as the unprivileged user `10001:10001`, so the host directory mounted on `/data` must be writable by that UID:
+> ```bash
+> mkdir -p /srv/nostrads-delegate
+> chown -R 10001:10001 /srv/nostrads-delegate
+> ```
+
 
 ### Configuration
 The service will start with sane defaults, and no fees.
