@@ -140,7 +140,10 @@ public class OffererNegotiationHandler extends NegotiationHandler {
 
                 // initialize with this offer
                 open(sevent);
-                return AsyncTask.allSettled(getPool().publish(sevent)).then(NegotiationHandler::requireRelayAcknowledgement);
+                return getPool()
+                    .publish(sevent)
+                    .compose(AsyncTask::allSettled)
+                    .then(NegotiationHandler::requireRelayAcknowledgement);
             });
     }
 
@@ -161,7 +164,10 @@ public class OffererNegotiationHandler extends NegotiationHandler {
             .build(getSigner(), getOffer(), getLocalPenalty())
             .compose(sevent -> {
                 logger.fine("Sending payment request event for bid: " + getBidEvent().getId() + ": " + sevent);
-                return AsyncTask.allSettled(getPool().publish(sevent)).then(NegotiationHandler::requireRelayAcknowledgement);
+                return getPool()
+                    .publish(sevent)
+                    .compose(AsyncTask::allSettled)
+                    .then(NegotiationHandler::requireRelayAcknowledgement);
             });
     }
 }

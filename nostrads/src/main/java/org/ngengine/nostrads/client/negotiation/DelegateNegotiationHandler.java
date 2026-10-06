@@ -198,8 +198,9 @@ public class DelegateNegotiationHandler extends NegotiationHandler {
             })
             .compose(sevent -> {
                 logger.fine("Sending accept offer event for bid: " + getBidEvent().getId() + ": " + sevent);
-                return AsyncTask
-                    .allSettled(getPool().publish(sevent))
+                return getPool()
+                    .publish(sevent)
+                    .compose(AsyncTask::allSettled)
                     .then(DelegateNegotiationHandler::requireRelayAcknowledgement);
             });
     }
@@ -221,8 +222,9 @@ public class DelegateNegotiationHandler extends NegotiationHandler {
             .compose(ev -> {
                 logger.fine("Sending notify payout event for bid: " + getBidEvent().getId() + ": " + ev);
 
-                return AsyncTask
-                    .allSettled(getPool().publish(ev))
+                return getPool()
+                    .publish(ev)
+                    .compose(AsyncTask::allSettled)
                     .then(DelegateNegotiationHandler::requireRelayAcknowledgement);
             });
     }

@@ -1,7 +1,7 @@
 plugins {
     id 'java-library'
     id "war"
-    id "org.teavm" version "0.13.0"
+    id "org.ngengine.teavm"
     id "com.diffplug.spotless" version "7.0.2"  
 
 }
@@ -21,14 +21,37 @@ group   = projectGroup
 
 repositories {
     mavenCentral()
+    maven {
+        url = uri("https://central.sonatype.com/repository/maven-snapshots/")
+        content {
+            includeModule("org.ngengine", "nostr4j")
+            includeModule("org.ngengine", "nge-platform-common")
+            includeModule("org.ngengine", "nge-platform-teavm")
+            includeModuleByRegex("org\\.ngengine", "teavm-.*")
+        }
+    }
     maven { url = uri("https://teavm.org/maven/repository") }
 }
 
+// Use a named configuration so the compiler's own classpath is pinned too.
+// The plugin otherwise creates a detached configuration with a moving snapshot.
+configurations {
+    teavmCompilerClasspath {
+        canBeConsumed = false
+        canBeResolved = true
+    }
+}
+
+tasks.withType(org.teavm.gradle.tasks.TeaVMTask).configureEach {
+    daemonClasspath.setFrom(configurations.teavmCompilerClasspath)
+}
+
 dependencies {
+    teavmCompilerClasspath "org.ngengine:teavm-tooling:${providers.gradleProperty('teavmVersion').get()}"
     def versionCatalog = project.extensions.getByType(org.gradle.api.artifacts.VersionCatalogsExtension).named("libs")
     def catalogLibrary = { String alias -> versionCatalog.findLibrary(alias).get() }
 
-    compileOnly catalogLibrary("nge-platform-common")
+    implementation catalogLibrary("nge-platform-common")
     implementation catalogLibrary("nge-platform-teavm")
     implementation project(":nostrads")
     implementation catalogLibrary("nostr4j")

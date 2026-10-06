@@ -225,8 +225,9 @@ public abstract class NegotiationHandler {
         return builder
             .build(signer, offer)
             .compose(sevent -> {
-                return AsyncTask
-                    .allSettled(pool.publish(sevent))
+                return pool
+                    .publish(sevent)
+                    .compose(AsyncTask::allSettled)
                     .then(ack -> {
                         requireRelayAcknowledgement(ack);
                         for (Listener listener : listeners) {

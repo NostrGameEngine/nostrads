@@ -199,7 +199,7 @@ public class AdvertiserClient {
      * @return a task that will complete when the bid is published.
      */
     public AsyncTask<List<AsyncTask<NostrMessageAck>>> publishBid(AdBidEvent ev) {
-        return AsyncTask.allSettled(pool.publish(ev));
+        return pool.publish(ev).compose(AsyncTask::allSettled);
     }
 
     /**
@@ -212,7 +212,7 @@ public class AdvertiserClient {
         UnsignedNostrEvent cancel = Nip09EventDeletion.createDeletionEvent(reason, ev);
         return this.signer.sign(cancel)
             .compose(signed -> {
-                return AsyncTask.allSettled(pool.publish(signed));
+                return pool.publish(signed).compose(AsyncTask::allSettled);
             });
     }
 
@@ -223,7 +223,7 @@ public class AdvertiserClient {
         );
         return this.signer.sign(cancel)
             .compose(signed -> {
-                return AsyncTask.allSettled(pool.publish(signed));
+                return pool.publish(signed).compose(AsyncTask::allSettled);
             });
     }
 

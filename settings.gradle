@@ -5,9 +5,19 @@
  * For more detailed information on multi-project builds, please refer to https://docs.gradle.org/8.13/userguide/multi_project_builds.html in the Gradle documentation.
  */
 pluginManagement {
+    plugins {
+        id 'org.ngengine.teavm' version providers.gradleProperty('teavmVersion').get()
+    }
     repositories {
         mavenCentral()
         gradlePluginPortal()
+        maven {
+            url = uri("https://central.sonatype.com/repository/maven-snapshots/")
+            content {
+                includeModule("org.ngengine.teavm", "org.ngengine.teavm.gradle.plugin")
+                includeModuleByRegex("org\\.ngengine", "teavm-.*")
+            }
+        }
         maven { url = uri("https://teavm.org/maven/repository") }
     }
 }
@@ -22,3 +32,23 @@ include("nostrads")
 include("nostrads-bindings4js")
 include("nostrads-delegate")
 include("nostrads-js")
+
+// The published compiler requests moving snapshots internally. Keep its plugin
+// classpath and generated-program libraries on one immutable publication.
+gradle.beforeProject { project ->
+    if (project.path == ':nostrads-bindings4js') {
+        def pinTeaVM = { dependency ->
+            if (dependency.requested.group == 'org.ngengine' && dependency.requested.name.startsWith('teavm-')) {
+                def versionProperty = dependency.requested.name in ['teavm-extension-apis', 'teavm-extension-annotation-processor']
+                    ? 'teavmExtensionsVersion' : 'teavmVersion'
+                dependency.useVersion(providers.gradleProperty(versionProperty).get())
+            }
+        }
+        project.buildscript.configurations.configureEach {
+            resolutionStrategy.eachDependency(pinTeaVM)
+        }
+        project.configurations.configureEach {
+            resolutionStrategy.eachDependency(pinTeaVM)
+        }
+    }
+}

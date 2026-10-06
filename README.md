@@ -6,6 +6,22 @@ Decentralized advertising on top of nostr.
 
 
 
+## Dependency compatibility
+
+The checked-in Gradle catalog pins the official nostr4j snapshot containing the
+asynchronous `NostrPool.publish` API, together with its matching NGE platform API.
+The stable nostr4j release `0.3.1` has the earlier synchronous
+publication signature and cannot replace that snapshot. Snapshot artifacts are
+pinned by timestamp and checked by Gradle dependency verification. Common/JVM and
+TeaVM platform artifacts share a publication timestamp but have different build
+numbers, so their catalog versions are kept separately. The JavaScript bindings
+use the matching official NGE TeaVM compiler fork, pinned in `gradle.properties`;
+upstream TeaVM 0.13 cannot compile the platform’s Cleaner-based resource handling.
+
+Keep these dependencies aligned when refreshing the central catalog. Publishing
+this NostrAds update is required before downstream applications can consume its
+new binary API compatibility.
+
 ## Javascript Client Library
 
 This is the client library that you can use to connect a webapp to the network.

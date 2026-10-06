@@ -11,6 +11,14 @@ plugins {
 
 repositories {
     mavenCentral()
+    maven {
+        url = uri("https://central.sonatype.com/repository/maven-snapshots/")
+        content {
+            includeModule("org.ngengine", "nostr4j")
+            includeModule("org.ngengine", "nge-platform-common")
+            includeModule("org.ngengine", "nge-platform-jvm")
+        }
+    }
 }
 
 dependencies {
@@ -21,6 +29,7 @@ dependencies {
     compileOnly catalogLibrary("nge-platform-common")
     compileOnly catalogLibrary("nostr4j")
     
+    testImplementation catalogLibrary("nge-platform-common")
     testImplementation libs.junit
     testImplementation catalogLibrary("nostr4j")
     testImplementation catalogLibrary("nge-platform-jvm")
