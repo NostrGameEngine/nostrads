@@ -1,9 +1,9 @@
 [versions]
 ngePlatform = "0.2.4"
 nostr4j = "0.3.1"
+saferalloc = "0.0.11"
 jakartaAnnotation = "2.1.1"
 junit4Version = "4.13.2"
-saferalloc = "0.0.10"
 
 
 [libraries]
@@ -11,6 +11,6 @@ nge-platform-common = { module = "org.ngengine:nge-platform-common", version.ref
 nge-platform-jvm = { module = "org.ngengine:nge-platform-jvm", version.ref = "ngePlatform" }
 nge-platform-teavm = { module = "org.ngengine:nge-platform-teavm", version.ref = "ngePlatform" }
 nostr4j = { module = "org.ngengine:nostr4j", version.ref = "nostr4j" }
+saferalloc = { module = "org.ngengine:saferalloc", version.ref = "saferalloc" }
 jakarta-annotation-api = { module = "jakarta.annotation:jakarta.annotation-api", version.ref = "jakartaAnnotation" }
 junit = { module = "junit:junit", version.ref = "junit4Version" }
-saferalloc = { module = "org.ngengine:saferalloc", version.ref = "saferalloc" }
