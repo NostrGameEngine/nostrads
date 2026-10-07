@@ -29,7 +29,7 @@ jobs:
           distribution: temurin
           cache: gradle
       - name: Build and test
-        run: ./gradlew --no-daemon build javadoc :nostrads-js:packJsClient :nostrads-js:browserRendererTest
+        run: ./gradlew --no-daemon build javadoc :nostrads-js:packJsClient :nostrads-js:browserRendererTest :nostrads-js:browserPublicationTest
       - name: Upload build artifacts
         if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

@@ -2,6 +2,7 @@
 set -euo pipefail
 
 module_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+test_page=${1:-renderer}
 bundle="$module_dir/src/nostrads-client.js"
 if [[ ! -s "$bundle" ]]; then
     echo "Built JavaScript client bundle is missing." >&2
@@ -23,7 +24,7 @@ python3 -m http.server 18732 --bind 127.0.0.1 --directory "$module_dir" >"$test_
 server_pid=$!
 server_ready=false
 for _ in $(seq 1 50); do
-    if curl -fsS http://127.0.0.1:18732/browser-tests/renderer.html >/dev/null 2>&1; then
+    if curl -fsS "http://127.0.0.1:18732/browser-tests/$test_page.html" >/dev/null 2>&1; then
         server_ready=true
         break
     fi
@@ -43,10 +44,10 @@ timeout 45s google-chrome \
     --virtual-time-budget=5000 \
     --user-data-dir="$test_tmp/chrome" \
     --dump-dom \
-    http://127.0.0.1:18732/browser-tests/renderer.html >"$test_tmp/dom.html"
+    "http://127.0.0.1:18732/browser-tests/$test_page.html" >"$test_tmp/dom.html"
 
 if ! grep -qE 'data-test-status="passed"' "$test_tmp/dom.html"; then
     sed -n '1,160p' "$test_tmp/dom.html"
     exit 1
 fi
-echo "Browser renderer security test passed."
+echo "Browser $test_page test passed."

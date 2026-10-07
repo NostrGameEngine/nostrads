@@ -47,3 +47,11 @@ task browserRendererTest(type: Exec) {
     description = 'Runs deterministic renderer security checks in headless Chrome'
     commandLine 'bash', 'scripts/test-browser-renderer.sh'
 }
+
+task browserPublicationTest(type: Exec) {
+    dependsOn packJsClient
+    mustRunAfter browserRendererTest
+    group = 'verification'
+    description = 'Checks compiled publication callbacks with an offline fake relay'
+    commandLine 'bash', 'scripts/test-browser-renderer.sh', 'publication'
+}

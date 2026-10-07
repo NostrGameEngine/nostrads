@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>NostrAds publication test</title>
+</head>
+<body data-test-status="running">
+    <script type="module">
+        import {runPublicationTests} from './publication.test.js';
+        try {
+            await runPublicationTests();
+            document.body.dataset.testStatus = 'passed';
+        } catch (error) {
+            document.body.dataset.testStatus = 'failed';
+            document.body.dataset.testError = String(error?.stack || error);
+        }
+    </script>
+</body>
+</html>

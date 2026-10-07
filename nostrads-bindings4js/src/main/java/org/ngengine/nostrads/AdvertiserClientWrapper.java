@@ -221,14 +221,13 @@ public class AdvertiserClientWrapper extends NostrAds {
                     maxPayouts,
                     payoutResetInterval
                 )
-                .then(bidEvent -> {
-                    advClient
+                .compose(bidEvent -> {
+                    return advClient
                         .publishBid(bidEvent)
                         .then(r -> {
                             callback.accept(TeaVMJsConverter.toJSObject(bidEvent.toMap()), null);
                             return null;
                         });
-                    return null;
                 })
                 .catchException(err -> {
                     logger.log(Level.SEVERE, "Error publishing bid" + err.getCause());
