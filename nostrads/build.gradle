@@ -50,6 +50,7 @@ tasks.named('compileTestJava') {
 }
 
 tasks.named('test') {
+    systemProperty 'nostrads.test.runtimeClasspath', sourceSets.test.runtimeClasspath.asPath
     javaLauncher = javaToolchains.launcherFor {
         languageVersion = JavaLanguageVersion.of(21)
     }

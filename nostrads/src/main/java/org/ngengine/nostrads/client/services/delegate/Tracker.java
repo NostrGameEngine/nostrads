@@ -35,6 +35,7 @@ import java.io.Closeable;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.ngengine.platform.AsyncExecutor;
@@ -47,6 +48,8 @@ public class Tracker implements Closeable {
     private static final int MAX_TRACKED_KEYS = 4096;
     private static final int MAX_COUNTERS_PER_KEY = 8;
     private static final int MAX_PERSISTED_BYTES = 4 * 1024 * 1024;
+    // Queue waits release JVM virtual-thread carriers and also work with TeaVM cooperative tasks.
+    private final ArrayBlockingQueue<Boolean> stateLock = new ArrayBlockingQueue<>(1);
     private final VStore store;
     private final Map<String, Map<String, TrackedCounter>> tracked = new HashMap<>();
     private final AsyncExecutor cleanupExecutor;
@@ -54,6 +57,7 @@ public class Tracker implements Closeable {
 
     public Tracker(VStore store) {
         this.store = store;
+        stateLock.add(Boolean.TRUE);
         String path = "nostrads/tracker";
         Map<String, Map<String, Object>> data = null;
         try {
@@ -90,77 +94,93 @@ public class Tracker implements Closeable {
         this.closer = NGEPlatform.get().registerFinalizer(this, () -> cleanupExecutor.close());
     }
 
-    public synchronized boolean tryConsume(String key, String counter, long resetIntervalSeconds, long maxValue, long amount) {
-        validateName(key, "tracker key");
-        validateName(counter, "counter name");
-        if (resetIntervalSeconds <= 0 || maxValue < 0 || amount <= 0) {
-            throw new IllegalArgumentException("Invalid tracker interval, maximum, or amount");
-        }
-        if (!tracked.containsKey(key) && tracked.size() >= MAX_TRACKED_KEYS) {
-            throw new IllegalStateException("Payout tracker capacity reached");
-        }
-        Map<String, TrackedCounter> counters = tracked.computeIfAbsent(key, k -> new HashMap<>());
-        if (!counters.containsKey(counter) && counters.size() >= MAX_COUNTERS_PER_KEY) {
-            throw new IllegalStateException("Payout counter capacity reached");
-        }
-        TrackedCounter tc = counters.computeIfAbsent(counter, k -> new TrackedCounter(0, 0, resetIntervalSeconds, maxValue));
-        tc.resetIntervalSeconds = resetIntervalSeconds;
-        tc.maxValue = maxValue;
-        Instant now = Instant.now();
-        if (tc.lastReset == 0 || now.getEpochSecond() - tc.lastReset >= tc.resetIntervalSeconds) {
-            tc.value = 0;
-            tc.lastReset = now.getEpochSecond();
-        }
-        if (tc.value > maxValue || amount > maxValue - tc.value) {
-            return false;
-        }
-        long previous = tc.value;
-        tc.value += amount;
+    public boolean tryConsume(String key, String counter, long resetIntervalSeconds, long maxValue, long amount) {
+        acquireStateLock();
         try {
-            commit();
-        } catch (RuntimeException e) {
-            tc.value = previous;
-            throw e;
-        }
-        return true;
-    }
-
-    public synchronized void refund(String key, String counter, long amount) {
-        if (amount <= 0) return;
-        Map<String, TrackedCounter> counters = tracked.get(key);
-        if (counters == null) return;
-        TrackedCounter tc = counters.get(counter);
-        if (tc == null) return;
-        Instant now = Instant.now();
-        if (tc.lastReset == 0 || now.getEpochSecond() - tc.lastReset >= tc.resetIntervalSeconds) {
-            return;
-        }
-        long previous = tc.value;
-        tc.value = Math.max(0, tc.value - amount);
-        try {
-            commit();
-        } catch (RuntimeException e) {
-            tc.value = previous;
-            throw e;
+            validateName(key, "tracker key");
+            validateName(counter, "counter name");
+            if (resetIntervalSeconds <= 0 || maxValue < 0 || amount <= 0) {
+                throw new IllegalArgumentException("Invalid tracker interval, maximum, or amount");
+            }
+            if (!tracked.containsKey(key) && tracked.size() >= MAX_TRACKED_KEYS) {
+                throw new IllegalStateException("Payout tracker capacity reached");
+            }
+            Map<String, TrackedCounter> counters = tracked.computeIfAbsent(key, k -> new HashMap<>());
+            if (!counters.containsKey(counter) && counters.size() >= MAX_COUNTERS_PER_KEY) {
+                throw new IllegalStateException("Payout counter capacity reached");
+            }
+            TrackedCounter tc = counters.computeIfAbsent(counter, k -> new TrackedCounter(0, 0, resetIntervalSeconds, maxValue));
+            tc.resetIntervalSeconds = resetIntervalSeconds;
+            tc.maxValue = maxValue;
+            Instant now = Instant.now();
+            if (tc.lastReset == 0 || now.getEpochSecond() - tc.lastReset >= tc.resetIntervalSeconds) {
+                tc.value = 0;
+                tc.lastReset = now.getEpochSecond();
+            }
+            if (tc.value > maxValue || amount > maxValue - tc.value) {
+                return false;
+            }
+            long previous = tc.value;
+            tc.value += amount;
+            try {
+                commit();
+            } catch (RuntimeException e) {
+                tc.value = previous;
+                throw e;
+            }
+            return true;
+        } finally {
+            releaseStateLock();
         }
     }
 
-    public synchronized long getValue(String key, String counter) {
-        Map<String, TrackedCounter> counters = tracked.get(key);
-        if (counters == null) return 0;
-        TrackedCounter tc = counters.get(counter);
-        if (tc == null) return 0;
-        Instant now = Instant.now();
-        if (tc.lastReset == 0 || now.getEpochSecond() - tc.lastReset >= tc.resetIntervalSeconds) {
-            return 0;
+    public void refund(String key, String counter, long amount) {
+        acquireStateLock();
+        try {
+            if (amount <= 0) return;
+            Map<String, TrackedCounter> counters = tracked.get(key);
+            if (counters == null) return;
+            TrackedCounter tc = counters.get(counter);
+            if (tc == null) return;
+            Instant now = Instant.now();
+            if (tc.lastReset == 0 || now.getEpochSecond() - tc.lastReset >= tc.resetIntervalSeconds) {
+                return;
+            }
+            long previous = tc.value;
+            tc.value = Math.max(0, tc.value - amount);
+            try {
+                commit();
+            } catch (RuntimeException e) {
+                tc.value = previous;
+                throw e;
+            }
+        } finally {
+            releaseStateLock();
         }
-        return tc.value;
+    }
+
+    public long getValue(String key, String counter) {
+        acquireStateLock();
+        try {
+            Map<String, TrackedCounter> counters = tracked.get(key);
+            if (counters == null) return 0;
+            TrackedCounter tc = counters.get(counter);
+            if (tc == null) return 0;
+            Instant now = Instant.now();
+            if (tc.lastReset == 0 || now.getEpochSecond() - tc.lastReset >= tc.resetIntervalSeconds) {
+                return 0;
+            }
+            return tc.value;
+        } finally {
+            releaseStateLock();
+        }
     }
 
     private void cleanupLoop() {
         this.cleanupExecutor.runLater(
                 () -> {
-                    synchronized (this) {
+                    acquireStateLock();
+                    try {
                         Instant now = Instant.now();
                         AtomicBoolean changed = new AtomicBoolean(false);
                         tracked
@@ -189,6 +209,8 @@ public class Tracker implements Closeable {
                         if (changed.get()) {
                             commit();
                         }
+                    } finally {
+                        releaseStateLock();
                     }
                     cleanupLoop();
                     return null;
@@ -198,22 +220,38 @@ public class Tracker implements Closeable {
             );
     }
 
-    private void commit() {
-        synchronized (this) {
+    private void acquireStateLock() {
+        boolean interrupted = false;
+        while (true) {
             try {
-                Map<String, Map<String, Object>> serializable = new HashMap<>();
-                for (Map.Entry<String, Map<String, TrackedCounter>> entry : tracked.entrySet()) {
-                    Map<String, Object> counters = new HashMap<>();
-                    for (Map.Entry<String, TrackedCounter> c : entry.getValue().entrySet()) {
-                        counters.put(c.getKey(), c.getValue().toMap());
-                    }
-                    serializable.put(entry.getKey(), counters);
-                }
-                String json = NGEPlatform.get().toJSON(serializable);
-                store.writeFully("nostrads/tracker", json.getBytes(StandardCharsets.UTF_8)).await();
-            } catch (Exception e) {
-                throw new IllegalStateException("Failed to persist payout tracker", e);
+                stateLock.take();
+                break;
+            } catch (InterruptedException e) {
+                interrupted = true;
             }
+        }
+        if (interrupted) Thread.currentThread().interrupt();
+    }
+
+    private void releaseStateLock() {
+        stateLock.add(Boolean.TRUE);
+    }
+
+    // Called only while the state lock is held, including the durable write and rollback.
+    private void commit() {
+        try {
+            Map<String, Map<String, Object>> serializable = new HashMap<>();
+            for (Map.Entry<String, Map<String, TrackedCounter>> entry : tracked.entrySet()) {
+                Map<String, Object> counters = new HashMap<>();
+                for (Map.Entry<String, TrackedCounter> c : entry.getValue().entrySet()) {
+                    counters.put(c.getKey(), c.getValue().toMap());
+                }
+                serializable.put(entry.getKey(), counters);
+            }
+            String json = NGEPlatform.get().toJSON(serializable);
+            store.writeFully("nostrads/tracker", json.getBytes(StandardCharsets.UTF_8)).await();
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to persist payout tracker", e);
         }
     }
 

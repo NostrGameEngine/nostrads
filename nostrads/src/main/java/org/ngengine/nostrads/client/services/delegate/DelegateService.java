@@ -719,22 +719,27 @@ public class DelegateService extends AbstractAdService {
 
                         try {
                             logger.finer("Paying invoice for " + payoutMsats + " msats");
-                            AsyncTask<PayResponse> paymentTask;
+                            AsyncTask<PayResponse> paymentTask = null;
+                            boolean cancelled;
                             synchronized (DelegateService.this) {
-                                if (!isActiveBid(boundBid)) {
-                                    tracker.refund(bidId, "budget", totalMsats);
-                                    tracker.refund(bidId, "payouts", 1);
-                                    neg.bail(AdBailEvent.Reason.CANCELLED);
-                                    return null;
+                                cancelled = !isActiveBid(boundBid);
+                                if (!cancelled) {
+                                    paymentTask =
+                                        wallet.payInvoice(
+                                            invoice,
+                                            payoutMsats,
+                                            maxRoutingFeeMsats,
+                                            Instant.now().plusSeconds(60),
+                                            invoiceNetwork
+                                        );
                                 }
-                                paymentTask =
-                                    wallet.payInvoice(
-                                        invoice,
-                                        payoutMsats,
-                                        maxRoutingFeeMsats,
-                                        Instant.now().plusSeconds(60),
-                                        invoiceNetwork
-                                    );
+                            }
+                            if (cancelled) {
+                                // Refunds await persistence; do not pin a carrier while holding the service monitor.
+                                tracker.refund(bidId, "budget", totalMsats);
+                                tracker.refund(bidId, "payouts", 1);
+                                neg.bail(AdBailEvent.Reason.CANCELLED);
+                                return null;
                             }
                             PayResponse payment = paymentTask.await();
                             refundUnusedRoutingReserve(bidId, payment);
