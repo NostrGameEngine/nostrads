@@ -110,14 +110,18 @@ public class TestTracker {
         try {
             String java = new File(System.getProperty("java.home"), "bin/java").getPath();
             String classpath = System.getProperty("nostrads.test.runtimeClasspath", System.getProperty("java.class.path"));
-            process = new ProcessBuilder(
-                java,
-                "-Djdk.virtualThreadScheduler.parallelism=1",
-                "-Djdk.virtualThreadScheduler.maxPoolSize=1",
-                "-cp",
-                classpath,
-                VirtualThreadProbe.class.getName()
-            ).redirectErrorStream(true).redirectOutput(output.toFile()).start();
+            process =
+                new ProcessBuilder(
+                    java,
+                    "-Djdk.virtualThreadScheduler.parallelism=1",
+                    "-Djdk.virtualThreadScheduler.maxPoolSize=1",
+                    "-cp",
+                    classpath,
+                    VirtualThreadProbe.class.getName()
+                )
+                    .redirectErrorStream(true)
+                    .redirectOutput(output.toFile())
+                    .start();
             assertTrue("Virtual-thread reservation process timed out", process.waitFor(20, TimeUnit.SECONDS));
             assertEquals(Files.readString(output), 0, process.exitValue());
         } finally {
@@ -134,30 +138,36 @@ public class TestTracker {
         public static void main(String[] args) throws Exception {
             Tracker tracker = tracker();
             AtomicReference<Throwable> failure = new AtomicReference<>();
-            Thread reservation = Thread.ofVirtual().start(() -> {
-                try {
-                    assertTrue(tracker.tryConsume("virtual", "budget", 3600, 1000, 700));
-                    assertFalse(tracker.tryConsume("virtual", "budget", 3600, 1000, 301));
-                    tracker.refund("virtual", "budget", 200);
-                    assertTrue(tracker.tryConsume("virtual", "budget", 3600, 1000, 400));
-                    assertEquals(900, tracker.getValue("virtual", "budget"));
-                } catch (Throwable error) {
-                    failure.set(error);
-                }
-            });
+            Thread reservation = Thread
+                .ofVirtual()
+                .start(() -> {
+                    try {
+                        assertTrue(tracker.tryConsume("virtual", "budget", 3600, 1000, 700));
+                        assertFalse(tracker.tryConsume("virtual", "budget", 3600, 1000, 301));
+                        tracker.refund("virtual", "budget", 200);
+                        assertTrue(tracker.tryConsume("virtual", "budget", 3600, 1000, 400));
+                        assertEquals(900, tracker.getValue("virtual", "budget"));
+                    } catch (Throwable error) {
+                        failure.set(error);
+                    }
+                });
             reservation.join(10000);
             assertFalse("Reservation pinned the virtual-thread carrier", reservation.isAlive());
             if (failure.get() != null) throw new AssertionError("Virtual reservation failed", failure.get());
             AtomicInteger accepted = new AtomicInteger();
             List<Thread> competitors = new ArrayList<>();
             for (int i = 0; i < 8; i++) {
-                competitors.add(Thread.ofVirtual().start(() -> {
-                    try {
-                        if (tracker.tryConsume("contended", "budget", 3600, 500, 100)) accepted.incrementAndGet();
-                    } catch (Throwable error) {
-                        failure.set(error);
-                    }
-                }));
+                competitors.add(
+                    Thread
+                        .ofVirtual()
+                        .start(() -> {
+                            try {
+                                if (tracker.tryConsume("contended", "budget", 3600, 500, 100)) accepted.incrementAndGet();
+                            } catch (Throwable error) {
+                                failure.set(error);
+                            }
+                        })
+                );
             }
             for (Thread competitor : competitors) {
                 competitor.join(10000);

@@ -109,7 +109,10 @@ public class Tracker implements Closeable {
             if (!counters.containsKey(counter) && counters.size() >= MAX_COUNTERS_PER_KEY) {
                 throw new IllegalStateException("Payout counter capacity reached");
             }
-            TrackedCounter tc = counters.computeIfAbsent(counter, k -> new TrackedCounter(0, 0, resetIntervalSeconds, maxValue));
+            TrackedCounter tc = counters.computeIfAbsent(
+                counter,
+                k -> new TrackedCounter(0, 0, resetIntervalSeconds, maxValue)
+            );
             tc.resetIntervalSeconds = resetIntervalSeconds;
             tc.maxValue = maxValue;
             Instant now = Instant.now();
