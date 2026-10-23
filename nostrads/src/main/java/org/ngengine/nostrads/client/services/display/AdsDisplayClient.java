@@ -193,23 +193,31 @@ public class AdsDisplayClient extends AbstractAdService {
             neg.markAccepted();
             AdOfferEvent offer = acp.getOffer();
             if (offer == null) return;
-            this.showAd.apply(neg.getBidEvent(), offer)
-                .catchException(ex -> {
-                    // any exception will automatically bail the negotiation
-                    neg.bail(Reason.ACTION_INCOMPLETE);
-                })
-                .then(result -> {
-                    // if the advertiser has penalized us, we counter-penalize them (assuming we are
-                    // always honest)  this will naturally deprioritize their ads in the future
-                    if (neg.getLocalPenalty() > 0) {
-                        int p = neg.getCounterpartyPenalty();
-                        if (neg.getLocalPenalty() > p) {
-                            neg.setCounterpartyPenalty(neg.getLocalPenalty());
+            try {
+                this.showAd.apply(neg.getBidEvent(), offer)
+                    .then(result -> {
+                        if (!Boolean.TRUE.equals(result)) {
+                            neg.bail(Reason.ACTION_INCOMPLETE);
+                            return null;
                         }
-                    }
-                    notifyShown.accept("Ad shown successfully");
-                    return null;
-                });
+                        if (neg.isClosed()) return null;
+                        // if the advertiser has penalized us, we counter-penalize them (assuming we are
+                        // always honest)  this will naturally deprioritize their ads in the future
+                        if (neg.getLocalPenalty() > 0) {
+                            int p = neg.getCounterpartyPenalty();
+                            if (neg.getLocalPenalty() > p) {
+                                neg.setCounterpartyPenalty(neg.getLocalPenalty());
+                            }
+                        }
+                        notifyShown.accept("Ad shown successfully");
+                        return null;
+                    })
+                    .catchException(ex -> {
+                        neg.bail(Reason.ACTION_INCOMPLETE);
+                    });
+            } catch (Exception ex) {
+                neg.bail(Reason.ACTION_INCOMPLETE);
+            }
         }
 
         @Override

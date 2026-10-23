@@ -1,9 +1,11 @@
-
+import NostrAds from '../nostr-ads.js';
 let config = undefined;
 export async function getConfig() {
     if (config) return config;
-    config = await fetch('/console/config.json').then(r => r.json());
-    console.log("Loaded config:", config);
+    config = await fetch(new URL('../config.json', import.meta.url)).then(r => {
+        if (!r.ok) throw new Error('Unable to load console configuration');
+        return r.json();
+    });
     return config;
 }
 
@@ -78,7 +80,7 @@ export async function getRelays() {
 }
 
 export async function getBlossomEndpoints() {
-    let relays = ["https://blossom.primal.net", "https://blossom.band"];
+    let relays = ["https://blossom.band"];
     try {
         const v = JSON.parse(localStorage.getItem(await localStorageKey("blossom")).trim());
         if (!v || !Array.isArray(v) || v.length === 0) {
@@ -125,6 +127,16 @@ export async function getBlossomEndpoints() {
     }
 
     return relays;
+}
+
+export async function getImageOrigins() {
+    const endpoints = await getBlossomEndpoints();
+    const origins = endpoints.map(endpoint => new URL(endpoint).origin);
+    if (window.nostr && origins.includes('https://blossom.band')) {
+        const npub = NostrAds.publicKeyToBech32(await window.nostr.getPublicKey());
+        origins.push(`https://${npub}.blossom.band`);
+    }
+    return origins;
 }
 
 

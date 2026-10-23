@@ -1,6 +1,6 @@
 import * as _Binds from './nostr-ads.js';
 
-const { AdvertiserClientWrapper, DisplayClientWrapper, generatePrivateKey, getPublicKey } = _Binds;
+const { AdvertiserClientWrapper, DisplayClientWrapper, generatePrivateKey, getPublicKey, publicKeyToBech32 } = _Binds;
 
 
 const newAdvertiserClient = function (relays, auth, blossomEndpoints) {
@@ -129,6 +129,7 @@ export default {
     newAdvertiserClient,
     newDisplayClient,
     getPublicKey,
+    publicKeyToBech32,
     generatePrivateKey
 };
 
@@ -138,6 +139,7 @@ if (typeof module !== 'undefined' && module.exports) {
         newAdvertiserClient,
         newDisplayClient,
         generatePrivateKey,
-        getPublicKey
+        getPublicKey,
+        publicKeyToBech32
     };
 }

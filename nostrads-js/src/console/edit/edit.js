@@ -96,7 +96,7 @@ async function getData(view, ads){
     
     data.maxPayouts = 3; // per offerer
     data.payoutResetInterval = 3600; // in seconds
-    console.log("Collected data:", data);
+
     return data;
 }
 
@@ -131,8 +131,8 @@ async function loadProps(view, urlParams) {
                         try {
                             const response = await fetch(v);
                             const blob = await response.blob();
-                            const mimeType = blob.type || mimeType|| 'image/png';
-                            const file = new File([blob], `ad-${event.id}`, { type: mimeType });
+                            const fileMimeType = blob.type || mimeType || 'image/png';
+                            const file = new File([blob], `ad-${event.id}`, { type: fileMimeType });
                             const dataTransfer = new DataTransfer();
                             dataTransfer.items.add(file);
                             el.files = dataTransfer.files;
@@ -267,7 +267,7 @@ async function loadProps(view, urlParams) {
          
             await ads.cancel(event.id);
             ads.close();
-            window.location.href = "/console/";
+            window.location.href = new URL('../', import.meta.url).href;
         } catch (err) {
             console.error("Error cancelling bid:", err);
             showError(view, err);
@@ -308,7 +308,7 @@ async function loadProps(view, urlParams) {
         await deleteAd(event.id);
 
       
-        window.location.href = "/console/";
+        window.location.href = new URL('../', import.meta.url).href;
 
     });
     return editable;
@@ -332,20 +332,14 @@ async function showNewForm(view) {
 
     // Load categories
     const cat = adForm.querySelector('select[name="category"]');
-    await fetch('https://ngengine.org/docs/nip-drafts/nostr-content-taxonomy.csv').then(r => r.text()).then(t => {
-        const entries = t.split('\n');
-        for (let i = 1; i < entries.length; i++) {
-            const l = entries[i].trim();
-            const [id, parent, label, cat0, cat1, cat2, cat3] = l.split(',');
-            cat.add(new Option([cat0, cat1, cat2, cat3].filter(r => r).join("/"), id));
-        }
-
+    await fetch(new URL('../data/categories.json', import.meta.url)).then(r => r.json()).then(entries => {
+        for (const {id, label} of entries) cat.add(new Option(label, id));
     });
 
     // Load languages
     const lang = adForm.querySelector('select[name="languages"]');
 
-    await fetch('https://raw.githubusercontent.com/umpirsky/language-list/master/data/en/language.json').then(r => r.json()).then(langs => {
+    await fetch(new URL('../data/languages.json', import.meta.url)).then(r => r.json()).then(langs => {
         for (const [code, name] of Object.entries(langs)) {
             lang.add(new Option(`${code.toUpperCase()} - ${name}`, code));
         }
@@ -419,9 +413,10 @@ async function showNewForm(view) {
     saveBtn.addEventListener('click', async (e) => {
         e.preventDefault();
         e.stopPropagation();
-        const data = await getData(view, ads);
-        console.log("Submitting data:", data);
         try {
+            if (!adForm.reportValidity()) return;
+            saveBtn.disabled = true;
+            const data = await getData(view, ads);
             const event = await ads.publish(data);
             if (isReplacing) {
                 await replaceAd(ads, replacementContext.event, event, replacementContext.isLive);
@@ -431,12 +426,14 @@ async function showNewForm(view) {
             console.log("Ad published:", event);
 
             await ads.close();
-            window.location.href = "/console/";
+            window.location.href = new URL('../', import.meta.url).href;
 
         } catch (err) {
             console.error("Error publishing bid:", err);
             showError(view, err);
             return;
+        } finally {
+            saveBtn.disabled = false;
         }
     });
 

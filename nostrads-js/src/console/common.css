@@ -1,12 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Electrolize&display=swap');
 :root {
-    --dark-purple: #1B0629;
-    --medium-purple: #3E1E68;
-    --light-purple: #8357C5;
-    --accent-purple: #E75AFF;
-    --glow-purple: #C47AFF;
-    --glow-purpleA: rgba(195, 122, 255, 0.5);
-    --text-color: #E0D5FF;
+    --dark-purple: #131b23;
+    --medium-purple: #23313b;
+    --light-purple: #ee794f;
+    --accent-purple: #ee794f;
+    --glow-purple: #91bcb0;
+    --glow-purpleA: rgba(145, 188, 176, 0.15);
+    --text-color: #f6edda;
     --neon-blue: #00F0FF;
     --neon-blueA: #00eeff65;
     --neon-blueA2: rgba(0, 238, 255, 0.082);
@@ -19,23 +18,23 @@
 
  body {
      background: var(--dark-purple);
-     background: radial-gradient(circle, rgba(43, 0, 57, 1) 0%, rgba(12, 3, 29, 1) 100%);
+     background: var(--dark-purple);
      color: var(--text-color);
-     font-family: 'Electrolize', sans-serif;
+     font-family: Arial, Helvetica, sans-serif;
      margin: 0;
      padding: 2rem;
      text-align: left;
-     text-shadow: 0 0 8px var(--glow-purpleA);
+     text-shadow: none;
      font-size: 1rem;
      min-height: 100vh;
      display: flex;
      flex-direction: column;
-     
+
      flex-wrap: no-wrap;
      padding:0;
      margin:0;
      /* align-items: center; */
-    
+
  }
 
  ul li{
@@ -50,7 +49,7 @@
     margin:0!important;
     padding:0!important;
  }
- 
+
  content{
     display: flex;
     flex-direction: row;
@@ -70,7 +69,7 @@
         text-align: center;
     };
  }
- 
+
  nav ul{
     text-align: left;
  }
@@ -101,7 +100,7 @@
     align-items: center;
     gap: 1rem;
     margin: 1rem;
- 
+
 }
 
 #login img {
@@ -110,8 +109,8 @@
 
 }
 #settings {
-   
- 
+
+
 }
 .iconbtn{
     font-size: 3.0rem;
@@ -204,7 +203,7 @@ body.locked section {
     border: 2px solid var(--glow-purple);
     border-radius: 0.2rem;
     color: var(--text-color);
-    font-family: 'Electrolize', sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     padding: 0.4rem 1rem;
     min-height: 36px;
 }
@@ -235,13 +234,13 @@ body.locked section {
     padding: 0;
     padding-left: 1rem;
     padding-right: 0.5rem;
-    text-shadow: 0 0 4px var(--glow-purpleA);
+    text-shadow: none;
 }
 
 .choices--purple .choices__input {
     background-color: transparent;
     color: var(--text-color);
-    font-family: 'Electrolize', sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
 }
 .choices--purple.is-disabled .choices__inner,
 .choices--purple.is-disabled .choices__input {
@@ -254,7 +253,7 @@ body.locked section {
 
 .choices--purple .choices__list--dropdown .choices__item {
     color: var(--text-color);
-    font-family: 'Electrolize', sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 .choices--purple .choices__button {
@@ -269,7 +268,7 @@ body.locked section {
 .choices--purple .choices__heading {
     background-color: var(--medium-purple);
     color: var(--accent-purple);
-    font-family: 'Electrolize', sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     border-bottom: 1px solid var(--glow-purple);
 }
 
@@ -308,9 +307,9 @@ body.locked section {
     color: var(--accent-purple);
 }
 
- 
 
- 
+
+
 #error{
     color: var(--error);
     padding: 1rem;
@@ -334,7 +333,7 @@ dialog {
     padding: 1rem;
     box-shadow: 0 0 10px var(--glow-purpleA);
     max-width: 100%;
-    
+
     display: flex;
     flex-direction: column;
     gap:1rem;
@@ -357,7 +356,7 @@ dialog form {
 
 dialog form > div{
     flex-grow: 1;
-    
+
 }
 
 dialog .dialog-buttons {
@@ -385,9 +384,9 @@ nav{
 }
 
 content{
-     
+
     padding-top:4rem;
-    
+
 }
 
 info {
@@ -405,4 +404,15 @@ input[required]:invalid {
     box-shadow: 0 0 5px var(--error);
 }
 
- 
+
+header h1 { font-size: 1.35rem; letter-spacing: -0.04em; }
+header h1::before { content: ""; display: inline-block; width: 36px; height: 36px; background: url("../imgs/mark.svg") center / contain no-repeat; vertical-align: middle; margin-right: 12px; }
+header { border-bottom: 1px solid #ffffff25; padding-block: 1.5rem; }
+content { max-width: 1440px; margin-inline: auto; padding: 2rem; }
+nav { max-width: 260px; font-size: .85rem; line-height: 1.7; }
+button { text-transform: none; border-radius: 3px; font-weight: 600; }
+a { color: var(--glow-purple); }
+.iconbtn { font-size: 1.4rem; line-height: 1; background: transparent; color: var(--text-color); border: 1px solid #ffffff35; padding: .65rem; }
+input, textarea, select { border: 1px solid #ffffff40; padding: .65rem; }
+#console-status { color: var(--text-color); line-height: 1.7; }
+@media(max-width:700px) { content { padding: 1rem; gap: 1rem; } nav { max-width: 100%; } header { padding: 1rem; } }

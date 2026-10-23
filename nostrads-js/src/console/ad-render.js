@@ -87,12 +87,14 @@ function render(
     const disposer = [];
     const safeLink = safeLinkUrl(link);
     let rendered = false;
+    let active = true;
+    disposer.push(() => { active = false; });
     let successSent = false;
     let viewabilityTimer = null;
     let updateViewability = () => {};
 
     const reportSuccess = () => {
-        if (!successSent) {
+        if (active && !successSent) {
             successSent = true;
             try {
                 Promise.resolve(successCallback()).catch(error => errorCallback(`Ad confirmation failed: ${error}`));
@@ -102,6 +104,7 @@ function render(
         }
     };
     const markRendered = () => {
+        if (!active) return;
         rendered = true;
         if (actionType === "view") reportSuccess();
         updateViewability();
@@ -189,8 +192,11 @@ function render(
  
     if (!options.noLink){
         const clickHandler = (e) => {
+            if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
             e.preventDefault();
             e.stopPropagation();
+            // Best-effort browser hygiene, not remote proof of human activity.
+            if (!active || !rendered || !e.isTrusted) return;
             if (actionType === "link") {
                 reportSuccess();
             }
@@ -198,13 +204,25 @@ function render(
 
         };
         el.addEventListener('click', clickHandler);
-        disposer.push(() => el.removeEventListener('click', clickHandler));
+        el.addEventListener('keydown', clickHandler);
+        const previousTabindex = el.getAttribute('tabindex');
+        const previousRole = el.getAttribute('role');
+        el.tabIndex = 0;
+        el.setAttribute('role', 'link');
+        disposer.push(() => {
+            el.removeEventListener('click', clickHandler);
+            el.removeEventListener('keydown', clickHandler);
+            if (previousTabindex === null) el.removeAttribute('tabindex');
+            else el.setAttribute('tabindex', previousTabindex);
+            if (previousRole === null) el.removeAttribute('role');
+            else el.setAttribute('role', previousRole);
+        });
     }
 
     if (actionType === "attention") {
         let currentEntry = null;
         const isViewable = () =>
-            rendered &&
+            active && rendered &&
             currentEntry?.isIntersecting &&
             currentEntry.intersectionRatio >= 0.5 &&
             document.visibilityState === "visible" &&

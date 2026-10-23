@@ -55,3 +55,11 @@ task browserPublicationTest(type: Exec) {
     description = 'Checks compiled publication callbacks with an offline fake relay'
     commandLine 'bash', 'scripts/test-browser-renderer.sh', 'publication'
 }
+
+task browserSiteTest(type: Exec) {
+    dependsOn packJsClient
+    mustRunAfter browserPublicationTest
+    group = 'verification'
+    description = 'Checks the offline demo collection and responsive landing page in Chrome'
+    commandLine 'node', 'scripts/test-browser.mjs', 'site'
+}

@@ -32,6 +32,7 @@
 package org.ngengine.nostrads;
 
 import org.ngengine.nostr4j.keypair.NostrPrivateKey;
+import org.ngengine.nostr4j.keypair.NostrPublicKey;
 import org.ngengine.nostrads.types.AdShowCallback;
 import org.ngengine.platform.NGEPlatform;
 import org.ngengine.platform.teavm.TeaVMPlatform;
@@ -60,5 +61,11 @@ public class NostrAdsModule {
     public static String getPublicKey(String privateKey) {
         initPlatform();
         return NostrPrivateKey.fromHex(privateKey).getPublicKey().asHex();
+    }
+
+    @JSExport
+    public static String publicKeyToBech32(String publicKey) {
+        initPlatform();
+        return NostrPublicKey.fromHex(publicKey).asBech32();
     }
 }
