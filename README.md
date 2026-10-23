@@ -8,19 +8,23 @@ Decentralized advertising on top of nostr.
 
 ## Dependency compatibility
 
-The checked-in Gradle catalog pins the official nostr4j snapshot containing the
-asynchronous `NostrPool.publish` API, together with its matching NGE platform API.
-The stable nostr4j release `0.3.1` has the earlier synchronous
-publication signature and cannot replace that snapshot. Snapshot artifacts are
-pinned by timestamp and checked by Gradle dependency verification. Common/JVM and
+The checked-in Gradle catalog uses the official nostr4j `0.4.1` release and its
+asynchronous `NostrPool.publish` API. Artifacts are checked by Gradle dependency
+verification. The NGE platform snapshot artifacts remain pinned by timestamp. Common/JVM and
 TeaVM platform artifacts share a publication timestamp but have different build
 numbers, so their catalog versions are kept separately. The JavaScript bindings
 use the matching official NGE TeaVM compiler fork, pinned in `gradle.properties`;
 upstream TeaVM 0.13 cannot compile the platform’s Cleaner-based resource handling.
 
-Keep these dependencies aligned when refreshing the central catalog. Publishing
-this NostrAds update is required before downstream applications can consume its
-new binary API compatibility.
+Keep these dependencies aligned when refreshing the central catalog. Use JDK 21
+to run the Gradle build; the common Java library targets Java 11.
+
+## Demo campaigns
+
+The website loads demo campaigns from Nostr through the compiled NostrAds client.
+It uses a dedicated test advertiser, a portrait placement and a second placement
+that switches between square and landscape. The integration code is available on the page. Campaign images are
+kept locally for publishing; the live placements have no local image fallback.
 
 ## Javascript Client Library
 
@@ -39,8 +43,10 @@ It uses a subset of the protocol but should be sufficient for the most common us
 
 ```
 
-you should see two new files being created in `nostrads-js/nostrads-client.js` and `nostrads-js/nostrads-worker.js`.
-These together with the optional css `nostrads-js/nostr-ads.css`, are all you need to include in your webapp.
+The generated bundles are `nostrads-js/src/nostrads-client.js` and
+`nostrads-js/src/nostrads-worker.js`. You can also copy the optional stylesheet
+`nostrads-js/src/nostr-ads.css` and its `imgs/mark.png` asset, preserving their
+relative paths.
 
 ### Initialization
 
@@ -61,7 +67,7 @@ Add this to your pages, make sure to replace `<your_path>` with the path to the 
         // advertisersWhitelist: []
         // mimeTypes: [],
         // Exact trusted Blossom/CDN origins allowed to serve image ads:
-        allowedImageOrigins: ["https://blossom.primal.net", "https://blossom.band"]
+        allowedImageOrigins: ["https://<advertiser-npub>.blossom.band"]
     });
 </script>
 ```
@@ -69,6 +75,10 @@ Add this to your pages, make sure to replace `<your_path>` with the path to the 
 Image ads are same-origin by default. Add only Blossom/CDN origins you trust to
 `allowedImageOrigins`; arbitrary HTTPS image hosts are intentionally rejected to
 avoid browser-side requests to attacker-selected or internal hosts.
+Blossom Band uses an account-scoped origin: replace `<advertiser-npub>` with the
+advertiser's encoded public key. The console derives this trusted image origin from the signer; upload responses
+cannot expand the trusted origin list. If your image host redirects to a CDN,
+include that trusted CDN in the page's `img-src` Content Security Policy as well.
 
 In this snippet:
 

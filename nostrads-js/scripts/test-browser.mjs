@@ -1,8 +1,6 @@
 import assert from 'node:assert/strict';
-import {mkdir} from 'node:fs/promises';
-import {resolve} from 'node:path';
 import {createHash} from 'node:crypto';
-import {browserRuntime, moduleRoot} from './browser-runtime.mjs';
+import {browserRuntime} from './browser-runtime.mjs';
 
 const test = process.argv[2] || 'renderer';
 if (!['renderer','publication','site','upload'].includes(test)) throw new Error('Unknown browser test');
@@ -61,29 +59,8 @@ try {
             assert.equal(await page.evaluate(() => window.trustedConfirmations), 1, 'real activations were not confirmed exactly once');
         }
     } else {
-        const errors = [];
-        page.on('pageerror', error => errors.push(error.message));
-        // The static collection must work without external relays, fonts or APIs.
-        await page.route(/^https?:\/\/(?!127\.0\.0\.1:)/, route => route.abort());
-        await page.goto(runtime.base + '/src/');
-        await page.locator('#gallery img').last().scrollIntoViewIfNeeded();
-        await page.waitForFunction(() => [...document.querySelectorAll('#gallery img')].every(img => img.complete && img.naturalWidth > 0));
-        assert.equal(await page.locator('.campaign:visible').count(), 6);
-        await page.locator('[data-filter="portrait"]').click();
-        assert.equal(await page.locator('.campaign:visible').count(), 2);
-        await page.locator('[data-filter="all"]').click();
-        const qaDir = resolve(moduleRoot, 'build/qa');
-        await mkdir(qaDir, {recursive:true});
-        for (const width of [1440, 390, 320]) {
-            await page.setViewportSize({width,height:1000});
-            await page.evaluate(() => window.scrollTo(0,0));
-            assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `horizontal overflow at ${width}px`);
-            await page.screenshot({path:resolve(qaDir, `landing-${width}.png`),fullPage:true});
-        }
-        await page.goto(runtime.base + '/src/console/');
-        assert.match(await page.locator('#console-status').textContent(), /extension/);
-        assert.equal(errors.length, 0, errors.join('\n'));
-        console.log(`Screenshots: ${qaDir}`);
+        const {testSite} = await import('./test-site.mjs');
+        await testSite(runtime, page);
     }
     console.log(`Browser ${test} test passed.`);
 } finally { await runtime.close(); }

@@ -406,7 +406,7 @@ input[required]:invalid {
 
 
 header h1 { font-size: 1.35rem; letter-spacing: -0.04em; }
-header h1::before { content: ""; display: inline-block; width: 36px; height: 36px; background: url("../imgs/mark.svg") center / contain no-repeat; vertical-align: middle; margin-right: 12px; }
+header h1::before { content: ""; display: inline-block; width: 36px; height: 36px; background: url("../imgs/mark.png") center / contain no-repeat; vertical-align: middle; margin-right: 12px; }
 header { border-bottom: 1px solid #ffffff25; padding-block: 1.5rem; }
 content { max-width: 1440px; margin-inline: auto; padding: 2rem; }
 nav { max-width: 260px; font-size: .85rem; line-height: 1.7; }

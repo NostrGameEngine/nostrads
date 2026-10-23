@@ -1,0 +1,12 @@
+{
+  "appKey": "npub13rugy09zg5pssxtjfvgkhjjzkx8swpvwr7e2gymnr2jp2ltveeqs88pjk4",
+  "advertiser": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
+  "relays": [
+    "wss://nostr.rblb.it",
+    "wss://relay.ngengine.org"
+  ],
+  "imageOrigins": [
+    "https://npub14n4df4rdn2xka06u2duwukt7u32uml7m6an80s47a0f6hpp6k6jq0tl2vg.blossom.band",
+    "https://image.nostr.build"
+  ]
+}

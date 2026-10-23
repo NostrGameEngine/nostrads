@@ -1,7 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Electrolize&display=swap');
 .nostr-ddspace {
-    border: 1px solid #C47AFF;
-    background-color: #3E1E68;
+    border: 1px solid #91bcb0;
+    background-color: #23313b;
     border-radius: 4px;
     display: inline-flex;
     text-align: center;
@@ -14,23 +13,23 @@
     overflow: hidden;
     align-items: center;
     justify-content: center;
-    color: #E0D5FF;
-    font-family: 'Electrolize', sans-serif;
-    box-sizing: content-box;
+    color: #f6edda;
+    font-family: Arial, Helvetica, sans-serif;
+    box-sizing: border-box;
 }
 
 .nostr-ddspace-description {
     font-size: 80%;
     position: absolute;
-    overflow: hiden;
+    overflow: hidden;
     bottom: 0;
     left: 0;
     width: 100%;
     overflow: hidden;
     padding: 1.2%;
     box-sizing: border-box;
-    border: 1px solid #C47AFF;
-    background-color: #8357C5;
+    border: 1px solid #91bcb0;
+    background-color: #ee794f;
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
     color: var(--dark-purple);
@@ -50,7 +49,7 @@
     opacity: 0.8;
     max-width: 100%;
     overflow: hidden;
-    background: #8357C5;
+    background: #ee794f;
     padding-top: 5px;
     padding-bottom: 5px;
     padding-right: 10px;
@@ -72,7 +71,7 @@
     width: 24px;
     height: 24px;
     opacity: 0.2;
-    background-image: url('https://nostr-ads.ngengine.org/imgs/312229.svg');
+    background-image: url('./imgs/mark.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;

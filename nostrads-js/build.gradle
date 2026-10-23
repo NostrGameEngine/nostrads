@@ -60,6 +60,6 @@ task browserSiteTest(type: Exec) {
     dependsOn packJsClient
     mustRunAfter browserPublicationTest
     group = 'verification'
-    description = 'Checks the offline demo collection and responsive landing page in Chrome'
+    description = 'Checks network demo integration and responsive landing page in Chrome'
     commandLine 'node', 'scripts/test-browser.mjs', 'site'
 }

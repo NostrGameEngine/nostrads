@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "fictional": true,
+  "advertiser": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
+  "appKey": "npub13rugy09zg5pssxtjfvgkhjjzkx8swpvwr7e2gymnr2jp2ltveeqs88pjk4",
+  "relays": [
+    "wss://nostr.rblb.it",
+    "wss://relay.ngengine.org"
+  ],
+  "campaigns": [
+    {
+      "id": "explore-the-stars",
+      "name": "Explore the Stars",
+      "size": "256x512",
+      "image": "ads/explore-the-stars.png",
+      "description": "Fictional space travel. Your next great adventure.",
+      "callToAction": "Explore the stars"
+    },
+    {
+      "id": "galactic-essence",
+      "name": "Galactic Essence",
+      "size": "256x256",
+      "image": "ads/galactic-essence.png",
+      "description": "Fictional interstellar discovery. Explore the universe.",
+      "callToAction": "Discover the universe"
+    },
+    {
+      "id": "skypod",
+      "name": "Skypod",
+      "size": "256x512",
+      "image": "ads/skypod.png",
+      "description": "Fictional capsule homes. Live above it all.",
+      "callToAction": "Find your Skypod"
+    },
+    {
+      "id": "red-orbit-noodles",
+      "name": "Red Orbit Noodles",
+      "size": "512x256",
+      "image": "ads/red-orbit-noodles.png",
+      "description": "Fictional cosmic noodles. Out of this world, ready in minutes.",
+      "callToAction": "Order from orbit"
+    },
+    {
+      "id": "lunar-coffee",
+      "name": "Lunar Coffee",
+      "size": "256x256",
+      "image": "ads/lunar-coffee.png",
+      "description": "Fictional moon-roasted coffee. One small sip, one giant leap.",
+      "callToAction": "Take a small sip"
+    },
+    {
+      "id": "orbital-express",
+      "name": "Orbital Express",
+      "size": "512x256",
+      "image": "ads/orbital-express.png",
+      "description": "Fictional space transit. The weekend starts on Saturn.",
+      "callToAction": "Book your escape"
+    }
+  ],
+  "imageOrigins": [
+    "https://npub14n4df4rdn2xka06u2duwukt7u32uml7m6an80s47a0f6hpp6k6jq0tl2vg.blossom.band",
+    "https://image.nostr.build"
+  ],
+  "delegate": "d5a48f2b9b312c4303ab105c77b0858b6d856b8ae97a7529d34c10027018de18",
+  "uploadEndpoints": [
+    "https://npub14n4df4rdn2xka06u2duwukt7u32uml7m6an80s47a0f6hpp6k6jq0tl2vg.blossom.band"
+  ]
+}
