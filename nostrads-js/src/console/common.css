@@ -1,15 +1,17 @@
+@import url('../theme.css');
+
 :root {
-    --dark-purple: #131b23;
-    --medium-purple: #23313b;
-    --light-purple: #ee794f;
-    --accent-purple: #ee794f;
-    --glow-purple: #91bcb0;
-    --glow-purpleA: rgba(145, 188, 176, 0.15);
-    --text-color: #f6edda;
-    --neon-blue: #00F0FF;
-    --neon-blueA: #00eeff65;
-    --neon-blueA2: rgba(0, 238, 255, 0.082);
-    --error: rgb(211, 20, 109);
+    --dark-purple: var(--ink);
+    --medium-purple: var(--panel);
+    --light-purple: var(--accent);
+    --accent-purple: var(--accent);
+    --glow-purple: var(--accent);
+    --glow-purpleA: #c4a9fa18;
+    --text-color: var(--paper);
+    --neon-blue: var(--accent);
+    --neon-blueA: #c4a9fa55;
+    --neon-blueA2: #c4a9fa15;
+    --error: #efa1b8;
 }
 
  * {
@@ -17,7 +19,6 @@
  }
 
  body {
-     background: var(--dark-purple);
      background: var(--dark-purple);
      color: var(--text-color);
      font-family: Arial, Helvetica, sans-serif;
@@ -228,7 +229,7 @@ body.locked section {
     background-color: var(--light-purple);
     border: 1px solid var(--glow-purple);
     border-radius: 0.2rem;
-    color: var(--text-color);
+    color: var(--ink);
     margin-bottom: 0.2rem;
     margin-right: 0.2rem;
     padding: 0;
@@ -409,6 +410,8 @@ header h1 { font-size: 1.35rem; letter-spacing: -0.04em; }
 header h1::before { content: ""; display: inline-block; width: 36px; height: 36px; background: url("../imgs/mark.png") center / contain no-repeat; vertical-align: middle; margin-right: 12px; }
 header { border-bottom: 1px solid #ffffff25; padding-block: 1.5rem; }
 content { max-width: 1440px; margin-inline: auto; padding: 2rem; }
+content > main { flex: 1; min-width: 0; width: 100%; }
+content > nav { flex-shrink: 0; }
 nav { max-width: 260px; font-size: .85rem; line-height: 1.7; }
 button { text-transform: none; border-radius: 3px; font-weight: 600; }
 a { color: var(--glow-purple); }

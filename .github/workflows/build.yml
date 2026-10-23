@@ -134,7 +134,7 @@ jobs:
           set -euo pipefail
           mkdir -p dist/deploy
           cp -r nostrads-js/src/. dist/deploy/
-          sed -i 's/"testmode":true,/"testmode":false,/g' dist/deploy/console/config.json
+          node -e 'const fs = require("node:fs"); const path = "dist/deploy/console/config.json"; const config = JSON.parse(fs.readFileSync(path)); config.testmode = false; fs.writeFileSync(path, JSON.stringify(config, null, 2) + "\n");'
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:

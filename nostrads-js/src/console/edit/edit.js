@@ -35,7 +35,7 @@ async function getData(view, ads){
     const inputEls = getInputs(view);
     const data = {};
     for (const inputEl of inputEls) {
-        if (inputEl.style.display === 'none') continue;
+        if (!inputEl.name || inputEl.disabled || inputEl.style.display === 'none') continue;
         if (inputEl.type === 'file' && inputEl.files.length > 0) {
             const file = inputEl.files[0];
             if (file.type.startsWith('image/')) {
@@ -415,6 +415,7 @@ async function showNewForm(view) {
         e.stopPropagation();
         try {
             if (!adForm.reportValidity()) return;
+            if (!window.nostr) throw new Error('Connect a Nostr browser extension to publish your campaign.');
             saveBtn.disabled = true;
             const data = await getData(view, ads);
             const event = await ads.publish(data);
@@ -451,7 +452,7 @@ async function showNewForm(view) {
         searchPlaceholderValue: "Search categories...",
         placeholderValue: "Select categories",
         classNames: {
-            containerOuter: 'choices choices--purple'
+            containerOuter: ['choices', 'choices--purple']
         }
     });
 
@@ -461,7 +462,7 @@ async function showNewForm(view) {
         searchPlaceholderValue: "Search languages...",
         placeholderValue: "Select languages",
         classNames: {
-            containerOuter: 'choices choices--purple'
+            containerOuter: ['choices', 'choices--purple']
         }
     });
     console.log("Setting pre-selected categories:", preSelectedCategories);
@@ -490,13 +491,11 @@ async function showNewForm(view) {
     const payloadTextEl = adForm.querySelector('#payloadText');
     const payloadImageEl = adForm.querySelector('#payloadImage');
     mimeTypeEl.addEventListener('change', e => {
-        if (e.target.value.startsWith('text/')) {
-            payloadTextEl.style.display = 'block';
-            payloadImageEl.style.display = 'none';
-        } else {
-            payloadTextEl.style.display = 'none';
-            payloadImageEl.style.display = 'block';
-        }
+        const isText = e.target.value.startsWith('text/');
+        payloadTextEl.style.display = isText ? 'block' : 'none';
+        payloadTextEl.disabled = !isText;
+        payloadImageEl.style.display = isText ? 'none' : 'block';
+        payloadImageEl.disabled = isText;
     });
     mimeTypeEl.dispatchEvent(new Event('change'));
 
@@ -511,20 +510,26 @@ async function showNewForm(view) {
 
 
     let delegatePubkey = null;
+    let previewDisposers = [];
+    let previewImageUrl = null;
 
     const update = async () => {
         const data = await getData(view, null);
-        Renderer.render(
-            previewEl,
-            data,
-            () => { },
-            () => { }
-        );
+        previewDisposers.forEach(dispose => dispose());
+        previewDisposers = [];
+        if (previewImageUrl) URL.revokeObjectURL(previewImageUrl);
+        previewImageUrl = data.payload?.startsWith('blob:') ? data.payload : null;
+        if (data.payload && safeLinkUrl(data.link)) {
+            previewDisposers = Renderer.render(previewEl, data, () => {}, () => {}, {noLink: true});
+        } else {
+            previewEl.textContent = 'Add content and a destination URL to preview your ad.';
+            previewEl.style.backgroundImage = '';
+        }
         const size = data.size.split('x').map(s => parseInt(s, 10));
         previewEl.style.width = `${size[0]}px`;
         previewEl.style.height = `${size[1]}px`;
 
-        if (delegateInputEL.value!== delegatePubkey) {
+        if (window.nostr && delegateInputEL.value !== delegatePubkey) {
             delegateMetadataEl.innerHTML = '';
             try{
                 if (delegateInputEL.value){

@@ -33,6 +33,18 @@ export async function testSite(runtime, page) {
     `}));
     await page.clock.install();
     await page.goto(runtime.base + '/src/');
+    const homeTheme = await page.evaluate(() => ({
+        background: getComputedStyle(document.body).backgroundColor,
+        accent: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()
+    }));
+    // EasyList's generic cosmetic rule must not hide the static app illustration.
+    await page.route('**/easylist-fixture.css', route => route.fulfill({
+        contentType: 'text/css', body: '.app-ad { display: none !important; }'
+    }));
+    await page.addStyleTag({url: runtime.base + '/easylist-fixture.css'});
+    const feedImage = page.locator('.app-example img');
+    assert(await feedImage.isVisible(), 'My feed illustration was hidden by the generic cosmetic filter');
+    assert(await feedImage.evaluate(image => image.complete && image.naturalWidth > 0), 'My feed image did not load');
     await page.waitForFunction(() => document.querySelector('#demo-code').textContent.includes('advertisersWhitelist'));
     assert.equal(await page.locator('#demo-placements .nostr-ddspace').count(), 2);
     assert.equal(await page.locator('#gallery, .network-section').count(), 0);
@@ -86,6 +98,82 @@ export async function testSite(runtime, page) {
     assert(await page.locator('#demo-placements .nostr-ddspace').evaluateAll(slots => slots.every(e => !e.style.backgroundImage)));
     await page.goto(runtime.base + '/src/console/');
     assert.match(await page.locator('#console-status').textContent(), /extension/);
+    assert.deepEqual(await page.evaluate(() => ({
+        background: getComputedStyle(document.body).backgroundColor,
+        accent: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()
+    })), homeTheme, 'console palette differs from the homepage');
+    const consoleConfig = JSON.parse(await readFile(resolve(moduleRoot, 'src/console/config.json'), 'utf8'));
+    assert.equal(consoleConfig.testmode, false, 'public console defaults to test mode');
+    await page.locator('#settings').click();
+    await page.locator('#settings-dialog[open]').waitFor();
+    assert.deepEqual((await page.locator('#relay-set-textarea').inputValue()).split('\n'), consoleConfig.default_relays);
+    assert.deepEqual((await page.locator('#blossom-set-textarea').inputValue()).split('\n'), consoleConfig.default_blossom_relays);
+    const trustedImages = await page.evaluate(async () => {
+        window.nostr = {getPublicKey: async () => '79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798'};
+        const options = await import('/src/console/components/options.js');
+        const defaults = await options.getImageOrigins();
+        localStorage.setItem(await options.localStorageKey('relays'), JSON.stringify(['wss://custom.example']));
+        localStorage.setItem(await options.localStorageKey('blossom'), JSON.stringify(['https://custom.example']));
+        const custom = {relays: await options.getRelays(), images: await options.getImageOrigins()};
+        delete window.nostr;
+        return {defaults, custom};
+    });
+    assert(trustedImages.defaults.includes('https://cdn.azzamo.media'), 'configured upload CDN is missing from trusted origins');
+    assert(trustedImages.defaults.some(origin => /^https:\/\/npub1.*\.blossom\.band$/.test(origin)));
+    assert.deepEqual(trustedImages.custom, {relays:['wss://custom.example'], images:['https://custom.example']},
+        'custom settings should not inherit unselected upload providers or their CDNs');
+    await page.locator('#restore-defaults').click();
+    assert.deepEqual((await page.locator('#relay-set-textarea').inputValue()).split('\n'), consoleConfig.default_relays);
+    assert.deepEqual((await page.locator('#blossom-set-textarea').inputValue()).split('\n'), consoleConfig.default_blossom_relays);
+    await Promise.all([
+        page.waitForNavigation({waitUntil:'load'}),
+        page.locator('#settings-dialog button[type="submit"]').click()
+    ]);
+    // Answer only relay subscription completion; keep form initialization offline.
+    await page.routeWebSocket(/.*/, socket => socket.onMessage(message => {
+        const [type, id] = JSON.parse(String(message));
+        if (type === 'REQ') socket.send(JSON.stringify(['EOSE', id]));
+    }));
+    await page.locator('#createNew').click();
+    await page.waitForURL('**/console/edit/');
+    await page.waitForFunction(() => document.querySelectorAll('#adForm .choices--purple').length === 2);
+    assert(!await page.locator('body').evaluate(body => body.classList.contains('locked')), 'new ad form is locked');
+    assert.equal(await page.locator('#error').isVisible(), false);
+    const categoryChoices = page.locator('.choices').filter({has: page.locator('select[name="category"]')});
+    await categoryChoices.locator('input').fill('Attractions');
+    await categoryChoices.locator('[data-choice-selectable][data-value="150"]').click();
+    const languageChoices = page.locator('.choices').filter({has: page.locator('select[name="languages"]')});
+    for (const [code, name] of [['en', 'English'], ['it', 'Italian']]) {
+        await languageChoices.locator('input').fill(name);
+        await languageChoices.locator(`[data-choice-selectable][data-value="${code}"]`).click();
+    }
+    assert.equal(await page.locator('select[name="languages"]').evaluate(select => select.selectedOptions.length), 2);
+    assert.equal(await page.locator('#payloadText').isDisabled(), true);
+    assert.equal(await page.locator('#payloadImage').isDisabled(), false);
+    await page.locator('select[name="mimeType"]').selectOption('text/plain');
+    assert.equal(await page.locator('#payloadText').isDisabled(), false);
+    assert.equal(await page.locator('#payloadImage').isDisabled(), true);
+    await page.locator('#payloadText').fill('Text preview');
+    await page.locator('input[name="link"]').fill('https://example.com');
+    await page.locator('select[name="mimeType"]').selectOption('image/png');
+    await page.locator('#payloadImage').setInputFiles(resolve(moduleRoot, 'src/imgs/mark.png'));
+    await page.waitForFunction(() => document.querySelector('#preview').style.backgroundImage.includes('blob:'));
+    page.on('dialog', dialog => dialog.accept('yes'));
+    await page.locator('textarea[name="description"]').fill('Campaign fixture');
+    await page.locator('textarea[name="context"]').fill('Test campaign context');
+    await page.locator('input[name="bid"]').fill('1');
+    await page.locator('input[name="expire_at"]').fill(new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10));
+    await page.locator('input[name="nwc"]').fill('nostr+walletconnect://fixture-wallet');
+    await page.locator('input[name="callToAction"]').fill('Open');
+    assert(await page.locator('#adForm').evaluate(form => form.checkValidity()), 'hidden text field blocked an image campaign');
+    await page.locator('select[name="mimeType"]').selectOption('text/plain');
+    assert(await page.locator('#adForm').evaluate(form => form.checkValidity()), 'hidden file field blocked a text campaign');
+    await page.locator('select[name="mimeType"]').selectOption('image/png');
+    for (const width of [1440, 390]) {
+        await page.setViewportSize({width, height:1000});
+        assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `console overflow at ${width}px`);
+        await page.screenshot({path:resolve(qaDir, `console-form-${width}.png`),fullPage:true});
+    }
     assert.equal(errors.length, 0, errors.join('\n'));
     console.log(`Screenshots (offline fixtures): ${qaDir}`);
 }

@@ -43,7 +43,7 @@ async function showAdlist(view, {relays, blossomEndpoints}) {
                 e.stopPropagation();
                 console.log("Ad clicked:", ad);
                 const uriComponent = encodeURIComponent(JSON.stringify(ad));
-                const url = new URL("./edit", window.location.href);
+                const url = new URL("./edit/", window.location.href);
                 url.searchParams.set('see', uriComponent);
                 url.searchParams.set('isLive', isLive ? 'true' : 'false');
                 window.location.href = url.toString();
@@ -99,7 +99,7 @@ async function main() {
         createNewBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            const url = new URL("./edit", window.location.href);
+            const url = new URL("./edit/", window.location.href);
             window.location.href = url.toString();
         });
     }
