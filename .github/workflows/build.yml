@@ -35,11 +35,12 @@ jobs:
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: '24'
-      - name: Test demo synchronization without secrets
+      - name: Test demo publishing without secrets
         working-directory: nostrads-bindings4js
         run: |
           npm ci --omit=dev --ignore-scripts
           npm test
+          node --test ../nostrads-js/scripts/prepare-demo-site.test.mjs
       - name: Build and test
         run: ./gradlew --no-daemon build javadoc :nostrads-js:packJsClient :nostrads-js:browserRendererTest :nostrads-js:browserPublicationTest :nostrads-js:browserSiteTest
       - name: Upload build artifacts
@@ -135,6 +136,11 @@ jobs:
           mkdir -p dist/deploy
           cp -r nostrads-js/src/. dist/deploy/
           node -e 'const fs = require("node:fs"); const path = "dist/deploy/console/config.json"; const config = JSON.parse(fs.readFileSync(path)); config.testmode = false; fs.writeFileSync(path, JSON.stringify(config, null, 2) + "\n");'
+      - name: Upload the same website build for the demo deployment
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: demo-website
+          path: dist/deploy
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
@@ -142,6 +148,42 @@ jobs:
       - name: Deploy GitHub Pages
         id: deployment
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
+
+  publish_demo_website:
+    needs: publish_pages
+    if: github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: nostrads-demo-website
+      cancel-in-progress: false
+    steps:
+      - name: Checkout deployment tooling
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Checkout the Cloudflare demo publication branch
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: demo
+          path: demo-deployment
+      - name: Download the tested website build
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
+        with:
+          name: demo-website
+          path: demo-website
+      - name: Prepare the demo configuration
+        run: node nostrads-js/scripts/prepare-demo-site.mjs demo-website demo-deployment/console/config.json
+      - name: Publish the website to the Cloudflare demo branch
+        working-directory: demo-deployment
+        run: |
+          set -euo pipefail
+          rsync -a --delete --exclude=.git ../demo-website/ ./
+          git add --all
+          if git diff --cached --quiet; then exit 0; fi
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m "Deploy demo from ${GITHUB_SHA}"
+          git push origin HEAD:demo
 
   publish_delegate:
     needs: build

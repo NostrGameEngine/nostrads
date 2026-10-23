@@ -236,8 +236,13 @@ async function loadProps(view, urlParams) {
         if(isTestMode){
             const nwcInput = view.querySelector('input[name="nwc"]');
             const nwcInfo = view.querySelector('#nwcInfo');
+            const publicTestWallet = config.testmode_config?.nwc;
+            if (!nwcInput.value && publicTestWallet) nwcInput.value = publicTestWallet;
             if(nwcInfo){
-                nwcInfo.textContent = "Test mode: provide a dedicated, budget-limited NWC URL. Credentials are never bundled with this application.";
+                nwcInfo.textContent = publicTestWallet
+                    ? 'Demo mode: the prefilled test wallet simulates Lightning payments.'
+                    : 'Demo mode: provide a dedicated, budget-limited test wallet.';
+                nwcInfo.style.display = 'block';
             }
             nwcInput.style.display = 'block';
         }
