@@ -30,6 +30,31 @@ It uses a dedicated test advertiser, a portrait placement and a second placement
 that switches between square and landscape. The integration code is available on the page. Campaign images are
 kept locally for publishing; the live placements have no local image fallback.
 
+To maintain the hosted demo, add the dedicated advertiser's private key as the
+GitHub Actions repository secret `NOSTRADS_DEMO_PRIVATE_KEY` (64 hex characters or
+`nsec`). Snapshot publications from `master` and release builds check all configured
+relays, restore missing campaigns, and renew campaigns with less than two days
+remaining for another seven days. Healthy campaigns are left unchanged. A manual
+workflow run on `master` also performs this check. Recovery runs on builds; it is
+not a continuous renewal service.
+
+The signing job derives the public advertiser filter for the deployed homepage.
+The private key is available only to its synchronization step, never to PR jobs,
+the website compiler, or deployment artifacts. Without the secret, synchronization
+is skipped and the existing public demo identity is retained.
+
+`nostrads-js/demo/seed-events.json` archives the public signed campaigns, including
+the delegate's already encrypted demo-wallet configuration. Their stable campaign
+IDs allow recovery even after all relays are cleared, without creating duplicate
+campaigns. The images in Git are checked against Blossom and restored if missing.
+Use the existing demo advertiser key: another key also requires new delegate
+authorization and new encrypted campaign seeds.
+
+For local synchronization, make the secret available in the process environment
+and run `npm run demo:sync --prefix nostrads-bindings4js`. Add `-- --check` to verify
+without publishing. `npm test --prefix nostrads-bindings4js` tests recovery using
+isolated relay and image fixtures, without the secret or live network writes.
+
 ## Javascript Client Library
 
 This is the client library that you can use to connect a webapp to the network.

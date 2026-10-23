@@ -15,7 +15,7 @@ env:
 
 concurrency:
   group: build-publish-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build:
@@ -31,6 +31,15 @@ jobs:
           java-version: '21'
           distribution: temurin
           cache: gradle
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+      - name: Test demo synchronization without secrets
+        working-directory: nostrads-bindings4js
+        run: |
+          npm ci --omit=dev --ignore-scripts
+          npm test
       - name: Build and test
         run: ./gradlew --no-daemon build javadoc :nostrads-js:packJsClient :nostrads-js:browserRendererTest :nostrads-js:browserPublicationTest :nostrads-js:browserSiteTest
       - name: Upload build artifacts
@@ -39,6 +48,31 @@ jobs:
         with:
           name: build-artifacts
           path: dist
+
+  sync_demo:
+    needs: build
+    if: github.event_name == 'release' || ((github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    concurrency:
+      group: nostrads-demo-campaigns
+      cancel-in-progress: false
+    outputs:
+      advertiser: ${{ steps.sync.outputs.advertiser }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+      - name: Install locked signing dependencies without lifecycle scripts
+        working-directory: nostrads-bindings4js
+        run: npm ci --omit=dev --ignore-scripts
+      - name: Restore missing demo campaigns and derive the public advertiser filter
+        id: sync
+        env:
+          NOSTRADS_DEMO_PRIVATE_KEY: ${{ secrets.NOSTRADS_DEMO_PRIVATE_KEY }}
+        run: node nostrads-bindings4js/scripts/sync-demo.mjs
 
   publish_maven:
     needs: build
@@ -71,7 +105,7 @@ jobs:
           fi
 
   publish_pages:
-    needs: build
+    needs: [build, sync_demo]
     if: github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/master')
     runs-on: ubuntu-latest
     permissions:
@@ -91,6 +125,10 @@ jobs:
           cache: gradle
       - name: Build JavaScript client
         run: ./gradlew --no-daemon :nostrads-js:packJsClient
+      - name: Configure the public demo advertiser
+        env:
+          NOSTRADS_DEMO_PUBLIC_KEY: ${{ needs.sync_demo.outputs.advertiser }}
+        run: node nostrads-js/scripts/configure-demo.mjs
       - name: Prepare Pages artifact
         run: |
           set -euo pipefail
