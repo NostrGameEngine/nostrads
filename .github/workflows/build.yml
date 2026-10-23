@@ -10,6 +10,9 @@ on:
 permissions:
   contents: read
 
+env:
+  VERSION: ${{ github.event_name == 'release' && github.event.release.tag_name || '' }}
+
 concurrency:
   group: build-publish-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -59,7 +62,6 @@ jobs:
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-          VERSION: ${{ github.event_name == 'release' && github.event.release.tag_name || '' }}
         run: |
           set -euo pipefail
           if [[ "${{ github.event_name }}" == "release" ]]; then

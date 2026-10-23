@@ -3,6 +3,9 @@
    <configuration>
       <verify-metadata>true</verify-metadata>
       <verify-signatures>false</verify-signatures>
+      <trusted-artifacts>
+         <trust group="org.ngengine" name="nostr4j" version="0.3.0-SNAPSHOT" reason="Moving nostr4j snapshots from the official Sonatype snapshot repository cannot use fixed checksums"/>
+      </trusted-artifacts>
    </configuration>
    <components>
       <component group="com.diffplug.durian" name="durian-collect" version="1.2.0">

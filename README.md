@@ -8,10 +8,14 @@ Decentralized advertising on top of nostr.
 
 ## Dependency compatibility
 
-The checked-in Gradle catalog uses the official nostr4j `0.4.1` release and its
-asynchronous `NostrPool.publish` API. Artifacts are checked by Gradle dependency
-verification. The NGE platform snapshot artifacts remain pinned by timestamp. Common/JVM and
-TeaVM platform artifacts share a publication timestamp but have different build
+Builds whose version ends in `-SNAPSHOT` use the official nostr4j `0.3.0-SNAPSHOT`;
+other builds use the `0.4.1` release. Set `VERSION` to override the default
+NostrAds snapshot version, for example `VERSION=0.2.0 ./gradlew build`.
+Both use the asynchronous `NostrPool.publish` API. Snapshot builds check for a
+new publication on every build. Gradle dependency verification checks fixed
+artifacts; only the moving `org.ngengine:nostr4j:0.3.0-SNAPSHOT` coordinate is
+exempt from checksum pinning. The NGE platform snapshot artifacts remain pinned
+by timestamp. Common/JVM and TeaVM platform artifacts share a publication timestamp but have different build
 numbers, so their catalog versions are kept separately. The JavaScript bindings
 use the matching official NGE TeaVM compiler fork, pinned in `gradle.properties`;
 upstream TeaVM 0.13 cannot compile the platform’s Cleaner-based resource handling.

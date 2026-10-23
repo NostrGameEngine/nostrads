@@ -45,6 +45,11 @@ allprojects {
     version = projectVersion
     group   = projectGroup
 
+    if (projectVersion.endsWith('-SNAPSHOT')) {
+        configurations.configureEach {
+            resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+        }
+    }
 
  
 }

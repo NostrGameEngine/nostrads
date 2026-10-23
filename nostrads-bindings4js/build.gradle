@@ -50,11 +50,12 @@ dependencies {
     teavmCompilerClasspath "org.ngengine:teavm-tooling:${providers.gradleProperty('teavmVersion').get()}"
     def versionCatalog = project.extensions.getByType(org.gradle.api.artifacts.VersionCatalogsExtension).named("libs")
     def catalogLibrary = { String alias -> versionCatalog.findLibrary(alias).get() }
+    def nostr4jLibrary = catalogLibrary(project.version.toString().endsWith('-SNAPSHOT') ? "nostr4j-snapshot" : "nostr4j")
 
     implementation catalogLibrary("nge-platform-common")
     implementation catalogLibrary("nge-platform-teavm")
     implementation project(":nostrads")
-    implementation catalogLibrary("nostr4j")
+    implementation nostr4jLibrary
     implementation teavm.libs.jso
     implementation teavm.libs.jsoApis
     implementation libs.jakarta.annotation.api
