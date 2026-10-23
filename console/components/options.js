@@ -1,9 +1,11 @@
-
+import NostrAds from '../nostr-ads.js';
 let config = undefined;
 export async function getConfig() {
     if (config) return config;
-    config = await fetch('/console/config.json').then(r => r.json());
-    console.log("Loaded config:", config);
+    config = await fetch(new URL('../config.json', import.meta.url)).then(r => {
+        if (!r.ok) throw new Error('Unable to load console configuration');
+        return r.json();
+    });
     return config;
 }
 
@@ -25,106 +27,54 @@ export async function localStorageKey(unit) {
 }
 
 
-export async function getRelays() {
-    let relays = ["wss://relay.ngengine.org", "wss://relay2.ngengine.org"];
+function isEndpointList(value) {
+    return Array.isArray(value) && value.length > 0 && value.every(item => typeof item === 'string' && item.trim());
+}
+
+async function getEndpoints(unit, configField, fallback) {
     try {
-        const v = JSON.parse(localStorage.getItem(await localStorageKey("relays")));
-        if (!v || !Array.isArray(v) || v.length === 0) {
-            throw new Error("No relays found in localStorage");
-        }
-        relays = v;
-        return relays;
-
-    } catch (e) {
-        console.log("Error parsing relays from localStorage:", e);
+        const saved = JSON.parse(localStorage.getItem(await localStorageKey(unit)));
+        if (isEndpointList(saved)) return saved;
+    } catch (_) {
+        // Missing or outdated local settings use the configured defaults.
     }
-
-
     try {
         const config = await getConfig();
-
-        try {
-            if (config?.default_relays) {
-                const v = config.default_relays;
-                if (v.length === 0) {
-                    throw new Error("No relays found in config");
-                }
-                relays = v;
-            }
-        } catch (e) {
-            console.log("Error loading relays from config:", e);
-        }
-
-
-        try {
-
-            if (config?.testmode && config?.testmode_config?.default_relays) {
-                const v = config?.testmode_config?.default_relays;
-                if (v.length === 0) {
-                    throw new Error("No relays found in config");
-                }
-                relays = v;
-            }
-        } catch (e) {
-            console.log("Error loading relays from config:", e);
-        }
-
-
-    } catch (e) {
-        console.error("Error loading config:", e);
+        const defaults = (config.testmode && config.testmode_config?.[configField]) || config[configField];
+        if (isEndpointList(defaults)) return defaults;
+    } catch (error) {
+        console.warn('Could not load network settings; using built-in defaults.', error);
     }
+    return fallback;
+}
 
-    return relays;
+export async function getRelays() {
+    return getEndpoints('relays', 'default_relays', [
+        'wss://relay.ngengine.org', 'wss://relay2.ngengine.org', 'wss://nostr.rblb.it',
+        'wss://relay.primal.net', 'wss://nos.lol'
+    ]);
 }
 
 export async function getBlossomEndpoints() {
-    let relays = ["https://blossom.primal.net", "https://blossom.band"];
-    try {
-        const v = JSON.parse(localStorage.getItem(await localStorageKey("blossom")).trim());
-        if (!v || !Array.isArray(v) || v.length === 0) {
-            throw new Error("No relays found in localStorage");
+    return getEndpoints('blossom', 'default_blossom_relays', [
+        'https://blossom.band', 'https://blossom.azzamo.media', 'https://24242.io'
+    ]);
+}
+
+export async function getImageOrigins() {
+    const endpoints = await getBlossomEndpoints();
+    const origins = endpoints.map(endpoint => new URL(endpoint).origin);
+    const config = await getConfig();
+    for (const origin of [...origins]) {
+        for (const cdn of config.blossom_image_origins?.[origin] ?? []) {
+            origins.push(new URL(cdn).origin);
         }
-        relays = v;
-        return relays;
-    } catch (e) {
-        console.log("Error parsing relays from localStorage:", e);
     }
-
- 
-    try {
-        const config = await getConfig();
-
-        try {
-            if (config?.default_blossom_relays) {
-                const v = config.default_blossom_relays;
-                if (v.length === 0) {
-                    throw new Error("No relays found in config");
-                }
-                relays = v;
-            }
-        } catch (e) {
-            console.log("Error loading relays from config:", e);
-        }
-
-
-        try {
-            if (config?.testmode && config?.testmode_config?.default_blossom_relays) {
-                const v = config?.testmode_config?.default_blossom_relays;
-                if (v.length === 0) {
-                    throw new Error("No relays found in config");
-                }
-                relays = v;
-            }
-        } catch (e) {
-            console.log("Error loading relays from config:", e);
-        }
-
-
-    } catch (e) {
-        console.error("Error loading config:", e);
+    if (window.nostr && origins.includes('https://blossom.band')) {
+        const npub = NostrAds.publicKeyToBech32(await window.nostr.getPublicKey());
+        origins.push(`https://${npub}.blossom.band`);
     }
-
-    return relays;
+    return [...new Set(origins)];
 }
 
 
@@ -139,22 +89,29 @@ export default async function showSettingsDialog(view, options) {
         <h1>Settings</h1>
             <form method="dialog">
             <div>
-                <h3>Relayset</h2>
+                <h3>Nostr relays</h3>
                 <p>Enter a list of nostr relays, one per line:</p>
                 <textarea id="relay-set-textarea" rows="10" cols="50"></textarea>
             </div>
             <div>
 
-                <h3>Blossom relayset</h2>
-                <p>Enter a list blossom relays, one per line:</p>
+                <h3>Blossom servers</h3>
+                <p>Enter upload servers, one per line. Uploads are authorized with your Nostr key:</p>
                 <textarea id="blossom-set-textarea" rows="10" cols="50"></textarea>
         </div>
             </form>
              <div class="dialog-buttons">
                     <button type="submit">Save</button>
+                    <button type="button" id="restore-defaults">Restore defaults</button>
                     <button type="reset">Cancel</button>
                 </div>
         `;
+        dialog.querySelector('#restore-defaults').addEventListener('click', async () => {
+            const config = await getConfig();
+            const defaults = config.testmode ? {...config, ...config.testmode_config} : config;
+            dialog.querySelector('#relay-set-textarea').value = defaults.default_relays.join('\n');
+            dialog.querySelector('#blossom-set-textarea').value = defaults.default_blossom_relays.join('\n');
+        });
         const submitButton = dialog.querySelector('button[type="submit"]');
         submitButton.addEventListener('click', async (e) => {
             e.preventDefault();

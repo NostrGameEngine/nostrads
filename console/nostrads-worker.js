@@ -3,8 +3,8 @@ import NostrAds from './nostr-ads.js';
 let displayClient;
 let advClient;
 
-const managedSpaces = {};
-const offerCallbacks = {}; // to store callbacks for ad offers
+const managedSpaces = Object.create(null);
+const offerCallbacks = Object.create(null); // to store callbacks for ad offers
 let loopTimeout = null;
 let isMaster = false;
 
@@ -38,18 +38,6 @@ const executor = new SharedExecutor(async (v) => {
 
 
 executor.bindToClient();
-
-
-// utility methods
-executor.registerMethod('generatePrivateKey', () => {
-    const v = NostrAds.generatePrivateKey();
-    return v;
-});
-
-executor.registerMethod('getPublicKey', (priv) => {
-    const v = NostrAds.getPublicKey(priv);
-     return v;
-});
 
 
 // display methods

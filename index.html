@@ -1,1 +1,70 @@
-<!DOCTYPE html><meta http-equiv="refresh" content="0; url=/console/debug.html">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Peer-to-peer advertising for games and apps. Publish ads on Nostr and settle payments over Bitcoin Lightning.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://image.nostr.build https://blossom.primal.net https://blossom.band https://npub14n4df4rdn2xka06u2duwukt7u32uml7m6an80s47a0f6hpp6k6jq0tl2vg.blossom.band; connect-src 'self' https: wss:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <meta name="theme-color" content="#17151d">
+  <title>NostrAds — Peer-to-peer advertising</title>
+  <link rel="icon" type="image/png" href="./imgs/mark.png">
+  <link rel="stylesheet" href="./landing.css?v=8e109430040f109c4fd553d7b69684144e204f44">
+  <link rel="stylesheet" href="./nostr-ads.css?v=8e109430040f109c4fd553d7b69684144e204f44">
+  <script src="./nostrads-client.js?v=8e109430040f109c4fd553d7b69684144e204f44" defer></script>
+  <script src="./landing.js?v=8e109430040f109c4fd553d7b69684144e204f44" type="module"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="masthead wrap">
+    <a class="brand" href="./" aria-label="NostrAds home"><img src="./imgs/mark.png" width="40" height="40" alt="">nostr<span>ads</span></a>
+    <nav aria-label="Main navigation"><a href="#showcase">Demo ads</a><a href="#developers">Developers</a><a class="nav-console" href="./console/">Advertiser console</a></nav>
+  </header>
+  <main id="main">
+    <section class="hero wrap">
+      <div class="hero-copy">
+        <h1>Peer-to-peer<br><em>advertising.</em></h1>
+        <p class="lede">Put ads in your game or app.</p>
+        <p class="intro">NostrAds connects advertisers, apps, and users to trade offers and settle payments privately over Bitcoin Lightning.</p>
+        <div class="actions"><a class="button" href="#showcase">Try the demo</a><a class="text-link" href="https://ngengine.org/docs/nip-drafts/nip-ADS/">Read the protocol</a></div>
+        <p class="hero-note">Open source · Java & JavaScript</p>
+      </div>
+      <div class="hero-art" aria-label="Examples of ad placements in a game and an app">
+        <figure class="game-example"><div class="window-bar"><span class="window-dots" aria-hidden="true">● ● ●</span><span>In a game</span></div><img src="./imgs/game-placement.webp" width="1200" height="900" alt="A 3D game scene with Explore the Stars on a building billboard and Skypod on a street kiosk" fetchpriority="high"><figcaption>Game placement illustration</figcaption></figure>
+        <figure class="app-example"><div class="window-bar"><span class="window-dots" aria-hidden="true">● ● ●</span><span>In an app</span></div><div class="app-content"><div class="app-heading">My feed <span>Following</span></div><div class="app-post"><span class="avatar" aria-hidden="true"></span><div><b>Alex</b><p>A few pictures from the weekend.</p><div class="post-thumbnail" aria-hidden="true"></div></div></div><div class="app-placement"><span>Ad</span><img src="./demo/ads/galactic-essence.png" width="768" height="768" alt="Galactic Essence ad placed between posts in an example app"></div><div class="app-post app-post-short"><span class="avatar second" aria-hidden="true"></span><div><b>Sam</b><p>See you tomorrow!</p></div></div></div></figure>
+      </div>
+    </section>
+
+    <section class="demo wrap" id="showcase" aria-labelledby="demo-title">
+      <div class="section-heading"><div><h2 id="demo-title">Demo ads</h2><p>These ads are published on Nostr and loaded by the NostrAds client below.</p></div><a class="text-link" href="https://demo.nostr-ads.ngengine.org/console">Open demo console</a></div>
+      <p id="network-status" role="status" aria-live="polite">Loading demo ads from the network…</p>
+      <div class="demo-placements" id="demo-placements">
+        <div class="placement"><h3>Portrait</h3><div class="nostr-ddspace demo-portrait" aria-label="Portrait ad from the demo network"><span class="loading-label">Waiting for an ad…</span></div></div>
+        <div class="placement"><label class="format-label" for="demo-format">Ad format <select id="demo-format"><option value="square">Square</option><option value="landscape">Landscape</option></select></label><div class="nostr-ddspace demo-square" id="flexible-ad" aria-label="Square ad from the demo network"><span class="loading-label">Waiting for an ad…</span></div></div>
+      </div>
+      <noscript><p>Enable JavaScript to load ads from the network.</p></noscript>
+      <details class="demo-code"><summary>Code used by this demo</summary><pre><code id="demo-code">Loading configuration…</code></pre></details>
+    </section>
+
+    <section class="getting-started wrap" id="developers" aria-labelledby="developers-title">
+      <h2 id="developers-title">Use NostrAds</h2>
+      <div class="guide-grid">
+        <article><h3>Advertisers</h3><p>Publish signed bid events on Nostr and delegate their management to a delegate service with a budgeted NWC URL.</p><a class="text-link" href="./console/">Open advertiser console</a></article>
+        <article><h3>Delegate providers</h3><p>Run a delegate service to manage advertisers’ bids, enforce offerer filters, and process Lightning payouts.</p><a class="text-link" href="https://github.com/NostrGameEngine/nostrads#delegate-service">Host a delegate service</a></article>
+        <article><h3>Game developers</h3><p>NostrAds is built into the <a href="https://ngengine.org">Nostr Game Engine</a>, so you can display ads directly inside your game world.</p><a class="text-link" href="https://ngengine.org/docs/ads/">Game integration docs</a></article>
+      </div>
+      <div class="web-guide"><div><h3>Web developers</h3><p>Create an app key and publish a Nostr metadata event with a <code>lud06</code> or <code>lud16</code> address for payouts. Add the client to your page, then place ad spaces where you need them.</p><p>Choose the formats, languages, categories, and advertisers your app accepts.</p><div class="downloads"><a class="text-link" href="./nostrads-client.js?v=8e109430040f109c4fd553d7b69684144e204f44" download>Download client</a><a class="text-link" href="./nostrads-worker.js?v=8e109430040f109c4fd553d7b69684144e204f44" download>Download worker</a></div><a class="text-link" href="https://github.com/NostrGameEngine/nostrads#javascript-client-library">JavaScript integration docs</a></div><div class="code-panel"><div><span>JavaScript</span><button id="copy-code" type="button">Copy</button></div><pre><code id="code">&lt;script src="./nostrads-client.js?v=8e109430040f109c4fd553d7b69684144e204f44"&gt;&lt;/script&gt;
+&lt;script&gt;
+  NostrAds({
+    appKey: "&lt;your-app-npub&gt;",
+    worker: "./nostrads-worker.js"
+  });
+&lt;/script&gt;
+
+&lt;div class="nostr-ddspace"
+     style="width:256px;height:512px"&gt;
+&lt;/div&gt;</code></pre></div></div>
+    </section>
+  </main>
+  <footer class="wrap"><a class="brand" href="./"><img src="./imgs/mark.png" width="32" height="32" alt="">nostr<span>ads</span></a><div><a href="https://github.com/NostrGameEngine/nostrads">GitHub</a><a href="https://github.com/NostrGameEngine/nostrads/issues">Report an issue</a><a href="https://ngengine.org">Nostr Game Engine</a></div></footer>
+</body>
+</html>

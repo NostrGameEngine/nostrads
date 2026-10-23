@@ -1,6 +1,6 @@
 
 
-import Renderer from "../ad-render.js";
+import Renderer, {safeLinkUrl} from "../ad-render.js";
 import NostrAds from '../nostr-ads.js';
 import showSettingsDialog, { getConfig, getRelays, getBlossomEndpoints } from "../components/options.js";
 import showLogin from "../components/login.js";
@@ -35,7 +35,7 @@ async function getData(view, ads){
     const inputEls = getInputs(view);
     const data = {};
     for (const inputEl of inputEls) {
-        if (inputEl.style.display === 'none') continue;
+        if (!inputEl.name || inputEl.disabled || inputEl.style.display === 'none') continue;
         if (inputEl.type === 'file' && inputEl.files.length > 0) {
             const file = inputEl.files[0];
             if (file.type.startsWith('image/')) {
@@ -96,7 +96,7 @@ async function getData(view, ads){
     
     data.maxPayouts = 3; // per offerer
     data.payoutResetInterval = 3600; // in seconds
-    console.log("Collected data:", data);
+
     return data;
 }
 
@@ -131,8 +131,8 @@ async function loadProps(view, urlParams) {
                         try {
                             const response = await fetch(v);
                             const blob = await response.blob();
-                            const mimeType = blob.type || mimeType|| 'image/png';
-                            const file = new File([blob], `ad-${event.id}`, { type: mimeType });
+                            const fileMimeType = blob.type || mimeType || 'image/png';
+                            const file = new File([blob], `ad-${event.id}`, { type: fileMimeType });
                             const dataTransfer = new DataTransfer();
                             dataTransfer.items.add(file);
                             el.files = dataTransfer.files;
@@ -235,12 +235,14 @@ async function loadProps(view, urlParams) {
         console.log("Is test mode:", isTestMode);
         if(isTestMode){
             const nwcInput = view.querySelector('input[name="nwc"]');
-            if(!nwcInput.value){
-                nwcInput.value = config.testmode_config.nwc || "";
-            }
             const nwcInfo = view.querySelector('#nwcInfo');
+            const publicTestWallet = config.testmode_config?.nwc;
+            if (!nwcInput.value && publicTestWallet) nwcInput.value = publicTestWallet;
             if(nwcInfo){
-                nwcInfo.innerHTML = `This field is in test mode and pre-filled with a working NWC URL thay you can use to test`;
+                nwcInfo.textContent = publicTestWallet
+                    ? 'Demo mode: the prefilled test wallet simulates Lightning payments.'
+                    : 'Demo mode: provide a dedicated, budget-limited test wallet.';
+                nwcInfo.style.display = 'block';
             }
             nwcInput.style.display = 'block';
         }
@@ -270,7 +272,7 @@ async function loadProps(view, urlParams) {
          
             await ads.cancel(event.id);
             ads.close();
-            window.location.href = "/console/";
+            window.location.href = new URL('../', import.meta.url).href;
         } catch (err) {
             console.error("Error cancelling bid:", err);
             showError(view, err);
@@ -311,7 +313,7 @@ async function loadProps(view, urlParams) {
         await deleteAd(event.id);
 
       
-        window.location.href = "/console/";
+        window.location.href = new URL('../', import.meta.url).href;
 
     });
     return editable;
@@ -335,20 +337,14 @@ async function showNewForm(view) {
 
     // Load categories
     const cat = adForm.querySelector('select[name="category"]');
-    await fetch('https://ngengine.org/docs/nip-drafts/nostr-content-taxonomy.csv').then(r => r.text()).then(t => {
-        const entries = t.split('\n');
-        for (let i = 1; i < entries.length; i++) {
-            const l = entries[i].trim();
-            const [id, parent, label, cat0, cat1, cat2, cat3] = l.split(',');
-            cat.add(new Option([cat0, cat1, cat2, cat3].filter(r => r).join("/"), id));
-        }
-
+    await fetch(new URL('../data/categories.json', import.meta.url)).then(r => r.json()).then(entries => {
+        for (const {id, label} of entries) cat.add(new Option(label, id));
     });
 
     // Load languages
     const lang = adForm.querySelector('select[name="languages"]');
 
-    await fetch('https://raw.githubusercontent.com/umpirsky/language-list/master/data/en/language.json').then(r => r.json()).then(langs => {
+    await fetch(new URL('../data/languages.json', import.meta.url)).then(r => r.json()).then(langs => {
         for (const [code, name] of Object.entries(langs)) {
             lang.add(new Option(`${code.toUpperCase()} - ${name}`, code));
         }
@@ -422,9 +418,11 @@ async function showNewForm(view) {
     saveBtn.addEventListener('click', async (e) => {
         e.preventDefault();
         e.stopPropagation();
-        const data = await getData(view, ads);
-        console.log("Submitting data:", data);
         try {
+            if (!adForm.reportValidity()) return;
+            if (!window.nostr) throw new Error('Connect a Nostr browser extension to publish your campaign.');
+            saveBtn.disabled = true;
+            const data = await getData(view, ads);
             const event = await ads.publish(data);
             if (isReplacing) {
                 await replaceAd(ads, replacementContext.event, event, replacementContext.isLive);
@@ -434,12 +432,14 @@ async function showNewForm(view) {
             console.log("Ad published:", event);
 
             await ads.close();
-            window.location.href = "/console/";
+            window.location.href = new URL('../', import.meta.url).href;
 
         } catch (err) {
             console.error("Error publishing bid:", err);
             showError(view, err);
             return;
+        } finally {
+            saveBtn.disabled = false;
         }
     });
 
@@ -457,7 +457,7 @@ async function showNewForm(view) {
         searchPlaceholderValue: "Search categories...",
         placeholderValue: "Select categories",
         classNames: {
-            containerOuter: 'choices choices--purple'
+            containerOuter: ['choices', 'choices--purple']
         }
     });
 
@@ -467,7 +467,7 @@ async function showNewForm(view) {
         searchPlaceholderValue: "Search languages...",
         placeholderValue: "Select languages",
         classNames: {
-            containerOuter: 'choices choices--purple'
+            containerOuter: ['choices', 'choices--purple']
         }
     });
     console.log("Setting pre-selected categories:", preSelectedCategories);
@@ -488,7 +488,7 @@ async function showNewForm(view) {
 
     actionTypeEl.addEventListener('change', e => {
         const titleAttribute = e.target.selectedOptions[0].getAttribute('title');
-        actionDescription.innerHTML = titleAttribute || 'No description available.';
+        actionDescription.textContent = titleAttribute || 'No description available.';
     });
     actionTypeEl.dispatchEvent(new Event('change'));
 
@@ -496,13 +496,11 @@ async function showNewForm(view) {
     const payloadTextEl = adForm.querySelector('#payloadText');
     const payloadImageEl = adForm.querySelector('#payloadImage');
     mimeTypeEl.addEventListener('change', e => {
-        if (e.target.value.startsWith('text/')) {
-            payloadTextEl.style.display = 'block';
-            payloadImageEl.style.display = 'none';
-        } else {
-            payloadTextEl.style.display = 'none';
-            payloadImageEl.style.display = 'block';
-        }
+        const isText = e.target.value.startsWith('text/');
+        payloadTextEl.style.display = isText ? 'block' : 'none';
+        payloadTextEl.disabled = !isText;
+        payloadImageEl.style.display = isText ? 'none' : 'block';
+        payloadImageEl.disabled = isText;
     });
     mimeTypeEl.dispatchEvent(new Event('change'));
 
@@ -517,20 +515,26 @@ async function showNewForm(view) {
 
 
     let delegatePubkey = null;
+    let previewDisposers = [];
+    let previewImageUrl = null;
 
     const update = async () => {
         const data = await getData(view, null);
-        Renderer.render(
-            previewEl,
-            data,
-            () => { },
-            () => { }
-        );
+        previewDisposers.forEach(dispose => dispose());
+        previewDisposers = [];
+        if (previewImageUrl) URL.revokeObjectURL(previewImageUrl);
+        previewImageUrl = data.payload?.startsWith('blob:') ? data.payload : null;
+        if (data.payload && safeLinkUrl(data.link)) {
+            previewDisposers = Renderer.render(previewEl, data, () => {}, () => {}, {noLink: true});
+        } else {
+            previewEl.textContent = 'Add content and a destination URL to preview your ad.';
+            previewEl.style.backgroundImage = '';
+        }
         const size = data.size.split('x').map(s => parseInt(s, 10));
         previewEl.style.width = `${size[0]}px`;
         previewEl.style.height = `${size[1]}px`;
 
-        if (delegateInputEL.value!== delegatePubkey) {
+        if (window.nostr && delegateInputEL.value !== delegatePubkey) {
             delegateMetadataEl.innerHTML = '';
             try{
                 if (delegateInputEL.value){
@@ -547,9 +551,13 @@ async function showNewForm(view) {
                     delegateInfoEl.appendChild(descEl);
 
                     const websiteEl = document.createElement('a');
-                    websiteEl.href = meta.website || '#';
-                    websiteEl.textContent = meta.website || 'No website available';
-                    websiteEl.target = '_blank';
+                    const website = safeLinkUrl(meta.website);
+                    websiteEl.textContent = website || 'No website available';
+                    if (website) {
+                        websiteEl.href = website;
+                        websiteEl.target = '_blank';
+                        websiteEl.rel = 'noopener noreferrer';
+                    }
                     delegateInfoEl.appendChild(websiteEl);
 
                     delegateMetadataEl.appendChild(delegateInfoEl);
@@ -580,7 +588,11 @@ async function showNewForm(view) {
                 }
             } catch (e) {
                 console.error("Error fetching delegate metadata:", e);
-                delegateMetadataEl.innerHTML = `<span class="error">Error fetching metadata: ${e.message}</span>`;
+                delegateMetadataEl.textContent = '';
+                const errorEl = document.createElement('span');
+                errorEl.className = 'error';
+                errorEl.textContent = `Error fetching metadata: ${e.message}`;
+                delegateMetadataEl.appendChild(errorEl);
             }
         }
     }

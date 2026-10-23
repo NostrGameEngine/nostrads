@@ -4,15 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nostr Ads | Console | Edit</title>
-    <link rel="stylesheet" href="../common.css">
-    <link rel="stylesheet" href="./edit.css">
-    <link rel="stylesheet" href="../../nostr-ads.css">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' https: wss:; img-src 'self' https: blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta name="referrer" content="no-referrer">
+    <title>NostrAds / Console | Edit</title>
+    <meta name="theme-color" content="#17151d">
+    <link rel="icon" type="image/png" href="../../imgs/mark.png">
+    <link rel="stylesheet" href="../common.css?v=8e109430040f109c4fd553d7b69684144e204f44">
+    <link rel="stylesheet" href="./edit.css?v=8e109430040f109c4fd553d7b69684144e204f44">
+    <link rel="stylesheet" href="../../nostr-ads.css?v=8e109430040f109c4fd553d7b69684144e204f44">
 
-    <script type="module" src="./edit.js"></script>
+    <script type="module" src="./edit.js?v=8e109430040f109c4fd553d7b69684144e204f44"></script>
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js@9.0.1/public/assets/styles/choices.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/choices.js@9.0.1/public/assets/scripts/choices.min.js"></script>
+    <link rel="stylesheet" href="../vendor/choices/styles/choices.min.css?v=8e109430040f109c4fd553d7b69684144e204f44" />
+    <script src="../vendor/choices/scripts/choices.min.js?v=8e109430040f109c4fd553d7b69684144e204f44"></script>
 
     <!-- disable indexing for this page -->
     <meta name="robots" content="noindex, nofollow">
@@ -20,8 +25,8 @@
 
 <body>
     <header>
-        <h1>Nostr Ads | Console</h1>
-        <div class="iconbtn" id="back">⌂</div>
+        <h1>NostrAds / Console</h1>
+        <button type="button" class="iconbtn" id="back" aria-label="Back to console">⌂</button>
 
     </header>
     <content>

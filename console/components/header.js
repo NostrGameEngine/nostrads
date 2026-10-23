@@ -7,7 +7,7 @@ async function load(view) {
         h1.onclick = (e) => {
             e.preventDefault();
             e.stopPropagation();
-            window.location.href="/console";
+            window.location.href = new URL('../', import.meta.url).href;
         };
         h1.style.cursor = 'pointer';
     }

@@ -1,27 +1,20 @@
 import { checkPostMessageOrigin } from './strict-origin.js';
 class SharedExecutorClient {
     constructor(workerUrl, options) {
-        this.callbacks = {};
-        if (typeof SharedWorker !== 'undefined' && !options?.forceCompat) {
-            console.log("Using native SharedWorker");
-            const worker = new SharedWorker(workerUrl, options);
-            worker.port.start();
-            worker.port.addEventListener('message', this.handleMessage.bind(this));
-            this.worker = worker.port;
-            this.sharedWorker = worker;
-            this.compatMode = false;
-        }else{
-            console.log("Using SharedWorker compatibility mode");
-            const worker = new Worker(workerUrl,  options);
-            worker.addEventListener('message', this.handleMessage.bind(this));
-            this.worker = worker;
-            this.compatMode = true;
-        }
-
+        this.callbacks = Object.create(null);
+        const scopedWorkerUrl = new URL(workerUrl, window.location.href);
+        const workerOptions = {...options};
+        delete workerOptions.forceCompat;
+        delete workerOptions.sessionKey;
+        const worker = new Worker(scopedWorkerUrl, workerOptions);
+        worker.addEventListener('message', this.handleMessage.bind(this));
+        this.worker = worker;
+        this.compatMode = true;
+        this.instanceId = crypto.randomUUID?.() ?? Math.random().toString(36).slice(2);
     }
 
     isNativeSupported() {
-        return typeof SharedWorker !== 'undefined';
+        return false;
     }
 
     isNative() {
@@ -44,11 +37,19 @@ class SharedExecutorClient {
     }
 
     invoke(methodName, ...args) {
+        if (!/^[A-Za-z][A-Za-z0-9]{0,63}$/.test(methodName)) {
+            return Promise.reject(new Error('Invalid worker method name'));
+        }
         return new Promise((resolve, reject) => {
-            const invkId = `${this.worker.id}-${Math.random().toString(36).substring(2, 15)}-${Date.now()}`;
+            const invkId = `${this.instanceId.replace(/[^A-Za-z0-9_-]/g, '')}-${Math.random().toString(36).substring(2, 15)}-${Date.now()}`;
             
             const l = (event) => {
-                const data = JSON.parse(event.data);
+                let data;
+                try {
+                    data = JSON.parse(event.data);
+                } catch (_) {
+                    return;
+                }
                 if (data.type === 'result' && data.invkId === invkId) {
                     if (data.error) {
                         reject(new Error(data.error));
@@ -63,36 +64,34 @@ class SharedExecutorClient {
                 }
             };
             this.worker.addEventListener('message', l);
-            this.worker.postMessage(JSON.stringify({
+            const message = JSON.stringify({
                 type: 'invoke',
                 method: methodName,
                 args: args,
                 invkId: invkId
-            }));
+            });
+            if (message.length > 1024 * 1024) {
+                reject(new Error('Worker request exceeds maximum size'));
+                return;
+            }
+            this.worker.postMessage(message);
         });
     }
 
-    triggerCallback(callbackName, ...args) {
-        this.worker.postMessage(JSON.stringify({
-            type: 'callback',
-            name: callbackName,
-            args: args
-        }));
-    }   
-
     close() {
-        if (this.worker instanceof MessagePort) {
-            this.worker.close();
-        } else {
-            this.worker.terminate();
-        }
+        this.worker.terminate();
     }   
     
     handleMessage(event) {
         checkPostMessageOrigin(event);
         // console.log('Message received from worker:', event.data);
         if(typeof event.data === 'string') {
-            const data = JSON.parse(event.data);
+            let data;
+            try {
+                data = JSON.parse(event.data);
+            } catch (_) {
+                return;
+            }
             if (data.type === 'callback') {
                 this.callbacks[data.name]?.(...data.args);
             }

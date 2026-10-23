@@ -1,13 +1,12 @@
-import SharedWorkerBackend from './sharedworker-backend.js';
-import SharedWorkerCompatBackend from './sharedworker-compat-backend.js';
+import DedicatedWorkerBackend from './dedicated-worker-backend.js';
+
+const MAX_MESSAGE_SIZE = 1024 * 1024;
+const NAME_PATTERN = /^[A-Za-z][A-Za-z0-9]{0,63}$/;
+const INVOCATION_ID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/;
+
 class SharedExecutor {
     constructor(callback) {
-        if (typeof onconnect !== 'undefined') {
-            this.backend = new SharedWorkerBackend(callback);
-        }else {
-            this.backend = new SharedWorkerCompatBackend(callback);
-        }
-
+        this.backend = new DedicatedWorkerBackend(callback);
     }
 
     async close() {
@@ -41,11 +40,19 @@ class SharedExecutor {
 
     async bindToClient(){
         // console.log("Binding to client...");
-        this.backend.addMainThreadMessageListener( (event)  =>{
+        this.backend.addMainThreadMessageListener((event, replyPort) => {
             // console.log('Message received from main thread:', event.data);
-            const data = JSON.parse(event.data);
+            if (typeof event.data !== 'string' || event.data.length > MAX_MESSAGE_SIZE) return;
+            let data;
+            try {
+                data = JSON.parse(event.data);
+            } catch (_) {
+                return;
+            }
+            if (!data || Object.getPrototypeOf(data) !== Object.prototype) return;
             if (data.type === 'invoke') {
                 const { method, args, invkId } = data;
+                if (!NAME_PATTERN.test(method) || !Array.isArray(args) || !INVOCATION_ID_PATTERN.test(invkId)) return;
                 this.invoke(method, args)
                     .then(result => {
                         this.backend.postMessageToMainThread(JSON.stringify({
@@ -53,7 +60,7 @@ class SharedExecutor {
                             method,
                             result,
                             invkId
-                        }));
+                        }), replyPort);
                     })
                     .catch(error => {
                         const rs = JSON.stringify({
@@ -63,23 +70,19 @@ class SharedExecutor {
                             invkId
                         });
                         console.error(`Send rejection response ${rs}`);
-                        this.backend.postMessageToMainThread(rs);
+                        this.backend.postMessageToMainThread(rs, replyPort);
                     });
-            } else if(data.type === 'registerCallback') {
+            } else if(data.type === 'registerCallback' && NAME_PATTERN.test(data.name)) {
                 this.registerCallback(data.name, (...args) => {
                     // console.log(`Callback ${data.name} triggered with args`, args);
                     this.backend.postMessageToMainThread(JSON.stringify({
                         type: 'callback',
                         name: data.name,
                         args
-                    }));
+                    }), replyPort);
                 });
-            } else if(data.type === 'unregisterCallback') {
+            } else if(data.type === 'unregisterCallback' && NAME_PATTERN.test(data.name)) {
                 this.unregisterCallback(data.name);
-            } else if(data.type === 'triggerCallback') {
-                this.triggerCallback(data.name, ...data.args);
-            } else if(data.type === 'close') {
-                this.close();
             }
         });
         
