@@ -1,7 +1,7 @@
 [versions]
 ngePlatform = "0.3.0-20261013.100632-138"
 ngePlatformTeaVM = "0.3.0-20261013.100632-139"
-nostr4j = "0.3.0-20261012.223403-101"
+nostr4j = "0.4.1"
 saferalloc = "0.0.11"
 jakartaAnnotation = "2.1.1"
 junit4Version = "4.13.2"
