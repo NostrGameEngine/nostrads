@@ -1,0 +1,302 @@
+[
+  {
+    "campaign": "explore-the-stars",
+    "event": {
+      "id": "ae7fbe0980983c768640f9cc74d72e449f9b09ce1fd030d5efe3b4603bf78322",
+      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
+      "kind": 30100,
+      "content": "{\"max_payouts\":3,\"call_to_action\":\"Explore the stars\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional space travel. Your next great adventure.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"https://npub14n4df4rdn2xka06u2duwukt7u32uml7m6an80s47a0f6hpp6k6jq0tl2vg.blossom.band/25e1436dd4f740710f4347de5c8e8f404c33e2674a463e5bac80bcc6ba804302.png\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:explore-the-stars\"}",
+      "created_at": 1792748007,
+      "sig": "be736aff8b607949a8c521ab7bb1b5ddc1ef1a4f95b6fd262461aa6063df6026cea1ca0c79799c1b4861deeefb2962139c68d8d20db1529bee52c59fdee6fe25",
+      "tags": [
+        [
+          "d",
+          "nostr4j3jd71f4acfeb15641b031eb8b6935b916d"
+        ],
+        [
+          "l",
+          "en"
+        ],
+        [
+          "m",
+          "image/png"
+        ],
+        [
+          "s",
+          "256x512"
+        ],
+        [
+          "k",
+          "link"
+        ],
+        [
+          "S",
+          "1:2"
+        ],
+        [
+          "f",
+          "BTC1_000"
+        ],
+        [
+          "expiration",
+          "1793352807"
+        ],
+        [
+          "D",
+          "d5a48f2b9b312c4303ab105c77b0858b6d856b8ae97a7529d34c10027018de18",
+          "At3VTQkN0raaqUYMLgtEwZq0vVteQ3fgUOlX1OYm/QU5pDkZv5OxaCSNK2KCLOUiixIVS8B1CeiBljUagl3C770w6TS128AZxpb9CE4SvtvVUPw+qstLo3TezZdBoPktdngeN4L7tzKkVDaqTd5rB3WibcApl/wBCm32qnAfqU2xUBVfchAWAE0ZGipp3JrPWHpOrq87aqb+LxfLBZjsUg3vMpd6A4MATQ+ev6uhiZwcJcVwLq1CtAy4rp1m9bdPU53bQExjGGmE7xAtpAA7lbSzIvHLHx5G1swp6XclA3gMRSve0QpSOpmX50nw7KIBDqxB8BOY2ajNgbEnGjgO7tpHBPSUv/hK2k5hN1PPAZkeFvhrqvm4mFPncPWMKTIyLUco"
+        ]
+      ]
+    }
+  },
+  {
+    "campaign": "galactic-essence",
+    "event": {
+      "id": "7aeb1de78256876991b5c219a02303ce67ba4d707637817faccb41e2bf8de045",
+      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
+      "kind": 30100,
+      "content": "{\"max_payouts\":3,\"call_to_action\":\"Discover the universe\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional interstellar discovery. Explore the universe.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"https://npub14n4df4rdn2xka06u2duwukt7u32uml7m6an80s47a0f6hpp6k6jq0tl2vg.blossom.band/069d395fe1db59c1365799b27e2d86252ed895459dc11fbee2574a85c3df9b19.png\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:galactic-essence\"}",
+      "created_at": 1792748017,
+      "sig": "3b2d06165f040a47c078e037e33ce1b33d2e1480f3096c4f9442177abbb22f82d3d00cf1333134e6e277589a8b54e69d9ed4066a771ad36ee033730f9aa51be2",
+      "tags": [
+        [
+          "d",
+          "nostr4j6jf8ccae72db7ad17d9ee08c92666997a0"
+        ],
+        [
+          "l",
+          "en"
+        ],
+        [
+          "m",
+          "image/png"
+        ],
+        [
+          "s",
+          "256x256"
+        ],
+        [
+          "k",
+          "link"
+        ],
+        [
+          "S",
+          "1:1"
+        ],
+        [
+          "f",
+          "BTC1_000"
+        ],
+        [
+          "expiration",
+          "1793352817"
+        ],
+        [
+          "D",
+          "d5a48f2b9b312c4303ab105c77b0858b6d856b8ae97a7529d34c10027018de18",
+          "AkZezrgiLkfwwxDp8P3u+IS7BHRtgUDAShS218wgMaKyvPhYR7NUV5MQl26BkV40Ge/RSrVxH3tOlE5xQBRGhuPbX8u4pKJ+UnOzYpqZ1lZli7WX4ODA2ukf2uaABi/Sg9QcoUtzR3pGusVy5K0q1zMO2d2HV0/KOVkyxHKLUeHmejXFeIbg1Nh6KjsINH2dQIBMl/+g4ZG0ha46nL0ND+GmIKcD9BYxIAiMQZOMIMi+MdXMg/kgDrn5DIDUx6sixFHPpybVrB+RcT11kqP10iXJ0Kxr0SzTG9oCmSO4/oiG+Gw4nlx+ymHBB1e8ePdRmUk/Xkd4cJLrRBnzlJZemushmxL47BKhWRCykOtzPPwBefnI+BPsbC6+LZf93v/vAkG5"
+        ]
+      ]
+    }
+  },
+  {
+    "campaign": "skypod",
+    "event": {
+      "id": "42c2caf249c835d7cf1beb4c28a3f7a18d70415efab700e6ae89ae318ad4775e",
+      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
+      "kind": 30100,
+      "content": "{\"max_payouts\":3,\"call_to_action\":\"Find your Skypod\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional capsule homes. Live above it all.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"https://npub14n4df4rdn2xka06u2duwukt7u32uml7m6an80s47a0f6hpp6k6jq0tl2vg.blossom.band/1e24cc3a2cd424cf385500036cc93b78f92066957f10b1fdfacadf3014485b81.png\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:skypod\"}",
+      "created_at": 1792748027,
+      "sig": "ca28ac46beadc9ff911c8aa051b2b4ea28ab751bfa639f809d6901676a23371f1b0351c165592114746d96d709521ba4c180543fb534f633d00da12b6943e0d8",
+      "tags": [
+        [
+          "d",
+          "nostr4j9j4cd9d98dc2f59e6067bbd53f5a9e251a"
+        ],
+        [
+          "l",
+          "en"
+        ],
+        [
+          "m",
+          "image/png"
+        ],
+        [
+          "s",
+          "256x512"
+        ],
+        [
+          "k",
+          "link"
+        ],
+        [
+          "S",
+          "1:2"
+        ],
+        [
+          "f",
+          "BTC1_000"
+        ],
+        [
+          "expiration",
+          "1793352827"
+        ],
+        [
+          "D",
+          "d5a48f2b9b312c4303ab105c77b0858b6d856b8ae97a7529d34c10027018de18",
+          "AkODvTEXKOfVY020l0EmoHO17MVkoqPSw+ACOF0kHM1YMBQxCJBr5m7PJ1Pzf4d1VzEb53hbIL/KBNHAv8wEGIfUHQ6gPdCEii14Qc3So15GCVwlEs7fujJG/U+MIBckI3avIJy+dHuGeDInKPD4wFut4VlTG9HtmVHjitD9P1Xb+lo14tGu0JA4NqE1/LtayPDNHKQ5z+HJ6EIQiFHiAx/kBlsCqJYL7y7tjlQAHp4NVOjkwttXljMS/q0CGjIGJa5x6P77go6XmiXn70Oz0Y/MMDpDGxFgvzwEDwUlJXBM+nSlVnppqbSlhhmsekKho2T2pcHxgQDoxkUX7qd1VJpfn/qGur0Byn3D+hSDopxOp5ZIvmWgov7b/LstzVBqYZxM"
+        ]
+      ]
+    }
+  },
+  {
+    "campaign": "red-orbit-noodles",
+    "event": {
+      "id": "3b959f24793da666bf24c11a997ac085eb32b850ddb2c93a80a119cb9e73fdf6",
+      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
+      "kind": 30100,
+      "content": "{\"max_payouts\":3,\"call_to_action\":\"Order from orbit\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional cosmic noodles. Out of this world, ready in minutes.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"https://npub14n4df4rdn2xka06u2duwukt7u32uml7m6an80s47a0f6hpp6k6jq0tl2vg.blossom.band/1f05bc88bcaa7f882fd7f446812d193326e4328f84a566d3a6799758c1aa6c5e.png\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:red-orbit-noodles\"}",
+      "created_at": 1792748035,
+      "sig": "6e354a2c891beeee97bbe750e492bd5020f561c09f3139ca79c777fb76a08b74751c335ac8deedc61187c4e553b2ed19524e7ac7e832fc4d0748506689518cc8",
+      "tags": [
+        [
+          "d",
+          "nostr4j12j5966a464fc5a436a3d21f4de19c80aaa"
+        ],
+        [
+          "l",
+          "en"
+        ],
+        [
+          "m",
+          "image/png"
+        ],
+        [
+          "s",
+          "512x256"
+        ],
+        [
+          "k",
+          "link"
+        ],
+        [
+          "S",
+          "2:1"
+        ],
+        [
+          "f",
+          "BTC1_000"
+        ],
+        [
+          "expiration",
+          "1793352835"
+        ],
+        [
+          "D",
+          "d5a48f2b9b312c4303ab105c77b0858b6d856b8ae97a7529d34c10027018de18",
+          "Ap0hw9T9isA4gc9QBF7TvVROfDR7EZCGFmEyNVYgHP62FIEm6rhdiXD8nWZNFMWYPiVhCSHCrbIIw0OjKGqnJ0W1xRe78T26/mpUYV/Tr7QdfohlOPMUQWtWNRR6uBNZcTzgqP22B2oCAiZcST/YpGSrXthm7RwMARE2/fcXAemOs83tR99u1B/8lnw4DLO/dqzg/7H0rc8w+rgWSTpCEdHFEWjKBGSZm4NOLEZCHoIE4jMeXWZLjNYAFCrg0zxj+blv8n4QmRP/+pHURMfJRxoeLV8z9coYxQwZBnCVH+B6cqNxYJEb+KHi4yNjMUXldPxrPZkPKrCfVU2hEbbPMYaTeb9up9S7U2baoGNMDgozZa4wRdjHWmCJZ+cf5KAya/1/"
+        ]
+      ]
+    }
+  },
+  {
+    "campaign": "lunar-coffee",
+    "event": {
+      "id": "b54465da6899ad1036aa6d80533541e33d86dc13d2234e3cfd17096f30912321",
+      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
+      "kind": 30100,
+      "content": "{\"max_payouts\":3,\"call_to_action\":\"Take a small sip\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional moon-roasted coffee. One small sip, one giant leap.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"https://npub14n4df4rdn2xka06u2duwukt7u32uml7m6an80s47a0f6hpp6k6jq0tl2vg.blossom.band/f1d79fb2212ddb5cd20952eeec2177b74012bdaf04c55fc5df3141251afcaf43.png\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:lunar-coffee\"}",
+      "created_at": 1792748044,
+      "sig": "b39d2019dde27821c6dede8f939a2c8982c0dbc27058a42f4ab47169ae9466897282b8dd454a32835dfb87bbfe104ab9b85955f893e7c44fbb00d3aeb85ed849",
+      "tags": [
+        [
+          "d",
+          "nostr4j15j05fd64fceb9d30e49eb5a0f6e90001db"
+        ],
+        [
+          "l",
+          "en"
+        ],
+        [
+          "m",
+          "image/png"
+        ],
+        [
+          "s",
+          "256x256"
+        ],
+        [
+          "k",
+          "link"
+        ],
+        [
+          "S",
+          "1:1"
+        ],
+        [
+          "f",
+          "BTC1_000"
+        ],
+        [
+          "expiration",
+          "1793352844"
+        ],
+        [
+          "D",
+          "d5a48f2b9b312c4303ab105c77b0858b6d856b8ae97a7529d34c10027018de18",
+          "As98FFxG1FcWW+97QiSOEj9DDamWqt2lX/yO22w7f8n06XNjZURR5Px1bsCrIf9SdZOC9LG/ImNRMppKGp4tllpfBNHAk9WjX1viEKokOEu67tVx8PN5Y8KMtt46AjIPCroZtUttf5QQHFSRP+bn1jiZadl7HtMFU8kTXfO92zhKv/3nNGHWFC09rUJpOPEfsiVCaWNOwwuBt+ndEMGxTEIhcZ/Wfnd59vgd1gtve1HFVQc4WaGz1pDnkWo6NL3J5ohibWxKSMN7kUck885RMSyh5Z5N5ZKqQNfBL5xrvAC6Jggm7OKmDYrNPS3lH0n+Lo60ZzXhWvwBqMpB4FqFvSUnGZg5O1LDtwG4JmgrPpD8gyBrLi708Z9Gqg/TSdZjW9jO"
+        ]
+      ]
+    }
+  },
+  {
+    "campaign": "orbital-express",
+    "event": {
+      "id": "4ff4a595c30aa305aa97bf5080b348c2b71812b8b8e044254b344ea77e8aa29f",
+      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
+      "kind": 30100,
+      "content": "{\"max_payouts\":3,\"call_to_action\":\"Book your escape\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional space transit. The weekend starts on Saturn.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"https://npub14n4df4rdn2xka06u2duwukt7u32uml7m6an80s47a0f6hpp6k6jq0tl2vg.blossom.band/fd83666b689c968e9f26d64001526be9492400fa73c1d37196a237a4ca9ec42b.png\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:orbital-express\"}",
+      "created_at": 1792748053,
+      "sig": "0f33f1e4485095622483bc76bffbf3e82e6799d58afdb60f3eecc0ad7f844d74b0c59888c1a5c7712b875f835c6944730ce696317f69c5fd52a18eebe0106999",
+      "tags": [
+        [
+          "d",
+          "nostr4j18j837b1f1c88b75ab9e132387e750ab802"
+        ],
+        [
+          "l",
+          "en"
+        ],
+        [
+          "m",
+          "image/png"
+        ],
+        [
+          "s",
+          "512x256"
+        ],
+        [
+          "k",
+          "link"
+        ],
+        [
+          "S",
+          "2:1"
+        ],
+        [
+          "f",
+          "BTC1_000"
+        ],
+        [
+          "expiration",
+          "1793352853"
+        ],
+        [
+          "D",
+          "d5a48f2b9b312c4303ab105c77b0858b6d856b8ae97a7529d34c10027018de18",
+          "AhDrMYxbdwyVlh3nyA8WlRM60TrfKLbxqFHlvQmWA627WNIMF6gH7JPXVQuucr8Qlrpuftr/rRgFk9xswu1xx1Hh/j16dkQ0tEzA/cAVq7SdGrrcCH3VQyb1jx+AtejzlrcYggvhskTmWIdNa0FRL5e2+I6YVM42iU8gwXLFM2t8MwMz7d1yS3M2oPGpvUJOiT4vrXsvHBMlPSdgd0jV4SfII7+rbg/dfLE6NQqqUNG5UU+2S07k5PqdQyRgKUyBK3MPTl41iRB/58TLRPz7aXnHbp3mk8bCxn78BmaE2DbJsSc8uxSJndkX+ifC8YdAXv7KvyBjCQQ4FVrXrSIEB2eYUTSLqwt7LYlm7J0H0RzVO1pbprH1giQmfwmcpC1eu8AN"
+        ]
+      ]
+    }
+  }
+]

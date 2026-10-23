@@ -14,7 +14,7 @@ plugins {
 
 ext {
     repo="NostrGameEngine/nostrads"
-    website="https://ngengine.org/nostrads"
+    website="https://nostr-ads.ngengine.org"
     baseGroup="org.ngengine"
     description="A Nostr based Ads network"
     author="Riccardo Balbo"
@@ -45,6 +45,11 @@ allprojects {
     version = projectVersion
     group   = projectGroup
 
+    if (projectVersion.endsWith('-SNAPSHOT')) {
+        configurations.configureEach {
+            resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+        }
+    }
 
  
 }

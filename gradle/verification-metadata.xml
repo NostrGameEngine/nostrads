@@ -3,6 +3,9 @@
    <configuration>
       <verify-metadata>true</verify-metadata>
       <verify-signatures>false</verify-signatures>
+      <trusted-artifacts>
+         <trust group="org.ngengine" name="nostr4j" version="0.3.0-SNAPSHOT" reason="Moving nostr4j snapshots from the official Sonatype snapshot repository cannot use fixed checksums"/>
+      </trusted-artifacts>
    </configuration>
    <components>
       <component group="com.diffplug.durian" name="durian-collect" version="1.2.0">
@@ -2100,6 +2103,34 @@
          </artifact>
          <artifact name="nge-platform-teavm-0.3.0-20261013.100632-139-sources.jar">
             <sha256 value="9e86017808f25d3ebb151c1901db37460dd0e34ce1d96ca44b09720473ef2557" origin="Verified official Sonatype snapshot"/>
+         </artifact>
+      </component>
+      <component group="org.ngengine" name="nostr4j" version="0.4.1">
+         <artifact name="nostr4j-0.4.1.pom">
+            <sha256 value="df642739a79936f5215950ef8303717eb6fafd9bc738d1514f1e56f077292ced" origin="Verified against Maven Central artifact and published SHA-256"/>
+         </artifact>
+         <artifact name="nostr4j-0.4.1.module">
+            <sha256 value="363aba9c7837df0b839adb97720534081ebf0376d0aeeaf79c2e1848bb3ca125" origin="Verified against Maven Central artifact and published SHA-256"/>
+         </artifact>
+         <artifact name="nostr4j-0.4.1.jar">
+            <sha256 value="67146ebe5158e1e57e3dc55591b034d1bfe03ff3f55aeafc5e0d37b03b45f1e9" origin="Verified against Maven Central artifact and published SHA-256"/>
+         </artifact>
+         <artifact name="nostr4j-0.4.1-sources.jar">
+            <sha256 value="bf3954cab03ddf068b6cc9e6a55502d2a5d09a04c635bbfdb7435130e34a5208" origin="Verified against Maven Central artifact and published SHA-256"/>
+         </artifact>
+      </component>
+      <component group="org.ngengine" name="lnurl4j" version="0.0.6">
+         <artifact name="lnurl4j-0.0.6.pom">
+            <sha256 value="5c9a69d88ea6d8e7ae0a15a4896523db11f3e5a45e90d8ede64de37511750693" origin="Verified against Maven Central artifact and published SHA-256"/>
+         </artifact>
+         <artifact name="lnurl4j-0.0.6.module">
+            <sha256 value="737ceec500f3dcfc2f7779e9c16165d805ff36727596aad8bb96a06bba801a01" origin="Verified against Maven Central artifact and published SHA-256"/>
+         </artifact>
+         <artifact name="lnurl4j-0.0.6.jar">
+            <sha256 value="966b6e16a05c7a8a0bdc7d755639bfc09707a73090acd5de6ce6777cbf1495f0" origin="Verified against Maven Central artifact and published SHA-256"/>
+         </artifact>
+         <artifact name="lnurl4j-0.0.6-sources.jar">
+            <sha256 value="0a41ef0ba970a4bed874ef8792f8cdfda64d5acd8f99e9958262cf2b7dd467a2" origin="Verified against Maven Central artifact and published SHA-256"/>
          </artifact>
       </component>
    </components>

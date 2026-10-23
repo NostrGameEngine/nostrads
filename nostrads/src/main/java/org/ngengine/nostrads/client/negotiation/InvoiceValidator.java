@@ -19,23 +19,28 @@ import org.ngengine.bolt11.Bolt11Invoice;
 import org.ngengine.bolt11.Bolt11NetworkType;
 import org.ngengine.bolt11.Bolt11Tag;
 import org.ngengine.bolt11.Bolt11TagName;
-import org.ngengine.lnurl.LnUrlPay;
 
-/** Validates the security-sensitive fields of an LNURL-provided BOLT11 invoice before a wallet sees it. */
+/**
+ * Validates the security-sensitive fields of an LNURL-provided BOLT11 invoice before a wallet sees it.
+ */
 public final class InvoiceValidator {
 
     private static final long DEFAULT_BOLT11_EXPIRY_SECONDS = 3600;
 
     private InvoiceValidator() {}
 
+    /**
+     * Validates an invoice against the original metadata string returned by the LNURL service.
+     * Parsing and reserializing that string changes its hash even when the JSON values are equivalent.
+     */
     public static void validateLnurlInvoice(
         @Nonnull String paymentRequest,
-        @Nonnull LnUrlPay payService,
+        @Nonnull String metadata,
         long expectedAmountMsats,
         @Nonnull Bolt11NetworkType expectedNetwork
     ) {
         try {
-            validateLnurlInvoiceChecked(paymentRequest, payService, expectedAmountMsats, expectedNetwork);
+            validateLnurlInvoiceChecked(paymentRequest, metadata, expectedAmountMsats, expectedNetwork);
         } catch (IllegalArgumentException e) {
             throw e;
         } catch (Exception e) {
@@ -76,7 +81,7 @@ public final class InvoiceValidator {
 
     private static void validateLnurlInvoiceChecked(
         @Nonnull String paymentRequest,
-        @Nonnull LnUrlPay payService,
+        @Nonnull String metadata,
         long expectedAmountMsats,
         @Nonnull Bolt11NetworkType expectedNetwork
     ) throws Exception {
@@ -105,7 +110,6 @@ public final class InvoiceValidator {
             .filter(tag -> tag.tagName() == Bolt11TagName.DESCRIPTION_HASH)
             .findFirst()
             .orElseThrow(() -> new IllegalArgumentException("LNURL invoice is missing its description hash"));
-        String metadata = (String) payService.toMap().get("metadata");
         if (metadata == null) throw new IllegalArgumentException("LNURL service metadata is missing");
         byte[] expectedDescriptionHash = MessageDigest.getInstance("SHA-256").digest(metadata.getBytes(StandardCharsets.UTF_8));
         if (!Arrays.equals(expectedDescriptionHash, descriptionHash.getValueAsBytes())) {

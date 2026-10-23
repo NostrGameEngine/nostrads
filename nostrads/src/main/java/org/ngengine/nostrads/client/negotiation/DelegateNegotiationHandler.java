@@ -102,17 +102,17 @@ public class DelegateNegotiationHandler extends NegotiationHandler {
                 logger.fine("Received payment request event: " + event.getId() + " for bidding: " + getBidEvent().getId());
                 AdPaymentRequestEvent paymentRequestEvent = (AdPaymentRequestEvent) event;
                 logger.fine("Initiating payout to " + lnurl);
-                lnurl
-                    .getService()
-                    .then(r -> {
+                LnUrlInvoiceRequest
+                    .fetch(lnurl)
+                    .then(request -> {
                         try {
                             logger.fine(
                                 "Got LnUrl service: " +
-                                r +
+                                request.service() +
                                 ", fetching invoice for payment request: " +
                                 paymentRequestEvent.getId()
                             );
-                            LnUrlPay payRequest = (LnUrlPay) r;
+                            LnUrlPay payRequest = request.service();
                             // fetch an invoice
                             payRequest
                                 .fetchInvoice(getBidEvent().getBidMsats(), "Payment for " + this.getBidEvent().getId(), null)
@@ -120,7 +120,7 @@ public class DelegateNegotiationHandler extends NegotiationHandler {
                                     String invoice = res.getPr();
                                     InvoiceValidator.validateLnurlInvoice(
                                         invoice,
-                                        payRequest,
+                                        request.metadata(),
                                         getBidEvent().getBidMsats(),
                                         invoiceNetwork
                                     );

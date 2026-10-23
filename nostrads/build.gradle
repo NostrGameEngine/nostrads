@@ -24,14 +24,15 @@ repositories {
 dependencies {
     def versionCatalog = project.extensions.getByType(org.gradle.api.artifacts.VersionCatalogsExtension).named("libs")
     def catalogLibrary = { String alias -> versionCatalog.findLibrary(alias).get() }
+    def nostr4jLibrary = catalogLibrary(project.version.toString().endsWith('-SNAPSHOT') ? "nostr4j-snapshot" : "nostr4j")
 
     implementation libs.jakarta.annotation.api
     compileOnly catalogLibrary("nge-platform-common")
-    compileOnly catalogLibrary("nostr4j")
+    compileOnly nostr4jLibrary
     
     testImplementation catalogLibrary("nge-platform-common")
     testImplementation libs.junit
-    testImplementation catalogLibrary("nostr4j")
+    testImplementation nostr4jLibrary
     testImplementation catalogLibrary("nge-platform-jvm")
 }
 

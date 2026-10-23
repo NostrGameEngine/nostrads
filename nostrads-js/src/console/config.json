@@ -1,20 +1,19 @@
 {
-    "default_delegate":"a36dc2b922341f5360aacd492a42eaa56643850fe1491930097805605df3b9c8",
-    "testmode":true,
-    "testmode_config":{
-        "default_relays":[
+    "default_delegate": "a36dc2b922341f5360aacd492a42eaa56643850fe1491930097805605df3b9c8",
+    "testmode": true,
+    "testmode_config": {
+        "default_relays": [
             "wss://nostr.rblb.it"
         ]
     },
-    "default_relays":[
+    "default_relays": [
         "wss://relay.ngengine.org",
         "wss://relay2.ngengine.org",
         "wss://relay.damus.io",
         "wss://relay.primal.net",
         "wss://relay.nostr.band"
     ],
-    "default_blossom_relays":[
-        "https://blossom.primal.net",
-        "https://blossom.band/"
+    "default_blossom_relays": [
+        "https://blossom.band"
     ]
 }

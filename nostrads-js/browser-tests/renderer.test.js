@@ -88,6 +88,33 @@ try {
     assert(imageErrors === 0, 'safe image produced a rendering error');
     assert(imageElement.style.backgroundImage.includes('test-image.svg'), 'loaded image was not rendered');
 
+    // Synthetic clicks must not authorize a payment, even after the ad renders.
+    let clickSuccesses = 0;
+    let opened = 0;
+    const originalOpen = window.open;
+    window.open = () => { opened++; };
+    const clickElement = document.createElement('div');
+    document.body.appendChild(clickElement);
+    const clickDisposers = Renderer.render(clickElement, {
+        mimeType:'text/plain', payload:'Click test', link:'https://example.com', actionType:'link'
+    }, () => clickSuccesses++, error => { throw new Error(error); });
+    clickElement.click();
+    clickElement.dispatchEvent(new MouseEvent('click', {bubbles:true}));
+    clickElement.dispatchEvent(new KeyboardEvent('keydown', {key:'Enter', bubbles:true}));
+    assert(clickSuccesses === 0 && opened === 0, 'synthetic activation confirmed or opened an ad');
+    clickDisposers.forEach(dispose => dispose());
+    assert(!clickElement.hasAttribute('tabindex') && !clickElement.hasAttribute('role'), 'disposal changed host accessibility');
+    window.open = originalOpen;
+
+    // A retired slot must not confirm an image that finishes loading later.
+    let retiredSuccesses = 0;
+    const retired = Renderer.render(document.createElement('div'), {
+        mimeType:'image/png', payload:'/browser-tests/test-image.svg', link:'https://example.com', actionType:'view'
+    }, () => retiredSuccesses++, () => {});
+    retired.forEach(dispose => dispose());
+    await new Promise(resolve => setTimeout(resolve, 30));
+    assert(retiredSuccesses === 0, 'retired image confirmed a stale impression');
+
     const OriginalIntersectionObserver = window.IntersectionObserver;
     window.IntersectionObserver = class {
         constructor(callback) { this.callback = callback; }
