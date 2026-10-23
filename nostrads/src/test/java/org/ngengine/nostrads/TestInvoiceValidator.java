@@ -47,7 +47,12 @@ public class TestInvoiceValidator {
     public void validatesExactLnurlInvoice() throws Exception {
         TestPayService payService = new TestPayService();
         String invoice = invoice(payService, 21_000, Bolt11NetworkType.MAINNET, Instant.now(), 3600, null);
-        InvoiceValidator.validateLnurlInvoice(invoice, payService, 21_000, Bolt11NetworkType.MAINNET);
+        InvoiceValidator.validateLnurlInvoice(
+            invoice,
+            (String) payService.toMap().get("metadata"),
+            21_000,
+            Bolt11NetworkType.MAINNET
+        );
     }
 
     @Test
@@ -56,23 +61,47 @@ public class TestInvoiceValidator {
         String valid = invoice(payService, 21_000, Bolt11NetworkType.MAINNET, Instant.now(), 3600, null);
         assertThrows(
             IllegalArgumentException.class,
-            () -> InvoiceValidator.validateLnurlInvoice(valid, payService, 22_000, Bolt11NetworkType.MAINNET)
+            () ->
+                InvoiceValidator.validateLnurlInvoice(
+                    valid,
+                    (String) payService.toMap().get("metadata"),
+                    22_000,
+                    Bolt11NetworkType.MAINNET
+                )
         );
         assertThrows(
             IllegalArgumentException.class,
-            () -> InvoiceValidator.validateLnurlInvoice(valid, payService, 21_000, Bolt11NetworkType.TESTNET)
+            () ->
+                InvoiceValidator.validateLnurlInvoice(
+                    valid,
+                    (String) payService.toMap().get("metadata"),
+                    21_000,
+                    Bolt11NetworkType.TESTNET
+                )
         );
 
         String wrongHash = invoice(payService, 21_000, Bolt11NetworkType.MAINNET, Instant.now(), 3600, "00".repeat(32));
         assertThrows(
             IllegalArgumentException.class,
-            () -> InvoiceValidator.validateLnurlInvoice(wrongHash, payService, 21_000, Bolt11NetworkType.MAINNET)
+            () ->
+                InvoiceValidator.validateLnurlInvoice(
+                    wrongHash,
+                    (String) payService.toMap().get("metadata"),
+                    21_000,
+                    Bolt11NetworkType.MAINNET
+                )
         );
 
         String expired = invoice(payService, 21_000, Bolt11NetworkType.MAINNET, Instant.now().minusSeconds(120), 1, null);
         assertThrows(
             IllegalArgumentException.class,
-            () -> InvoiceValidator.validateLnurlInvoice(expired, payService, 21_000, Bolt11NetworkType.MAINNET)
+            () ->
+                InvoiceValidator.validateLnurlInvoice(
+                    expired,
+                    (String) payService.toMap().get("metadata"),
+                    21_000,
+                    Bolt11NetworkType.MAINNET
+                )
         );
     }
 
@@ -82,7 +111,13 @@ public class TestInvoiceValidator {
         String invoice = invoice(payService, null, Bolt11NetworkType.MAINNET, Instant.now(), 3600, null);
         assertThrows(
             IllegalArgumentException.class,
-            () -> InvoiceValidator.validateLnurlInvoice(invoice, payService, 21_000, Bolt11NetworkType.MAINNET)
+            () ->
+                InvoiceValidator.validateLnurlInvoice(
+                    invoice,
+                    (String) payService.toMap().get("metadata"),
+                    21_000,
+                    Bolt11NetworkType.MAINNET
+                )
         );
     }
 

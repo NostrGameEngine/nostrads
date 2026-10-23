@@ -70,6 +70,7 @@ import org.ngengine.nostrads.client.negotiation.DelegateNegotiationHandler;
 import org.ngengine.nostrads.client.negotiation.DelegateNegotiationHandler.AdvListener;
 import org.ngengine.nostrads.client.negotiation.DelegateNegotiationHandler.NotifyPayout;
 import org.ngengine.nostrads.client.negotiation.InvoiceValidator;
+import org.ngengine.nostrads.client.negotiation.LnUrlInvoiceRequest;
 import org.ngengine.nostrads.client.negotiation.NegotiationHandler;
 import org.ngengine.nostrads.client.services.AbstractAdService;
 import org.ngengine.nostrads.client.services.PenaltyStorage;
@@ -771,17 +772,17 @@ public class DelegateService extends AbstractAdService {
                         if (collectFee) {
                             logger.info("Collecting fee of " + feeMsats + " msats");
                             AtomicBoolean feePaymentSubmitted = new AtomicBoolean(false);
-                            feeCollector
-                                .getService()
-                                .compose(serv -> {
-                                    LnUrlPay payService = (LnUrlPay) serv;
+                            LnUrlInvoiceRequest
+                                .fetch(feeCollector)
+                                .compose(request -> {
+                                    LnUrlPay payService = request.service();
                                     try {
                                         return payService
                                             .fetchInvoice(feeMsats, "Delegate fee for nostr-ads", null)
                                             .then(payResp -> {
                                                 InvoiceValidator.validateLnurlInvoice(
                                                     payResp.getPr(),
-                                                    payService,
+                                                    request.metadata(),
                                                     feeMsats,
                                                     invoiceNetwork
                                                 );
