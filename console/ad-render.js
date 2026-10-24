@@ -86,6 +86,7 @@ function render(
 ){
     const disposer = [];
     const safeLink = safeLinkUrl(link);
+    el.classList.toggle('nostr-ddspace-text', mimeType === 'text/plain');
     let rendered = false;
     let active = true;
     disposer.push(() => { active = false; });

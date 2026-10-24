@@ -1,57 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https: wss:; object-src 'none'; base-uri 'self'; form-action 'self'">
-    <title>NostrAds / Console</title>
-    <meta name="theme-color" content="#17151d">
-    <link rel="icon" type="image/png" href="../imgs/mark.png">
-    <link rel="stylesheet" href="./common.css?v=8e109430040f109c4fd553d7b69684144e204f44">
-    <link rel="stylesheet" href="./index.css?v=8e109430040f109c4fd553d7b69684144e204f44">
-    <link rel="stylesheet" href="../nostr-ads.css?v=8e109430040f109c4fd553d7b69684144e204f44">
-    <script type="module" src="./index.js?v=8e109430040f109c4fd553d7b69684144e204f44"></script>
-</head>
-
-<body>
-    <header>
-        <h1>NostrAds / Console</h1>
-        <button type="button" class="iconbtn" id="settings" aria-label="Console settings">⚙</button>
-    </header>
-
-    <content>
-        <nav>
-            <div id="login"></div>
-
-            <div>
-                <a href="../">← Back to NostrAds</a><h3>Campaign console</h3>
-                <ul>
-                    <li>Click on the ⚙ icon to change your settings.</li>
-                    <li>Click on any ad to manage it.</li>
-                    <li>Stopped Ads are stored locally until you delete them.</li>
-                    <li>Use the ad details view to replace a live ad with a new revision.</li>
-                    <li>Stopped ads can be reopened, updated, and republished from the same flow.</li>
-                </ul>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta
+            http-equiv="Content-Security-Policy"
+            content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; connect-src 'self' https: wss:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'"
+        />
+        <meta name="referrer" content="no-referrer" />
+        <meta name="theme-color" content="#17151d" />
+        <meta name="robots" content="noindex, nofollow" />
+        <title>Campaigns · NostrAds</title>
+        <link rel="icon" type="image/png" href="../imgs/mark.png" />
+        <link rel="stylesheet" href="./common.css?v=2a608c6be921773917f271ce8e027d58816ea2c1" />
+        <link rel="stylesheet" href="./vendor/choices/styles/choices.min.css?v=2a608c6be921773917f271ce8e027d58816ea2c1" />
+        <link rel="stylesheet" href="../nostr-ads.css?v=2a608c6be921773917f271ce8e027d58816ea2c1" />
+        <link rel="stylesheet" href="./index.css?v=2a608c6be921773917f271ce8e027d58816ea2c1" />
+        <link rel="stylesheet" href="./edit/edit.css?v=2a608c6be921773917f271ce8e027d58816ea2c1" />
+        <script src="./vendor/choices/scripts/choices.min.js?v=2a608c6be921773917f271ce8e027d58816ea2c1" defer></script>
+        <script type="module" src="./index.js?v=2a608c6be921773917f271ce8e027d58816ea2c1"></script>
+    </head>
+    <body class="console-app">
+        <aside class="sidebar">
+            <a class="brand" href="../"
+                ><img src="../imgs/mark.png" width="34" height="34" alt="" />NostrAds<span>Console</span></a
+            >
+            <p class="nav-label">Workspace</p>
+            <a class="nav-item" href="#campaigns" id="campaigns-nav"><span aria-hidden="true">▦</span> Campaigns</a>
+            <a class="nav-item" href="#new"><span aria-hidden="true">＋</span> New campaign</a>
+            <button type="button" class="nav-item" id="settings" disabled>
+                <span aria-hidden="true">⚙</span> Network settings
+            </button>
+            <div class="sidebar-footer">
+                <p id="network-summary">Loading network settings…</p>
+                <a href="../">← Back to website</a
+                ><a href="https://github.com/NostrGameEngine/nostrads" target="_blank" rel="noopener noreferrer"
+                    >Documentation ↗</a
+                >
             </div>
-        </nav>
-
-
-        <main>
-
-
-            <h2>Active Ads <button class="small" id="createNew">Create new ad</button> </h2>
-            <p id="console-status" role="status">Connect a Nostr browser extension to manage campaigns.</p>
-            <section class="ddlist" id="ddlist">
-
-            </section>
-
-            <h2>Stopped Ads</h2>
-            <section class="ddlist" id="stoppedAdlist">
-            </section>
-
-        </main>
-    </content>
-</body>
-
+        </aside>
+        <div class="console-body">
+            <header class="topbar">
+                <span>Advertiser workspace <span class="badge" id="demo-badge" hidden>Demo</span></span>
+                <div class="account-actions">
+                    <button type="button" class="secondary" id="login" disabled>Log in</button
+                    ><button type="button" class="secondary" id="logout" hidden>Log out</button>
+                </div>
+            </header>
+            <main id="workspace" tabindex="-1"></main>
+            <footer class="workspace-footer">NostrAds <span>Peer-to-peer advertising</span></footer>
+        </div>
+        <dialog id="auth-dialog" aria-labelledby="auth-title">
+            <div class="dialog-heading">
+                <div>
+                    <p class="eyebrow">Your account</p>
+                    <h2 id="auth-title">Log in to NostrAds</h2>
+                </div>
+                <button type="button" class="text-button" id="auth-close" aria-label="Close login">✕</button>
+            </div>
+            <p class="muted">Connect your Nostr account to manage campaigns.</p>
+            <div class="auth-methods" aria-label="Login method">
+                <button type="button" data-method="extension" aria-pressed="true">Extension</button
+                ><button type="button" data-method="bunker" aria-pressed="false">Remote signer</button
+                ><button type="button" data-method="nsec" aria-pressed="false">nsec</button
+                ><button type="button" data-method="ncryptsec" aria-pressed="false">ncryptsec</button>
+            </div>
+            <form id="auth-form" autocomplete="off">
+                <div data-auth="extension">
+                    <h3>Browser extension <span class="badge">NIP-07</span></h3>
+                    <p>Approve the connection in your Nostr browser extension.</p>
+                </div>
+                <div data-auth="bunker" hidden>
+                    <label for="bunker-url">Connection link <span class="badge">NIP-46</span></label
+                    ><input
+                        id="bunker-url"
+                        type="password"
+                        autocomplete="off"
+                        placeholder="bunker://…"
+                        spellcheck="false"
+                    />
+                    <p class="field-hint">Paste a connection link from your signer, or generate a QR code below.</p>
+                    <button type="button" class="secondary" id="generate-connect">Connect with a QR code</button>
+                </div>
+                <div data-auth="nsec" hidden>
+                    <label for="nsec-key">Private key</label
+                    ><input id="nsec-key" type="password" autocomplete="off" placeholder="nsec1…" spellcheck="false" />
+                </div>
+                <div data-auth="ncryptsec" hidden>
+                    <label for="encrypted-key">Encrypted private key <span class="badge">NIP-49</span></label
+                    ><textarea
+                        id="encrypted-key"
+                        rows="3"
+                        autocomplete="off"
+                        placeholder="ncryptsec1…"
+                        spellcheck="false"
+                    ></textarea
+                    ><label for="key-password">Password</label
+                    ><input id="key-password" type="password" autocomplete="off" />
+                </div>
+                <div id="auth-notice" hidden>
+                    <div id="connect-invitation" hidden>
+                        <button
+                            type="button"
+                            id="expand-connect-qr"
+                            class="qr-button"
+                            aria-label="Enlarge connection QR code"
+                            aria-haspopup="dialog"
+                            hidden
+                        >
+                            <canvas id="connect-qr" role="img" aria-label="Scan to connect your signer"></canvas
+                            ><span>Click to enlarge</span>
+                        </button>
+                        <label for="connect-link">Or copy the connection link</label
+                        ><textarea id="connect-link" readonly rows="4" spellcheck="false"></textarea
+                        ><button type="button" class="secondary" id="copy-connect">Copy link</button>
+                    </div>
+                    <a id="auth-approval" target="_blank" rel="noopener noreferrer" hidden>Open signer approval ↗</a>
+                </div>
+                <p id="auth-status" role="status" aria-live="polite"></p>
+                <button type="submit" id="auth-submit">Log in with extension</button>
+            </form>
+        </dialog>
+        <dialog id="connect-qr-dialog" aria-labelledby="connect-qr-title">
+            <div class="dialog-heading">
+                <div>
+                    <h2 id="connect-qr-title">Connect your signer</h2>
+                    <p class="muted">Scan this code with your Nostr signer app.</p>
+                </div>
+                <button type="button" class="text-button" id="close-connect-qr" aria-label="Close QR code">✕</button>
+            </div>
+            <canvas id="connect-qr-expanded" role="img" aria-label="Connection QR code"></canvas>
+        </dialog>
+    </body>
 </html>

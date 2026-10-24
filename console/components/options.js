@@ -1,34 +1,23 @@
 import NostrAds from '../nostr-ads.js';
+import { getSession } from './session.js';
 let config = undefined;
 export async function getConfig() {
     if (config) return config;
-    config = await fetch(new URL('../config.json', import.meta.url)).then(r => {
+    config = await fetch(new URL('../config.json', import.meta.url)).then((r) => {
         if (!r.ok) throw new Error('Unable to load console configuration');
         return r.json();
     });
     return config;
 }
 
-let _localStorageKeyBase = null;
 export async function localStorageKey(unit) {
-    if (!_localStorageKeyBase) {
-        const config = await getConfig();
-        let key = 'nostrads';
-        if(config?.testmode){
-            key += "-test";
-        }
-        if (window?.nostr) {
-            const pubkey = await window.nostr.getPublicKey();
-            key += `-${pubkey}`;
-        }
-        _localStorageKeyBase = key;
-    }
-    return _localStorageKeyBase + "-" + unit;
+    const pubkey = getSession()?.pubkey;
+    const config = await getConfig();
+    return 'nostrads' + (config.testmode ? '-test' : '') + (pubkey ? `-${pubkey}` : '') + '-' + unit;
 }
 
-
 function isEndpointList(value) {
-    return Array.isArray(value) && value.length > 0 && value.every(item => typeof item === 'string' && item.trim());
+    return Array.isArray(value) && value.length > 0 && value.every((item) => typeof item === 'string' && item.trim());
 }
 
 async function getEndpoints(unit, configField, fallback) {
@@ -50,35 +39,37 @@ async function getEndpoints(unit, configField, fallback) {
 
 export async function getRelays() {
     return getEndpoints('relays', 'default_relays', [
-        'wss://relay.ngengine.org', 'wss://relay2.ngengine.org', 'wss://nostr.rblb.it',
-        'wss://relay.primal.net', 'wss://nos.lol'
+        'wss://relay.ngengine.org',
+        'wss://relay2.ngengine.org',
+        'wss://nostr.rblb.it',
+        'wss://relay.primal.net',
+        'wss://nos.lol',
     ]);
 }
 
 export async function getBlossomEndpoints() {
     return getEndpoints('blossom', 'default_blossom_relays', [
-        'https://blossom.band', 'https://blossom.azzamo.media', 'https://24242.io'
+        'https://blossom.band',
+        'https://blossom.azzamo.media',
+        'https://24242.io',
     ]);
 }
 
 export async function getImageOrigins() {
     const endpoints = await getBlossomEndpoints();
-    const origins = endpoints.map(endpoint => new URL(endpoint).origin);
+    const origins = endpoints.map((endpoint) => new URL(endpoint).origin);
     const config = await getConfig();
     for (const origin of [...origins]) {
         for (const cdn of config.blossom_image_origins?.[origin] ?? []) {
             origins.push(new URL(cdn).origin);
         }
     }
-    if (window.nostr && origins.includes('https://blossom.band')) {
-        const npub = NostrAds.publicKeyToBech32(await window.nostr.getPublicKey());
+    if (getSession() && origins.includes('https://blossom.band')) {
+        const npub = NostrAds.publicKeyToBech32(getSession().pubkey);
         origins.push(`https://${npub}.blossom.band`);
     }
     return [...new Set(origins)];
 }
-
-
-
 
 export default async function showSettingsDialog(view, options) {
     let dialog = view.querySelector('#settings-dialog');
@@ -108,7 +99,7 @@ export default async function showSettingsDialog(view, options) {
         `;
         dialog.querySelector('#restore-defaults').addEventListener('click', async () => {
             const config = await getConfig();
-            const defaults = config.testmode ? {...config, ...config.testmode_config} : config;
+            const defaults = config.testmode ? { ...config, ...config.testmode_config } : config;
             dialog.querySelector('#relay-set-textarea').value = defaults.default_relays.join('\n');
             dialog.querySelector('#blossom-set-textarea').value = defaults.default_blossom_relays.join('\n');
         });
@@ -117,45 +108,44 @@ export default async function showSettingsDialog(view, options) {
             e.preventDefault();
             try {
                 const textarea = dialog.querySelector('#relay-set-textarea');
-                const relays = textarea.value.split('\n').map(line => line.trim()).filter(line => line);
-                console.log("Saving relays:", relays);
-                localStorage.setItem(
-                    await localStorageKey("relays")
-                    , JSON.stringify(relays));
+                const relays = textarea.value
+                    .split('\n')
+                    .map((line) => line.trim())
+                    .filter((line) => line);
+                console.log('Saving relays:', relays);
+                localStorage.setItem(await localStorageKey('relays'), JSON.stringify(relays));
             } catch (e) {
-                console.error("Error saving relays:", e);
-                alert("Error saving relays: " + e.message);
+                console.error('Error saving relays:', e);
+                alert('Error saving relays: ' + e.message);
                 return;
             }
             try {
                 const textarea = dialog.querySelector('#blossom-set-textarea');
-                const blossomEndpoints = textarea.value.split('\n').map(line => line.trim()).filter(line => line);
-                console.log("Saving blossom endpoints:", blossomEndpoints);
-                localStorage.setItem(
-                    await localStorageKey("blossom")
-                    , JSON.stringify(blossomEndpoints));
+                const blossomEndpoints = textarea.value
+                    .split('\n')
+                    .map((line) => line.trim())
+                    .filter((line) => line);
+                console.log('Saving blossom endpoints:', blossomEndpoints);
+                localStorage.setItem(await localStorageKey('blossom'), JSON.stringify(blossomEndpoints));
             } catch (e) {
-                console.error("Error saving blossom endpoints:", e);
-                alert("Error saving blossom endpoints: " + e.message);
+                console.error('Error saving blossom endpoints:', e);
+                alert('Error saving blossom endpoints: ' + e.message);
                 return;
             }
             dialog.close();
-            window.location.reload();
+            window.dispatchEvent(new Event('nostrads:network'));
         });
         const resetButton = dialog.querySelector('button[type="reset"]');
         resetButton.addEventListener('click', (e) => {
             e.preventDefault();
             dialog.close();
-
         });
         dialog.addEventListener('close', () => {
             dialog.remove();
         });
         view.appendChild(dialog);
-
     }
     dialog.querySelector('#relay-set-textarea').value = (await getRelays()).join('\n');
     dialog.querySelector('#blossom-set-textarea').value = (await getBlossomEndpoints()).join('\n');
     dialog.showModal();
 }
-

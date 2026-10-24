@@ -1,0 +1,182 @@
+<form id="adForm" autocomplete="off">
+    <section>
+        <h2>Ad details</h2>
+        <div>
+            <label for="description"
+                ><span>Ad description</span
+                ><small>Briefly describe what you're advertising. Some placements show this text.</small></label
+            >
+            <textarea
+                name="description"
+                placeholder="What makes your product worth a look?"
+                maxlength="2048"
+                required
+            ></textarea>
+            <label for="link"><span>Landing page</span><small>Where people go when they click your ad.</small></label>
+            <input type="url" name="link" placeholder="https://example.com" required />
+            <label for="bid"
+                ><span>Bid per action (sats)</span
+                ><small>The amount you offer for each click, view or engagement.</small></label
+            >
+            <input type="number" cnvTo="sats" name="bid" min="0.001" step="0.001" placeholder="50" required />
+            <label for="actionType"><span>Pay for</span></label>
+            <select name="actionType" alias="k" required>
+                <option value="link" title="Pay when someone clicks your ad and opens the landing page." selected>
+                    Clicks
+                </option>
+                <option value="view" title="Pay when your ad is shown.">Views</option>
+                <option value="attention" title="Pay for engagement with your ad.">Engagement</option>
+            </select>
+            <div class="description-box" id="actionDesc"></div>
+            <label for="expiration"><span>End date</span><small>Choose when the ad stops running.</small></label>
+            <input type="date" alias="expiration" name="expire_at" required />
+        </div>
+    </section>
+    <section>
+        <h2>Ad creative</h2>
+        <div>
+            <label for="mimeType"><span>Ad format</span></label>
+            <select alias="m" name="mimeType" required>
+                <optgroup label="Image">
+                    <option value="image/png">Image · PNG</option>
+                    <option value="image/jpeg">Image · JPEG</option>
+                    <option value="image/gif">Image · GIF</option>
+                </optgroup>
+                <optgroup label="Text"><option value="text/plain">Text only</option></optgroup>
+            </select>
+            <label for="payloadImage" id="creative-label"
+                ><span>Ad content</span><small>Upload an image or write the text for your ad.</small></label
+            >
+            <textarea id="payloadText" name="payload" placeholder="Write your ad text…" required></textarea>
+            <input id="payloadImage" type="file" accept="image/png,image/jpeg,image/gif" name="payload" required />
+            <p id="existing-image-note" class="muted" hidden>
+                Your current image will be used. Choose a new file to replace it.
+            </p>
+            <label for="size"><span>Ad size</span><small>Choose the shape and size of the placement.</small></label>
+            <select alias="s" name="size" required>
+                <optgroup label="Wide banners">
+                    <option>480x60</option>
+                    <option>720x90</option>
+                    <option>512x128</option>
+                    <option>512x256</option>
+                </optgroup>
+                <optgroup label="Tall banners">
+                    <option>256x512</option>
+                    <option>128x512</option>
+                </optgroup>
+                <optgroup label="Square">
+                    <option>250x250</option>
+                    <option>256x256</option>
+                </optgroup>
+            </select>
+            <label for="callToAction"
+                ><span>Button text</span><small>A short invitation, such as Learn more or Shop now.</small></label
+            >
+            <input
+                alias="call_to_action"
+                type="text"
+                name="callToAction"
+                placeholder="Learn more"
+                maxlength="256"
+                required
+            />
+            <label for="languages"><span>Ad languages</span><small>Select the languages used in your ad.</small></label>
+            <select alias="l" name="languages" multiple></select>
+        </div>
+    </section>
+    <section>
+        <h2>Audience &amp; placements</h2>
+        <div>
+            <label for="category"
+                ><span>Categories</span><small>Choose the topics that best describe your product.</small></label
+            >
+            <select alias="t" name="category" multiple></select>
+            <label for="context"
+                ><span>Product and audience</span
+                ><small>Describe your product and who it's for. This helps find suitable placements.</small></label
+            >
+            <textarea
+                name="context"
+                placeholder="What do you offer, and who would be interested?"
+                maxlength="4096"
+                required
+            ></textarea>
+            <details class="targeting-restrictions">
+                <summary>Limit viewers or placements</summary>
+                <label for="offerersWhitelist"
+                    ><span>Specific viewers</span
+                    ><small>Show the ad only to these Nostr accounts. Leave blank to reach everyone.</small></label
+                >
+                <textarea
+                    alias="p"
+                    cnvTo="array"
+                    name="offerersWhitelist"
+                    placeholder="Viewer public keys (npub1…), one per line"
+                    rows="3"
+                ></textarea>
+                <label for="appsWhitelist"
+                    ><span>Specific apps and games</span
+                    ><small>Show the ad only in these apps or games. Leave blank to allow all placements.</small></label
+                >
+                <textarea
+                    alias="y"
+                    cnvTo="array"
+                    name="appsWhitelist"
+                    placeholder="App public keys (npub1…), one per line"
+                    rows="3"
+                ></textarea>
+            </details>
+        </div>
+    </section>
+    <section>
+        <h2>Budget &amp; payments</h2>
+        <div>
+            <label for="dailyBudget"
+                ><span>Daily budget (sats)</span
+                ><small>The most you want to spend on ad payouts each day.</small></label
+            >
+            <input type="number" required cnvTo="sats" name="dailyBudget" min="0.001" step="0.001" placeholder="1000" />
+            <label for="nwc"
+                ><span>Lightning wallet connection</span
+                ><small
+                    >Paste a Nostr Wallet Connect link from your wallet, with a spending limit for this campaign.</small
+                ></label
+            >
+            <p id="nwcInfo" class="wallet-mode-note" hidden></p>
+            <input id="nwc" type="password" name="nwc" placeholder="nostr+walletconnect://…" required />
+            <p id="wallet-budget-status" role="status" aria-live="polite"></p>
+            <div class="wallet-warning" id="wallet-limit-warning" hidden>
+                <strong>Set a spending limit in your wallet</strong>
+                <p id="wallet-budget-warning-detail"></p>
+                <p>The campaign’s daily budget does not enforce a limit on the NWC connection. Check the spending limit in your wallet.</p>
+                <label class="wallet-confirm" id="wallet-budget-confirm"><input type="checkbox" id="confirm-wallet-limit"><span>I have set a spending limit for this connection in my wallet.</span></label>
+            </div>
+            <label for="delegate-key"
+                ><span>Delegate</span
+                ><small
+                    >Choose who manages campaign delivery and payments from your NWC connection.</small
+                ></label
+            >
+            <div class="delegate-picker"><div id="delegate-cards" class="delegate-cards" aria-label="Choose a delegate"></div><p id="delegate-search-status" role="status" aria-live="polite"></p></div>
+            <label for="delegate-key" class="custom-delegate-label">Or enter a delegate’s public key</label>
+            <input
+                id="delegate-key"
+                type="text"
+                cnvTo="pubkey"
+                value=""
+                name="delegate"
+                alias="D"
+                placeholder="Delegate public key (npub1…)"
+                required
+            />
+            <p id="delegate-trust-warning" class="wallet-warning" hidden>This delegate is not verified by NostrAds. It receives your NWC connection and can spend its allowance or fail to pay publishers. Only choose a provider you trust.</p>
+        </div>
+    </section>
+    <div id="previewContainer"><div id="preview" class="nostr-ddspace"></div></div>
+    <div id="error"></div>
+    <div id="publish-summary" role="status"></div>
+    <button type="button" id="submit">Publish campaign</button>
+    <button type="button" id="clone">Edit campaign</button>
+    <button type="button" id="cancel">Stop campaign</button>
+    <button type="button" id="delete">Remove saved copy</button>
+</form>
