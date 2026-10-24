@@ -61,6 +61,7 @@ import org.ngengine.nostrads.client.services.PenaltyStorage;
 import org.ngengine.nostrads.client.services.delegate.DelegateService;
 import org.ngengine.nostrads.client.services.delegate.Tracker;
 import org.ngengine.nostrads.protocol.AdBidEvent;
+import org.ngengine.nostrads.protocol.AdProfileMetadata;
 import org.ngengine.nostrads.protocol.negotiation.AdOfferEvent;
 import org.ngengine.nostrads.protocol.types.AdTaxonomy;
 import org.ngengine.nostrads.security.VerifiedNostrPool;
@@ -224,6 +225,7 @@ public class DelegateServer {
         service.setInvoiceNetwork(
             Bolt11NetworkType.valueOf(((String) config.getOrDefault("invoiceNetwork", "MAINNET")).toUpperCase())
         );
+        service.setMaxTrackedBidsPerAdvertiser((Integer) config.getOrDefault("maxCampaignsPerAdvertiser", 8));
         service.setCancellationStore(cancellationStore);
         service.setMaxRoutingFeeMsats(NGEUtils.safeLong(config.getOrDefault("maxRoutingFeeMsats", 10000L)));
         String collectorLnAddress = (String) config.getOrDefault("feeCollectorLnAddress", null);
@@ -243,30 +245,22 @@ public class DelegateServer {
             System.err.println("Failed to get user metadata: " + e.getMessage());
         }
 
-        if (userMetadata == null) {
-            userMetadata = new Nip01UserMetadata();
-            userMetadata.setName(id);
-            userMetadata.setDisplayName(name);
-            userMetadata.setAbout("Nostrads delegate service");
-            userMetadata.setWebsite("https://ads.ngengine.org");
-        }
-
-        if (collectorLnAddress != null) {
-            userMetadata.metadata.put(
-                "nostrads:fees",
-                String.format(
-                    "%d:%f:%d",
-                    config.getOrDefault("minFeeMsats", 0L),
-                    config.getOrDefault("percentFee", 0),
-                    config.getOrDefault("maxFeeMsats", 10000L)
-                )
-            );
-        } else {
-            userMetadata.metadata.remove("nostrads:fees");
-        }
+        if (userMetadata == null) userMetadata = new Nip01UserMetadata();
+        String displayName = (String) config.getOrDefault("displayName", name);
+        userMetadata.setName(displayName);
+        userMetadata.setDisplayName(displayName);
+        userMetadata.setAbout((String) config.getOrDefault("about", "Manages NIP-AD campaign placements and Lightning payouts for advertisers."));
+        userMetadata.setWebsite((String) config.getOrDefault("website", "https://nostr-ads.ngengine.org"));
+        if (config.containsKey("picture")) userMetadata.setPicture((String) config.get("picture"));
+        userMetadata.metadata.put(AdProfileMetadata.FEES, collectorLnAddress == null ? AdProfileMetadata.fees(0, 0, 0) :
+            AdProfileMetadata.fees(NGEUtils.safeLong(config.getOrDefault("minFeeMsats", 0L)),
+                NGEUtils.safeDouble(config.getOrDefault("percentFee", 0.01)),
+                NGEUtils.safeLong(config.getOrDefault("maxFeeMsats", 10000L))));
 
         try {
-            Nip01.update(pool, new NostrKeyPairSigner(keyPair), userMetadata).await();
+            var profileEvent = new NostrKeyPairSigner(keyPair).sign(AdProfileMetadata.delegateEvent(userMetadata)).await();
+            for (var acknowledgement : pool.publish(profileEvent).await()) acknowledgement.await().get();
+            System.out.println("Published delegate profile: " + profileEvent.getId());
         } catch (Exception e) {
             System.err.println("Failed to update user metadata: " + e.getMessage());
         }
@@ -404,6 +398,27 @@ public class DelegateServer {
                             config.put("name", name);
                             break;
                         }
+                    case "--display-name":
+                        config.put("displayName", args[++i]);
+                        break;
+                    case "--about":
+                        config.put("about", args[++i]);
+                        break;
+                    case "--website":
+                        config.put("website", args[++i]);
+                        break;
+                    case "--picture":
+                        config.put("picture", args[++i]);
+                        break;
+                    case "--max-campaigns-per-advertiser":
+                        {
+                            int maximum = Integer.parseInt(args[++i]);
+                            if (maximum < 1 || maximum > 64) {
+                                throw new IllegalArgumentException("Campaign limit must be between 1 and 64");
+                            }
+                            config.put("maxCampaignsPerAdvertiser", maximum);
+                            break;
+                        }
                     case "--relay":
                         {
                             List<String> relays = (List<String>) config.computeIfAbsent("relays", r -> new ArrayList<String>());
@@ -530,6 +545,10 @@ public class DelegateServer {
                             System.out.println("  --disallowOfferer <pubkey>   Disallow an offerer by their public key");
                             System.out.println("  --allowOfferer <pubkey>      Allow an offerer by their public key");
                             System.out.println("  --name <name>                Set the name of the delegate server");
+                            System.out.println("  --display-name <name>        Public name in the delegate profile");
+                            System.out.println("  --about <description>        Public delegate description");
+                            System.out.println("  --website <url>              Public delegate website");
+                            System.out.println("  --picture <url>              Public delegate profile image");
                             System.out.println(
                                 "  --id                         Set the ID of the delegate server (default is name with spaces replaced by dashes)"
                             );

@@ -215,7 +215,9 @@ export async function synchronizeDemo({ catalog, seeds, key, now = Math.floor(Da
         const seed = seeds.find(s => s.campaign === campaign.id)?.event;
         if (!seed || !sameCampaign(seed, seed, advertiser, now)
             || JSON.parse(seed.content).context !== `nostrads-demo:${campaign.id}`
-            || tag(seed, 'D') !== catalog.delegate || tag(seed, 's') !== campaign.size) {
+            || tag(seed, 'D') !== catalog.delegate || tag(seed, 's') !== campaign.size
+            || Boolean(campaign.image) === Boolean(campaign.text)
+            || tag(seed, 'm') !== (campaign.image ? 'image/png' : 'text/plain')) {
             throw new Error(`Invalid signed demo seed: ${campaign.id}`);
         }
     }
@@ -236,11 +238,15 @@ export async function synchronizeDemo({ catalog, seeds, key, now = Math.floor(Da
             const current = newest([seed, ...inventories.flat()].filter(event => {
                 try { return sameCampaign(event, seed, advertiser, now); } catch { return false; }
             }));
-            const bytes = await readImage(campaign.image);
-            const image = await ensureImage({ catalog, event: current, bytes, key, now, fetchImpl, checkOnly });
-            if (image.restored) report.imagesRestored++;
             const content = JSON.parse(seed.content);
-            content.payload = image.url;
+            if (campaign.image) {
+                const bytes = await readImage(campaign.image);
+                const image = await ensureImage({ catalog, event: current, bytes, key, now, fetchImpl, checkOnly });
+                if (image.restored) report.imagesRestored++;
+                content.payload = image.url;
+            } else {
+                content.payload = campaign.text;
+            }
             content.description = campaign.description;
             content.call_to_action = campaign.callToAction;
             const changed = JSON.stringify(content) !== current.content;

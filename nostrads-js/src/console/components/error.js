@@ -1,6 +1,6 @@
 
 export default function showError(view, error) {
-    const errorEl = document.querySelector('#error');
+    const errorEl = view.querySelector('#error');
     if (!errorEl) {
         console.error("No error element found");
         return;

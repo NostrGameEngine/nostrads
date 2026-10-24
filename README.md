@@ -22,6 +22,24 @@ Keep these dependencies aligned when refreshing the central catalog. Publishing
 this NostrAds update is required before downstream applications can consume its
 new binary API compatibility.
 
+## Advertiser console
+
+Open `/console/` to manage campaigns, search and filter signed ads, inspect their
+creative and publish revisions. The dashboard distinguishes campaigns returned
+by the selected relays from copies saved on this device; relay absence alone
+does not prove that a campaign has stopped everywhere.
+
+Use **Log in** to choose a browser extension (NIP-07), a remote signer (NIP-46,
+`bunker://` or `nostrconnect://`), an `nsec` key, or an encrypted `ncryptsec` key
+(NIP-49). Encrypted keys require their password and support scrypt parameters up
+to a 256 MiB memory limit. The console remembers your account in local storage
+and restores access when you reopen it. For key login, this stores the signing
+key, including the unlocked key after an encrypted-key login; passwords are not
+saved. Remote signers retain their connection key, while browser extensions keep
+control of the signing key. **Log out** removes the saved account and signs out
+other open console tabs. Wallet connections are not saved. Public signed campaigns
+and account-specific network preferences are saved locally.
+
 ## Javascript Client Library
 
 This is the client library that you can use to connect a webapp to the network.

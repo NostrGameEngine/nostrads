@@ -42,7 +42,7 @@ jobs:
           npm test
           node --test ../nostrads-js/scripts/prepare-demo-site.test.mjs
       - name: Build and test
-        run: ./gradlew --no-daemon build javadoc :nostrads-js:packJsClient :nostrads-js:browserRendererTest :nostrads-js:browserPublicationTest :nostrads-js:browserSiteTest
+        run: ./gradlew --no-daemon build javadoc :nostrads-js:packJsClient :nostrads-js:browserRendererTest :nostrads-js:browserPublicationTest :nostrads-js:browserSiteTest :nostrads-js:browserConsoleTest :nostrads-js:browserRemoteSignerTest :nostrads-js:browserConsoleNetworkTest
       - name: Upload build artifacts
         if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

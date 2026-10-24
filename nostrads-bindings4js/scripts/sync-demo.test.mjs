@@ -8,6 +8,7 @@ import { schnorr } from '@noble/curves/secp256k1.js';
 import { sha256 } from '@noble/hashes/sha256.js';
 import { bech32 } from '@scure/base';
 import { connectRelay, decodeKey, ensureImage, signEvent, synchronizeDemo, verifyEvent } from './sync-demo.mjs';
+import { adSizes } from '../../nostrads-js/src/website-options.js';
 
 // Public test vector scalar, unrelated to the live demo identity.
 const keyHex = '0'.repeat(63) + '1';
@@ -27,7 +28,7 @@ function fixture({ age = 0, remaining = 7 * day, missing = [] } = {}) {
     };
     const event = signEvent({
         created_at: now - age, kind: 30100,
-        tags: [['d', 'stable-demo-campaign'], ['s', '256x512'], ['expiration', String(now + remaining)],
+        tags: [['d', 'stable-demo-campaign'], ['s', '256x512'], ['m', 'image/png'], ['expiration', String(now + remaining)],
             ['D', catalog.delegate, 'already-encrypted-wallet-configuration']],
         content: JSON.stringify({ max_payouts: 3, call_to_action: 'Open', link: 'https://example.com',
             description: 'Demo', bid: 1000, hold_time: 900, payload: imageUrl,
@@ -61,13 +62,28 @@ test('public nostr4j campaign seeds verify with the independent NIP-01 signer', 
     const seeds = JSON.parse(await readFile(new URL('../../nostrads-js/demo/seed-events.json', import.meta.url)));
     const catalog = JSON.parse(await readFile(new URL('../../nostrads-js/src/demo/catalog.json', import.meta.url)));
     assert.equal(seeds.length, catalog.campaigns.length);
+    for (const size of adSizes) {
+        const [width, height] = size.split('x').map(Number);
+        const matches = campaign => {
+            const [w, h] = campaign.size.split('x').map(Number);
+            return width / w >= 0.8 && width / w <= 1.2 && height / h >= 0.8 && height / h <= 1.2;
+        };
+        assert(catalog.campaigns.some(c => c.image && matches(c)), `No demo image for ${size}`);
+        assert(catalog.campaigns.some(c => c.text && matches(c)), `No demo text for ${size}`);
+    }
     for (const { campaign, event } of seeds) {
         assert(verifyEvent(event), campaign);
         assert.equal(event.pubkey, catalog.advertiser);
         assert.equal(JSON.parse(event.content).context, `nostrads-demo:${campaign}`);
-        const image = catalog.campaigns.find(value => value.id === campaign);
-        const data = await readFile(new URL(`../../nostrads-js/src/demo/${image.image}`, import.meta.url));
-        assert(new URL(JSON.parse(event.content).payload).pathname.includes(Buffer.from(sha256(data)).toString('hex')));
+        const creative = catalog.campaigns.find(value => value.id === campaign);
+        if (creative.image) {
+            assert.equal(event.tags.find(t => t[0] === 'm')[1], 'image/png');
+            const data = await readFile(new URL(`../../nostrads-js/src/demo/${creative.image}`, import.meta.url));
+            assert(new URL(JSON.parse(event.content).payload).pathname.includes(Buffer.from(sha256(data)).toString('hex')));
+        } else {
+            assert.equal(event.tags.find(t => t[0] === 'm')[1], 'text/plain');
+            assert.equal(JSON.parse(event.content).payload, creative.text);
+        }
     }
 });
 
@@ -128,6 +144,28 @@ test('a signed catalog edit replaces the campaign while preserving its identity'
     f.options.catalog.campaigns[0].description = 'Updated demo';
     assert.equal((await synchronizeDemo(f.options)).renewed, 1);
     assert.equal(JSON.parse(f.writes[0].event.content).description, 'Updated demo');
+});
+
+test('text campaigns recover and renew without contacting Blossom or reading an image', async () => {
+    const f = fixture({ age: 6 * day, remaining: day, missing: [0, 1] });
+    const campaign = f.options.catalog.campaigns[0];
+    delete campaign.image;
+    campaign.text = 'A fictional message from orbit.';
+    const seed = f.options.seeds[0].event;
+    seed.tags = seed.tags.map(t => t[0] === 'm' ? ['m', 'text/plain'] : t);
+    seed.content = JSON.stringify({...JSON.parse(seed.content), payload: campaign.text});
+    f.options.seeds[0].event = signEvent(seed, key);
+    f.options.readImage = async () => { throw new Error('Text campaign read an image'); };
+    f.options.fetchImpl = async () => { throw new Error('Text campaign contacted Blossom'); };
+    const report = await synchronizeDemo(f.options);
+    assert.equal(report.renewed, 1);
+    assert.equal(report.imagesRestored, 0);
+    assert.equal(f.writes.length, 2);
+    assert.equal(JSON.parse(f.writes[0].event.content).payload, campaign.text);
+    assert.equal((await synchronizeDemo({...f.options, checkOnly: true})).unchanged, 1);
+    campaign.text = 'An updated message from orbit.';
+    assert.equal((await synchronizeDemo(f.options)).renewed, 1);
+    assert.equal(JSON.parse(f.writes.at(-1).event.content).payload, campaign.text);
 });
 
 test('wrong keys, corrupted seeds, and unsigned relay revisions cannot replace trusted campaigns', async () => {

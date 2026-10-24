@@ -108,6 +108,7 @@ public class DelegateService extends AbstractAdService {
     private final Map<String, SignedNostrEvent> currentBidRevisions = new HashMap<>();
     private static final int MAX_TRACKED_BIDS = 64;
     private static final int MAX_TRACKED_BIDS_PER_ADVERTISER = 8;
+    private volatile int maxTrackedBidsPerAdvertiser = MAX_TRACKED_BIDS_PER_ADVERTISER;
     private static final int MAX_IN_FLIGHT_OFFERS_PER_BID = 8;
     private static final int MAX_SEEN_OFFERS_PER_BID = 256;
     private static final int MAX_RECOVERY_EVENTS = 20_000;
@@ -203,6 +204,16 @@ public class DelegateService extends AbstractAdService {
         this.maxRoutingFeeMsats = maxRoutingFeeMsats;
     }
 
+    /**
+     * Sets the maximum number of tracked campaigns per advertiser, including pending campaigns.
+     */
+    public void setMaxTrackedBidsPerAdvertiser(int maximum) {
+        if (maximum < 1 || maximum > MAX_TRACKED_BIDS) {
+            throw new IllegalArgumentException("Campaign limit must be between 1 and " + MAX_TRACKED_BIDS);
+        }
+        maxTrackedBidsPerAdvertiser = maximum;
+    }
+
     public void setCancellationStore(@Nonnull VStore store) throws Exception {
         configureCancellationStore(store);
         bidStateStore = store;
@@ -269,7 +280,7 @@ public class DelegateService extends AbstractAdService {
             String author = bid.getPubkey().asHex();
             if (
                 validHistoricalBids.size() >= MAX_TRACKED_BIDS ||
-                acceptedPerAuthor.getOrDefault(author, 0) >= MAX_TRACKED_BIDS_PER_ADVERTISER
+                acceptedPerAuthor.getOrDefault(author, 0) >= maxTrackedBidsPerAdvertiser
             ) {
                 logger.warning("Historical bid capacity reached; ignoring additional bid: " + bid.getId());
                 continue;
@@ -958,7 +969,7 @@ public class DelegateService extends AbstractAdService {
             .filter(bound -> bound.bidEvent().getPubkey().equals(candidate.getPubkey()))
             .count();
         long pendingForAdvertiser = pendingBids.values().stream().filter(candidate.getPubkey().asHex()::equals).count();
-        return advertiserBids + pendingForAdvertiser < MAX_TRACKED_BIDS_PER_ADVERTISER;
+        return advertiserBids + pendingForAdvertiser < maxTrackedBidsPerAdvertiser;
     }
 
     private synchronized boolean reserveInFlightOffer(String bidId) {

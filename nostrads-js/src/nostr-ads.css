@@ -18,6 +18,14 @@
     box-sizing: border-box;
 }
 
+.nostr-ddspace-text {
+    padding: 12px;
+    word-break: normal;
+    overflow-wrap: anywhere;
+    white-space: pre-line;
+    line-height: 1.5;
+}
+
 .nostr-ddspace-description {
     font-size: 80%;
     position: absolute;

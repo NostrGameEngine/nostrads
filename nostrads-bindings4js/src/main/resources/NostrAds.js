@@ -125,7 +125,23 @@ const newDisplayClient = function (relays, auth, onInvalidatedAd) {
 }
 
 
+export const newSignerSession = () => new _Binds.SignerSession();
+
+export const newConsoleNetwork = () => {
+    const network = new _Binds.ConsoleNetwork();
+    const invoke = (method, ...args) => new Promise((resolve, reject) => {
+        network[method](...args, (result, error) => error ? reject(new Error(error)) : resolve(result));
+    });
+    return {
+        close: () => network.close(),
+        discoverDelegates: relays => invoke('discoverDelegates', relays),
+        checkWalletBudget: connection => invoke('checkWalletBudget', connection)
+    };
+};
+
 export default {
+    newSignerSession,
+    newConsoleNetwork,
     newAdvertiserClient,
     newDisplayClient,
     getPublicKey,

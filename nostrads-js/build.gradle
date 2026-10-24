@@ -32,6 +32,18 @@ task packJsClient(type: Exec) {
 }
 packJsClient.dependsOn npmInstall
 packJsClient.dependsOn vendorConsoleDependencies
+packJsClient.dependsOn 'vendorQrDependencies'
+packJsClient.dependsOn 'prepareWebsiteEmbed'
+
+task prepareWebsiteEmbed(type: Exec) {
+    commandLine 'node', 'scripts/prepare-embed.mjs'
+}
+
+task vendorQrDependencies(type: Copy) {
+    dependsOn npmInstall
+    from('node_modules/qrcode-generator/dist') { include 'qrcode.mjs' }
+    into file('src/console/vendor/qrcode')
+}
 
 
  
@@ -62,4 +74,29 @@ task browserSiteTest(type: Exec) {
     group = 'verification'
     description = 'Checks network demo integration and responsive landing page in Chrome'
     commandLine 'node', 'scripts/test-browser.mjs', 'site'
+}
+
+
+task browserConsoleTest(type: Exec) {
+    dependsOn packJsClient
+    mustRunAfter browserSiteTest
+    group = 'verification'
+    description = 'Checks campaign management and persistent signer sessions in Chrome'
+    commandLine 'node', 'scripts/test-console.mjs'
+}
+
+task browserRemoteSignerTest(type: Exec) {
+    dependsOn packJsClient
+    mustRunAfter browserConsoleTest
+    group = 'verification'
+    description = 'Checks NIP-46 against an independent encrypted remote signer'
+    commandLine 'node', 'scripts/test-remote-signer.mjs'
+}
+
+task browserConsoleNetworkTest(type: Exec) {
+    dependsOn packJsClient
+    mustRunAfter browserRemoteSignerTest
+    group = 'verification'
+    description = 'Checks delegate discovery and encrypted wallet budget verification in Chrome'
+    commandLine 'node', 'scripts/test-console-network.mjs'
 }

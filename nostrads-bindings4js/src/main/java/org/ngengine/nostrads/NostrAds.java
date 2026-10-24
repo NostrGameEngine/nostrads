@@ -58,8 +58,10 @@ public abstract class NostrAds implements Closeable {
     protected AdTaxonomy taxonomy;
     protected NostrSigner signer;
     private boolean initialized = false;
+    private boolean closed = false;
 
     public synchronized void close() {
+        closed = true;
         if (!initialized) return;
         initialized = false;
         if (pool != null) pool.close();
@@ -71,14 +73,14 @@ public abstract class NostrAds implements Closeable {
 
     protected boolean init(String[] relays, String auth) {
         try {
+            if (closed) throw new IllegalStateException("This client has closed.");
             if (initialized) return false;
+            signer = getSigner(auth);
 
             pool = new VerifiedNostrPool();
             for (int i = 0; i < relays.length; i++) {
                 pool.connectRelay(new NostrRelay(relays[i]));
             }
-
-            signer = getSigner(auth);
 
             taxonomy = new AdTaxonomy();
             initialized = true;
@@ -97,7 +99,9 @@ public abstract class NostrAds implements Closeable {
     }
 
     protected NostrSigner getSigner(String signerProps) throws Exception {
-        if ("nip07".equals(signerProps)) {
+        if (signerProps != null && signerProps.startsWith("session:")) {
+            return SignerSession.resolve(signerProps);
+        } else if ("nip07".equals(signerProps)) {
             NostrNIP07Signer signer = new NostrNIP07Signer();
             boolean v = signer.isAvailable().await();
             if (!v) {

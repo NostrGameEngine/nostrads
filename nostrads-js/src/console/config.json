@@ -5,7 +5,8 @@
         "default_relays": [
             "wss://nostr.rblb.it",
             "wss://relay.ngengine.org"
-        ]
+        ],
+        "default_delegate": "d5a48f2b9b312c4303ab105c77b0858b6d856b8ae97a7529d34c10027018de18"
     },
     "default_relays": [
         "wss://relay.ngengine.org",
@@ -20,7 +21,15 @@
         "https://24242.io"
     ],
     "blossom_image_origins": {
-        "https://blossom.band": ["https://image.nostr.build"],
-        "https://blossom.azzamo.media": ["https://cdn.azzamo.media"]
-    }
+        "https://blossom.band": [
+            "https://image.nostr.build"
+        ],
+        "https://blossom.azzamo.media": [
+            "https://cdn.azzamo.media"
+        ]
+    },
+    "verified_delegates": [
+        "a36dc2b922341f5360aacd492a42eaa56643850fe1491930097805605df3b9c8",
+        "d5a48f2b9b312c4303ab105c77b0858b6d856b8ae97a7529d34c10027018de18"
+    ]
 }

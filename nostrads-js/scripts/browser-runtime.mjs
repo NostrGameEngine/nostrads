@@ -17,7 +17,9 @@ export async function browserRuntime() {
             if (!path.startsWith(root + sep)) throw new Error('Outside root');
             if ((await stat(path)).isDirectory()) path = resolve(path, 'index.html');
             const data = await readFile(path);
-            response.writeHead(200, {'Content-Type':mime[extname(path)] || 'application/octet-stream', 'Cache-Control':'no-store'});
+            const headers = {'Content-Type':mime[extname(path)] || 'application/octet-stream', 'Cache-Control':'no-store'};
+            if (/\/embed\.v[1-9][0-9]*\.js$/.test(path)) headers['Access-Control-Allow-Origin'] = '*';
+            response.writeHead(200, headers);
             response.end(data);
         } catch (_) { response.writeHead(404); response.end('Not found'); }
     });

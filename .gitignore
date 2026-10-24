@@ -13,5 +13,6 @@ nostrads-js/src/nostrads-client.js
 nostrads-js/src/nostrads-worker.js
 nostrads-js/src/nostrads-client.js*
 nostrads-js/src/nostrads-worker.js*
+nostrads-js/src/embed-integrity.json
 trash
 

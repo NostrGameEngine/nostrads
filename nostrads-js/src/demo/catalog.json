@@ -55,6 +55,102 @@
       "image": "ads/orbital-express.png",
       "description": "Fictional space transit. The weekend starts on Saturn.",
       "callToAction": "Book your escape"
+    },
+    {
+      "id": "astro-radio",
+      "name": "Astro Radio",
+      "size": "512x128",
+      "description": "Fictional cosmic radio. Tune into the cosmos.",
+      "callToAction": "Tune in",
+      "image": "ads/astro-radio.png"
+    },
+    {
+      "id": "nebula-post",
+      "name": "Nebula Post",
+      "size": "480x60",
+      "description": "Fictional interplanetary post. Planet to planet.",
+      "callToAction": "Send a parcel",
+      "image": "ads/nebula-post.png"
+    },
+    {
+      "id": "ion-air",
+      "name": "Ion Air",
+      "size": "720x90",
+      "description": "Fictional orbital flights. Your next stop: orbit.",
+      "callToAction": "Find a flight",
+      "image": "ads/ion-air.png"
+    },
+    {
+      "id": "moon-gardens",
+      "name": "Moon Gardens",
+      "size": "128x512",
+      "description": "Fictional lunar greenhouses. Grow beyond Earth.",
+      "callToAction": "Visit the gardens",
+      "image": "ads/moon-gardens.png"
+    },
+    {
+      "id": "lunar-coffee-text",
+      "name": "Lunar Coffee — Text",
+      "size": "256x256",
+      "text": "LUNAR COFFEE\n\nMoon-roasted. Fresh every orbit.\nOne small sip, one giant leap.",
+      "description": "Fictional Lunar Coffee text advertisement.",
+      "callToAction": ""
+    },
+    {
+      "id": "galactic-essence-text",
+      "name": "Galactic Essence — Text",
+      "size": "250x250",
+      "text": "GALACTIC ESSENCE\n\nYour next discovery is out there.\nExplore a universe of possibilities.",
+      "description": "Fictional Galactic Essence text advertisement.",
+      "callToAction": ""
+    },
+    {
+      "id": "orbital-express-text",
+      "name": "Orbital Express — Text",
+      "size": "512x256",
+      "text": "ORBITAL EXPRESS\n\nThe weekend starts on Saturn.\nTake the scenic route through the stars.",
+      "description": "Fictional Orbital Express text advertisement.",
+      "callToAction": ""
+    },
+    {
+      "id": "skypod-text",
+      "name": "Skypod — Text",
+      "size": "256x512",
+      "text": "SKYPOD\n\nLive above it all.\n\nA room with a view of tomorrow.\nFictional capsule homes among the clouds.",
+      "description": "Fictional Skypod text advertisement.",
+      "callToAction": ""
+    },
+    {
+      "id": "astro-radio-text",
+      "name": "Astro Radio — Text",
+      "size": "512x128",
+      "text": "ASTRO RADIO\nGood music travels light-years. Tune into the cosmos.",
+      "description": "Fictional Astro Radio text advertisement.",
+      "callToAction": ""
+    },
+    {
+      "id": "nebula-post-text",
+      "name": "Nebula Post — Text",
+      "size": "480x60",
+      "text": "NEBULA POST — Your parcel. Any planet.",
+      "description": "Fictional Nebula Post text advertisement.",
+      "callToAction": ""
+    },
+    {
+      "id": "ion-air-text",
+      "name": "Ion Air — Text",
+      "size": "720x90",
+      "text": "ION AIR — Your next stop: orbit. Window seats available.",
+      "description": "Fictional Ion Air text advertisement.",
+      "callToAction": ""
+    },
+    {
+      "id": "moon-gardens-text",
+      "name": "Moon Gardens — Text",
+      "size": "128x512",
+      "text": "MOON\nGARDENS\n\nGrow\nbeyond\nEarth.\n\nA little green,\na little closer\nto the stars.",
+      "description": "Fictional Moon Gardens text advertisement.",
+      "callToAction": ""
     }
   ],
   "imageOrigins": [

@@ -39,7 +39,7 @@ import org.ngengine.platform.teavm.TeaVMPlatform;
 import org.teavm.jso.JSExport;
 import org.teavm.jso.JSExportClasses;
 
-@JSExportClasses({ AdShowCallback.class, AdvertiserClientWrapper.class, DisplayClientWrapper.class })
+@JSExportClasses({ AdShowCallback.class, AdvertiserClientWrapper.class, DisplayClientWrapper.class, SignerSession.class, ConsoleNetwork.class })
 public class NostrAdsModule {
 
     private static boolean platformInitialized = false;
