@@ -16,6 +16,7 @@ repositories {
         content {
             includeModule("org.ngengine", "nostr4j")
             includeModule("org.ngengine", "nge-platform-common")
+            includeModule("org.ngengine", "nge-platform-json-lib")
             includeModule("org.ngengine", "nge-platform-jvm")
         }
     }

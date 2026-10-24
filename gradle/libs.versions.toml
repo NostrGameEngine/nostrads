@@ -1,6 +1,6 @@
 [versions]
-ngePlatform = "0.3.0-20261013.100632-138"
-ngePlatformTeaVM = "0.3.0-20261013.100632-139"
+ngePlatform = "0.3.0-20261020.203124-146"
+ngePlatformTeaVM = "0.3.0-20261020.203124-147"
 nostr4j = "0.4.1"
 nostr4jSnapshot = "0.3.0-SNAPSHOT"
 saferalloc = "0.0.11"
