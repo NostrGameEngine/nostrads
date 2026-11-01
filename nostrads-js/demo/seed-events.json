@@ -2,12 +2,8 @@
   {
     "campaign": "explore-the-stars",
     "event": {
-      "id": "ae7fbe0980983c768640f9cc74d72e449f9b09ce1fd030d5efe3b4603bf78322",
-      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
       "kind": 30100,
-      "content": "{\"max_payouts\":3,\"call_to_action\":\"Explore the stars\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional space travel. Your next great adventure.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"https://npub14n4df4rdn2xka06u2duwukt7u32uml7m6an80s47a0f6hpp6k6jq0tl2vg.blossom.band/25e1436dd4f740710f4347de5c8e8f404c33e2674a463e5bac80bcc6ba804302.png\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:explore-the-stars\"}",
-      "created_at": 1792748007,
-      "sig": "be736aff8b607949a8c521ab7bb1b5ddc1ef1a4f95b6fd262461aa6063df6026cea1ca0c79799c1b4861deeefb2962139c68d8d20db1529bee52c59fdee6fe25",
+      "created_at": 1793530092,
       "tags": [
         [
           "d",
@@ -39,25 +35,25 @@
         ],
         [
           "expiration",
-          "1793352807"
+          "2108890092"
         ],
         [
           "D",
           "d5a48f2b9b312c4303ab105c77b0858b6d856b8ae97a7529d34c10027018de18",
           "At3VTQkN0raaqUYMLgtEwZq0vVteQ3fgUOlX1OYm/QU5pDkZv5OxaCSNK2KCLOUiixIVS8B1CeiBljUagl3C770w6TS128AZxpb9CE4SvtvVUPw+qstLo3TezZdBoPktdngeN4L7tzKkVDaqTd5rB3WibcApl/wBCm32qnAfqU2xUBVfchAWAE0ZGipp3JrPWHpOrq87aqb+LxfLBZjsUg3vMpd6A4MATQ+ev6uhiZwcJcVwLq1CtAy4rp1m9bdPU53bQExjGGmE7xAtpAA7lbSzIvHLHx5G1swp6XclA3gMRSve0QpSOpmX50nw7KIBDqxB8BOY2ajNgbEnGjgO7tpHBPSUv/hK2k5hN1PPAZkeFvhrqvm4mFPncPWMKTIyLUco"
         ]
-      ]
+      ],
+      "content": "{\"max_payouts\":3,\"call_to_action\":\"Explore the stars\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional space travel. Your next great adventure.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"https://npub14n4df4rdn2xka06u2duwukt7u32uml7m6an80s47a0f6hpp6k6jq0tl2vg.blossom.band/25e1436dd4f740710f4347de5c8e8f404c33e2674a463e5bac80bcc6ba804302.png\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:explore-the-stars\"}",
+      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
+      "id": "2e0075ef0b2a08ba427e02c823e295ad179990d54b9913d9fd2f4de2ab8dbe20",
+      "sig": "e59ced9be6b65d7bb1b1b0fd2713e11480fcecd6bfc395baa1a58497e9365ba43d143edb402fccb9178f18fbd65564aeee3b58d98833e4c1f37fb3222758ac6c"
     }
   },
   {
     "campaign": "galactic-essence",
     "event": {
-      "id": "7aeb1de78256876991b5c219a02303ce67ba4d707637817faccb41e2bf8de045",
-      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
       "kind": 30100,
-      "content": "{\"max_payouts\":3,\"call_to_action\":\"Discover the universe\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional interstellar discovery. Explore the universe.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"https://npub14n4df4rdn2xka06u2duwukt7u32uml7m6an80s47a0f6hpp6k6jq0tl2vg.blossom.band/069d395fe1db59c1365799b27e2d86252ed895459dc11fbee2574a85c3df9b19.png\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:galactic-essence\"}",
-      "created_at": 1792748017,
-      "sig": "3b2d06165f040a47c078e037e33ce1b33d2e1480f3096c4f9442177abbb22f82d3d00cf1333134e6e277589a8b54e69d9ed4066a771ad36ee033730f9aa51be2",
+      "created_at": 1793530092,
       "tags": [
         [
           "d",
@@ -89,25 +85,25 @@
         ],
         [
           "expiration",
-          "1793352817"
+          "2108890092"
         ],
         [
           "D",
           "d5a48f2b9b312c4303ab105c77b0858b6d856b8ae97a7529d34c10027018de18",
           "AkZezrgiLkfwwxDp8P3u+IS7BHRtgUDAShS218wgMaKyvPhYR7NUV5MQl26BkV40Ge/RSrVxH3tOlE5xQBRGhuPbX8u4pKJ+UnOzYpqZ1lZli7WX4ODA2ukf2uaABi/Sg9QcoUtzR3pGusVy5K0q1zMO2d2HV0/KOVkyxHKLUeHmejXFeIbg1Nh6KjsINH2dQIBMl/+g4ZG0ha46nL0ND+GmIKcD9BYxIAiMQZOMIMi+MdXMg/kgDrn5DIDUx6sixFHPpybVrB+RcT11kqP10iXJ0Kxr0SzTG9oCmSO4/oiG+Gw4nlx+ymHBB1e8ePdRmUk/Xkd4cJLrRBnzlJZemushmxL47BKhWRCykOtzPPwBefnI+BPsbC6+LZf93v/vAkG5"
         ]
-      ]
+      ],
+      "content": "{\"max_payouts\":3,\"call_to_action\":\"Discover the universe\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional interstellar discovery. Explore the universe.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"https://npub14n4df4rdn2xka06u2duwukt7u32uml7m6an80s47a0f6hpp6k6jq0tl2vg.blossom.band/069d395fe1db59c1365799b27e2d86252ed895459dc11fbee2574a85c3df9b19.png\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:galactic-essence\"}",
+      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
+      "id": "1d2728163623235a56f90c034bf4d76723a83ab3217f8e6d071221d584fe2d99",
+      "sig": "0b122207e7f4c7e01b249c59b0c2c90b1102ad75151dc45ed010b92ac088d564a27a276945c8063f1c1a74473046dec6272933fc19fa3441b6f3aa29f8bf3122"
     }
   },
   {
     "campaign": "skypod",
     "event": {
-      "id": "42c2caf249c835d7cf1beb4c28a3f7a18d70415efab700e6ae89ae318ad4775e",
-      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
       "kind": 30100,
-      "content": "{\"max_payouts\":3,\"call_to_action\":\"Find your Skypod\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional capsule homes. Live above it all.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"https://npub14n4df4rdn2xka06u2duwukt7u32uml7m6an80s47a0f6hpp6k6jq0tl2vg.blossom.band/1e24cc3a2cd424cf385500036cc93b78f92066957f10b1fdfacadf3014485b81.png\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:skypod\"}",
-      "created_at": 1792748027,
-      "sig": "ca28ac46beadc9ff911c8aa051b2b4ea28ab751bfa639f809d6901676a23371f1b0351c165592114746d96d709521ba4c180543fb534f633d00da12b6943e0d8",
+      "created_at": 1793530092,
       "tags": [
         [
           "d",
@@ -139,25 +135,25 @@
         ],
         [
           "expiration",
-          "1793352827"
+          "2108890092"
         ],
         [
           "D",
           "d5a48f2b9b312c4303ab105c77b0858b6d856b8ae97a7529d34c10027018de18",
           "AkODvTEXKOfVY020l0EmoHO17MVkoqPSw+ACOF0kHM1YMBQxCJBr5m7PJ1Pzf4d1VzEb53hbIL/KBNHAv8wEGIfUHQ6gPdCEii14Qc3So15GCVwlEs7fujJG/U+MIBckI3avIJy+dHuGeDInKPD4wFut4VlTG9HtmVHjitD9P1Xb+lo14tGu0JA4NqE1/LtayPDNHKQ5z+HJ6EIQiFHiAx/kBlsCqJYL7y7tjlQAHp4NVOjkwttXljMS/q0CGjIGJa5x6P77go6XmiXn70Oz0Y/MMDpDGxFgvzwEDwUlJXBM+nSlVnppqbSlhhmsekKho2T2pcHxgQDoxkUX7qd1VJpfn/qGur0Byn3D+hSDopxOp5ZIvmWgov7b/LstzVBqYZxM"
         ]
-      ]
+      ],
+      "content": "{\"max_payouts\":3,\"call_to_action\":\"Find your Skypod\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional capsule homes. Live above it all.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"https://npub14n4df4rdn2xka06u2duwukt7u32uml7m6an80s47a0f6hpp6k6jq0tl2vg.blossom.band/1e24cc3a2cd424cf385500036cc93b78f92066957f10b1fdfacadf3014485b81.png\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:skypod\"}",
+      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
+      "id": "dd6125c63639aaac1293c2378eda46769929aa3b4c494e46d64a725a1412c508",
+      "sig": "bf7c312b65cc14ed92e349481b26afe0e3d9c5c1f5feed0552d5e79140d2e2b5b3ce15f23674ad057e14eaa6677b1d0d813d53e3abb0bb78e2216ea99d997dc4"
     }
   },
   {
     "campaign": "red-orbit-noodles",
     "event": {
-      "id": "3b959f24793da666bf24c11a997ac085eb32b850ddb2c93a80a119cb9e73fdf6",
-      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
       "kind": 30100,
-      "content": "{\"max_payouts\":3,\"call_to_action\":\"Order from orbit\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional cosmic noodles. Out of this world, ready in minutes.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"https://npub14n4df4rdn2xka06u2duwukt7u32uml7m6an80s47a0f6hpp6k6jq0tl2vg.blossom.band/1f05bc88bcaa7f882fd7f446812d193326e4328f84a566d3a6799758c1aa6c5e.png\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:red-orbit-noodles\"}",
-      "created_at": 1792748035,
-      "sig": "6e354a2c891beeee97bbe750e492bd5020f561c09f3139ca79c777fb76a08b74751c335ac8deedc61187c4e553b2ed19524e7ac7e832fc4d0748506689518cc8",
+      "created_at": 1793530092,
       "tags": [
         [
           "d",
@@ -189,25 +185,25 @@
         ],
         [
           "expiration",
-          "1793352835"
+          "2108890092"
         ],
         [
           "D",
           "d5a48f2b9b312c4303ab105c77b0858b6d856b8ae97a7529d34c10027018de18",
           "Ap0hw9T9isA4gc9QBF7TvVROfDR7EZCGFmEyNVYgHP62FIEm6rhdiXD8nWZNFMWYPiVhCSHCrbIIw0OjKGqnJ0W1xRe78T26/mpUYV/Tr7QdfohlOPMUQWtWNRR6uBNZcTzgqP22B2oCAiZcST/YpGSrXthm7RwMARE2/fcXAemOs83tR99u1B/8lnw4DLO/dqzg/7H0rc8w+rgWSTpCEdHFEWjKBGSZm4NOLEZCHoIE4jMeXWZLjNYAFCrg0zxj+blv8n4QmRP/+pHURMfJRxoeLV8z9coYxQwZBnCVH+B6cqNxYJEb+KHi4yNjMUXldPxrPZkPKrCfVU2hEbbPMYaTeb9up9S7U2baoGNMDgozZa4wRdjHWmCJZ+cf5KAya/1/"
         ]
-      ]
+      ],
+      "content": "{\"max_payouts\":3,\"call_to_action\":\"Order from orbit\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional cosmic noodles. Out of this world, ready in minutes.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"https://npub14n4df4rdn2xka06u2duwukt7u32uml7m6an80s47a0f6hpp6k6jq0tl2vg.blossom.band/1f05bc88bcaa7f882fd7f446812d193326e4328f84a566d3a6799758c1aa6c5e.png\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:red-orbit-noodles\"}",
+      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
+      "id": "59d506e1391362d0fdad5a8f5eafe5c5b890d34b4ec13b42ab11392b1df583d9",
+      "sig": "e506be7dcca4843872644f6f2462accea142d9ca8d42c3e05b7fc08170a49311d060e494e5c6b5492c85e681f6d12cd05fc36ebbcfebb5652da23a736840fed6"
     }
   },
   {
     "campaign": "lunar-coffee",
     "event": {
-      "id": "b54465da6899ad1036aa6d80533541e33d86dc13d2234e3cfd17096f30912321",
-      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
       "kind": 30100,
-      "content": "{\"max_payouts\":3,\"call_to_action\":\"Take a small sip\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional moon-roasted coffee. One small sip, one giant leap.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"https://npub14n4df4rdn2xka06u2duwukt7u32uml7m6an80s47a0f6hpp6k6jq0tl2vg.blossom.band/f1d79fb2212ddb5cd20952eeec2177b74012bdaf04c55fc5df3141251afcaf43.png\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:lunar-coffee\"}",
-      "created_at": 1792748044,
-      "sig": "b39d2019dde27821c6dede8f939a2c8982c0dbc27058a42f4ab47169ae9466897282b8dd454a32835dfb87bbfe104ab9b85955f893e7c44fbb00d3aeb85ed849",
+      "created_at": 1793530092,
       "tags": [
         [
           "d",
@@ -239,25 +235,25 @@
         ],
         [
           "expiration",
-          "1793352844"
+          "2108890092"
         ],
         [
           "D",
           "d5a48f2b9b312c4303ab105c77b0858b6d856b8ae97a7529d34c10027018de18",
           "As98FFxG1FcWW+97QiSOEj9DDamWqt2lX/yO22w7f8n06XNjZURR5Px1bsCrIf9SdZOC9LG/ImNRMppKGp4tllpfBNHAk9WjX1viEKokOEu67tVx8PN5Y8KMtt46AjIPCroZtUttf5QQHFSRP+bn1jiZadl7HtMFU8kTXfO92zhKv/3nNGHWFC09rUJpOPEfsiVCaWNOwwuBt+ndEMGxTEIhcZ/Wfnd59vgd1gtve1HFVQc4WaGz1pDnkWo6NL3J5ohibWxKSMN7kUck885RMSyh5Z5N5ZKqQNfBL5xrvAC6Jggm7OKmDYrNPS3lH0n+Lo60ZzXhWvwBqMpB4FqFvSUnGZg5O1LDtwG4JmgrPpD8gyBrLi708Z9Gqg/TSdZjW9jO"
         ]
-      ]
+      ],
+      "content": "{\"max_payouts\":3,\"call_to_action\":\"Take a small sip\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional moon-roasted coffee. One small sip, one giant leap.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"https://npub14n4df4rdn2xka06u2duwukt7u32uml7m6an80s47a0f6hpp6k6jq0tl2vg.blossom.band/f1d79fb2212ddb5cd20952eeec2177b74012bdaf04c55fc5df3141251afcaf43.png\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:lunar-coffee\"}",
+      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
+      "id": "a8c0b8121b833f250275418fceefd2b4c88f527204a1f4c19cae1361baf9bbd3",
+      "sig": "addc6339e3f37af4bd78a1b50bc05bd11b6b83c65c28f42164fc2c556581366df517a3189580c90e237a106835a22e904fb0835c0816a23e7a75fc79b3255917"
     }
   },
   {
     "campaign": "orbital-express",
     "event": {
-      "id": "4ff4a595c30aa305aa97bf5080b348c2b71812b8b8e044254b344ea77e8aa29f",
-      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
       "kind": 30100,
-      "content": "{\"max_payouts\":3,\"call_to_action\":\"Book your escape\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional space transit. The weekend starts on Saturn.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"https://npub14n4df4rdn2xka06u2duwukt7u32uml7m6an80s47a0f6hpp6k6jq0tl2vg.blossom.band/fd83666b689c968e9f26d64001526be9492400fa73c1d37196a237a4ca9ec42b.png\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:orbital-express\"}",
-      "created_at": 1792748053,
-      "sig": "0f33f1e4485095622483bc76bffbf3e82e6799d58afdb60f3eecc0ad7f844d74b0c59888c1a5c7712b875f835c6944730ce696317f69c5fd52a18eebe0106999",
+      "created_at": 1793530092,
       "tags": [
         [
           "d",
@@ -289,25 +285,25 @@
         ],
         [
           "expiration",
-          "1793352853"
+          "2108890092"
         ],
         [
           "D",
           "d5a48f2b9b312c4303ab105c77b0858b6d856b8ae97a7529d34c10027018de18",
           "AhDrMYxbdwyVlh3nyA8WlRM60TrfKLbxqFHlvQmWA627WNIMF6gH7JPXVQuucr8Qlrpuftr/rRgFk9xswu1xx1Hh/j16dkQ0tEzA/cAVq7SdGrrcCH3VQyb1jx+AtejzlrcYggvhskTmWIdNa0FRL5e2+I6YVM42iU8gwXLFM2t8MwMz7d1yS3M2oPGpvUJOiT4vrXsvHBMlPSdgd0jV4SfII7+rbg/dfLE6NQqqUNG5UU+2S07k5PqdQyRgKUyBK3MPTl41iRB/58TLRPz7aXnHbp3mk8bCxn78BmaE2DbJsSc8uxSJndkX+ifC8YdAXv7KvyBjCQQ4FVrXrSIEB2eYUTSLqwt7LYlm7J0H0RzVO1pbprH1giQmfwmcpC1eu8AN"
         ]
-      ]
+      ],
+      "content": "{\"max_payouts\":3,\"call_to_action\":\"Book your escape\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional space transit. The weekend starts on Saturn.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"https://npub14n4df4rdn2xka06u2duwukt7u32uml7m6an80s47a0f6hpp6k6jq0tl2vg.blossom.band/fd83666b689c968e9f26d64001526be9492400fa73c1d37196a237a4ca9ec42b.png\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:orbital-express\"}",
+      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
+      "id": "801cfd457909465e2b3a970211c93f32735b18b2ec35ef54b51996d4e95703b9",
+      "sig": "7f6eca5e943c5c4acea278e330fc24292cec7442dffb5ccd6edcf52dc73c15d889e673e3e55b65387bd5d56a8de6f420f833f030193829eb5bf0e10f519863f0"
     }
   },
   {
     "campaign": "astro-radio",
     "event": {
-      "id": "b1734807d9551e26ddf3cf3d7bd4ee596abeec86ac07ebadca15dc48794b9c57",
-      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
       "kind": 30100,
-      "content": "{\"max_payouts\":3,\"call_to_action\":\"Tune in\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional cosmic radio. Tune into the cosmos.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"https://npub14n4df4rdn2xka06u2duwukt7u32uml7m6an80s47a0f6hpp6k6jq0tl2vg.blossom.band/cd6980a12b3cf8ba8aee7b7ac4fff0ba780a621811fc0d6a3adf122a1a499f43.png\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:astro-radio\"}",
-      "created_at": 1792858985,
-      "sig": "4d7e4300b70957791f800df9aafc4248a2e1bfc0b35777692d3ac796de9b3c68222af4a87f8ba5060a1016a6c367c0a2651f282dbe92dbe6b454172a7177e225",
+      "created_at": 1793530092,
       "tags": [
         [
           "d",
@@ -339,25 +335,25 @@
         ],
         [
           "expiration",
-          "1793463785"
+          "2108890092"
         ],
         [
           "D",
           "d5a48f2b9b312c4303ab105c77b0858b6d856b8ae97a7529d34c10027018de18",
           "AsFfrnc/FD2Nh74OQMBBA4RtwQPkXbeu6jk4jZhEYm7e+x2SO9Kt7mi3Wfxhsvyk2RJeAjf+KzumiA1GVn2QUojyd1Ygj4+0xHqKGSrH0yprs6J7zkXOozee9dpsUcERT1yVDdmw21/oAXRwrWPKBl+oLDsfxBepqD5j0b7daRplC1gAR5jzO+QrZo/+cePMfSD248cFuPtfOvLoCXILQf336ssPUusgzmn1BBJ/yp2x2HRe2qFp3Qf9Y5IFf4GPIZoQz1ZUTYIrXpA1m83n2pRakkskYqycJ/AxGf2Wg2K9jYIzqIJ2aYyVO+ugzHVztldhV5n+WFhATYXm8jjo881BUZ9Q4IsSW6DBO6MK0ozMG9SPtC8jd4rskyZbxrhW3zuJ"
         ]
-      ]
+      ],
+      "content": "{\"max_payouts\":3,\"call_to_action\":\"Tune in\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional cosmic radio. Tune into the cosmos.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"https://npub14n4df4rdn2xka06u2duwukt7u32uml7m6an80s47a0f6hpp6k6jq0tl2vg.blossom.band/cd6980a12b3cf8ba8aee7b7ac4fff0ba780a621811fc0d6a3adf122a1a499f43.png\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:astro-radio\"}",
+      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
+      "id": "62405db886ce9d05e2ebd182f33d9238c68c52dbbac3773e1b86fd1c505735f2",
+      "sig": "02eb1d95fac924e3a7d5a1218467a82a22083342f8b39dacdb8f230830d3c686ec55b936310f316dc46d244e01539eff90ae5d684d641cbf2abe771282a3e64e"
     }
   },
   {
     "campaign": "nebula-post",
     "event": {
-      "id": "aa9ee89393fb4ee44883f0dd34268289d580f8c0e0a26aeefc8dd048f5b0c6fa",
-      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
       "kind": 30100,
-      "content": "{\"max_payouts\":3,\"call_to_action\":\"Send a parcel\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional interplanetary post. Planet to planet.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"https://npub14n4df4rdn2xka06u2duwukt7u32uml7m6an80s47a0f6hpp6k6jq0tl2vg.blossom.band/da170f31248575d53b64f41ebac291e66d4d42921f0b9a18f68741721ade5a21.png\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:nebula-post\"}",
-      "created_at": 1792858990,
-      "sig": "6ec83eda6b6d9943634418acecfc2e451c5cff22b0ea8d6e6863f8b7dd61d67f1fe51dad72aa1065250b9b9838005611fd7c53166844ed944f7b811c5bcd5278",
+      "created_at": 1793530092,
       "tags": [
         [
           "d",
@@ -389,25 +385,25 @@
         ],
         [
           "expiration",
-          "1793463790"
+          "2108890092"
         ],
         [
           "D",
           "d5a48f2b9b312c4303ab105c77b0858b6d856b8ae97a7529d34c10027018de18",
           "Ap94MYB6mrvKwlA1/QduWK8TsJQh57xio6wVDLI0jOroNHq8IC7+7vlFiiXyvrKmgmZzwJynEvXfIFKOW1tInJoXJlHP7CfAav5xalyIxxPKrsZZrzqpcnwSsmFFRtJdqDcqADr6n4TF765V11tz4Fv4qz1vL/u4hcBfKGn/Tbtf3u87VFKJmSDIKEBvYI5CMxcQIPQIHviFzY6oFHXteJgcL16VV2FCOlcJV3it/g9jBVzRXbeIKKJkg5T/vsiQLBJd6xVgxo0n7l79df8m7beBhyCajnzs3W+wE+I5URdQ3wlMiPIDE134E5weI4JpgoxPlJR8la9MKU9Tli90OEXhWp+4qVssdezx0Qpn2ejy6aUXhvQ2PjQcso4bJm1tQaTc"
         ]
-      ]
+      ],
+      "content": "{\"max_payouts\":3,\"call_to_action\":\"Send a parcel\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional interplanetary post. Planet to planet.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"https://npub14n4df4rdn2xka06u2duwukt7u32uml7m6an80s47a0f6hpp6k6jq0tl2vg.blossom.band/da170f31248575d53b64f41ebac291e66d4d42921f0b9a18f68741721ade5a21.png\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:nebula-post\"}",
+      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
+      "id": "61b15f808fb4e9af108f784b3e096d4a8635a2f572c0d5edb46ab7bbd26cd510",
+      "sig": "4e1ff2a433b37ab762bbae741929570e991e248209f56dbc31026be31075408b1458e7232485e7c24f44c5f3f2338ef88f9e7fce48b46393fbe772404769ef22"
     }
   },
   {
     "campaign": "ion-air",
     "event": {
-      "id": "1f69b66b36eb07fec9a5a4ca0b1b0ff681004a344d8dbfd9eb651b9144994e16",
-      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
       "kind": 30100,
-      "content": "{\"max_payouts\":3,\"call_to_action\":\"Find a flight\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional orbital flights. Your next stop: orbit.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"https://npub14n4df4rdn2xka06u2duwukt7u32uml7m6an80s47a0f6hpp6k6jq0tl2vg.blossom.band/7deedba947c92338e626edf67b9b8d1641e691f33519aa64ccc238271cdfdadc.png\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:ion-air\"}",
-      "created_at": 1792858994,
-      "sig": "dfb8bac05d0fae533fe9e42dbe3a00ba4334debc9eb745b75c06366fa3d74311c581d5472808b3893cf11bb7c528dec371eeaec1509236c5b784486d6874af13",
+      "created_at": 1793530092,
       "tags": [
         [
           "d",
@@ -439,25 +435,25 @@
         ],
         [
           "expiration",
-          "1793463794"
+          "2108890092"
         ],
         [
           "D",
           "d5a48f2b9b312c4303ab105c77b0858b6d856b8ae97a7529d34c10027018de18",
           "ApGGYWHZ+6eaPH/Sq4wvzmIaDwt6grr8qH17D0j0mX+AfB6r0Y/p8+w+O4jHjc6OBv1e+3vGR5pArdq8YtqWryuoOV0CDWuBnUn+7YVuTcE+blJrWpLoBu+dbRRPeGkK4dtrqpbyytjFicbtPvRCxeLA6fVnlERtXuQQFGse7y33caMO/i3Ep2tBNtqk8LyUBWsKy1ZGiHwxbnYukLde5iusF9TsjaAnHeYhF8os1UQJAUgXFBdFhceh3lUkMUt4IIlf/byiiLC1WzPKi5tIY6B3TClwnVI1M33BiSydj2XnnLg67/TOX9484dY0FJddkqf6FqVe8te1v3+3+36Idz0sdr9W7qLFTmowlx4/0FKJ9l/ppBSvLGmR71+A9c8VFntx"
         ]
-      ]
+      ],
+      "content": "{\"max_payouts\":3,\"call_to_action\":\"Find a flight\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional orbital flights. Your next stop: orbit.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"https://npub14n4df4rdn2xka06u2duwukt7u32uml7m6an80s47a0f6hpp6k6jq0tl2vg.blossom.band/7deedba947c92338e626edf67b9b8d1641e691f33519aa64ccc238271cdfdadc.png\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:ion-air\"}",
+      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
+      "id": "9e828ecca760573c5673bbd16353d01bf472dc0eb8d40c9acfe8fd904cd8343c",
+      "sig": "9451e202e174006655975b520335b8f1af36e4d5725422a8919ef6af2041ded7fe6cc86d9f337b5b722cfc024cc95813dd70a6ff5a2f6b5321e82a8846ccc5a5"
     }
   },
   {
     "campaign": "moon-gardens",
     "event": {
-      "id": "50f23fd9272c22146920c555ab2592d80de998a1de982d542c389340c68e347c",
-      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
       "kind": 30100,
-      "content": "{\"max_payouts\":3,\"call_to_action\":\"Visit the gardens\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional lunar greenhouses. Grow beyond Earth.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"https://npub14n4df4rdn2xka06u2duwukt7u32uml7m6an80s47a0f6hpp6k6jq0tl2vg.blossom.band/f2c078bcad550284d26fe911fc63bd6d3a996a424492a9b5a1745f067f0a9031.png\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:moon-gardens\"}",
-      "created_at": 1792859004,
-      "sig": "c35ec13c239a293f6e3ba8cb4a5275173c9a1f5d2d2211b37512e828f71a6b157b29d793b8761b078a31dac1dfb50ab9bcef738a6a438209cb350da7fd7c5234",
+      "created_at": 1793530092,
       "tags": [
         [
           "d",
@@ -489,25 +485,25 @@
         ],
         [
           "expiration",
-          "1793463804"
+          "2108890092"
         ],
         [
           "D",
           "d5a48f2b9b312c4303ab105c77b0858b6d856b8ae97a7529d34c10027018de18",
           "Aor4xrUpjVJEiGuoDE3AX/7bGhAriixGSu215OTzbQ5K7Bn676BRX+2U+/p/u/11/rajaxwbiUCKO7PStB51JbjKg+P0N6QPejXj6iyc7+v4es+kFFgne6NKuJb6cvbOOYq7sBcuHuRTQNY5wI2YXCqR1ozBT0Qu41gwkjsXlQFkPQfzoeSzq1XBA3qZ+CWD0AlhANDkTRruvcDlrjbhRukq6V+eTeYCr2LIOVQNeHdjAAQre/DAIOQkIx3ss87fiK8Ci+nIsgAr6xiSEVbtIM/+qZQvToGYpQK+IDHPpPk1ED4IlJOFXHoZ7EX1s4Cran1YybFJuWeyPcocforpF662lX9tgcPUhvXNKGRMV7f8/BygJzXVOjV9Ff1cTT08ftfH"
         ]
-      ]
+      ],
+      "content": "{\"max_payouts\":3,\"call_to_action\":\"Visit the gardens\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional lunar greenhouses. Grow beyond Earth.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"https://npub14n4df4rdn2xka06u2duwukt7u32uml7m6an80s47a0f6hpp6k6jq0tl2vg.blossom.band/f2c078bcad550284d26fe911fc63bd6d3a996a424492a9b5a1745f067f0a9031.png\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:moon-gardens\"}",
+      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
+      "id": "5750ba0874c6e356631c1a2ead941f5da02a5ca73816c4f4d97b1a558d2a0a80",
+      "sig": "1abe37b7a13c4083749e48668aab19604ab166a66fba94500e2b2a6fe7b292c3d79b91544ccc42df24a79945b524dc378f328257315201c21f6c22a751b1344b"
     }
   },
   {
     "campaign": "lunar-coffee-text",
     "event": {
-      "id": "64d6117108c440976ddd9ce410ad56084942b99447341438554cd7e1f9a39c77",
-      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
       "kind": 30100,
-      "content": "{\"max_payouts\":3,\"call_to_action\":\"\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional Lunar Coffee text advertisement.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"LUNAR COFFEE\\n\\nMoon-roasted. Fresh every orbit.\\nOne small sip, one giant leap.\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:lunar-coffee-text\"}",
-      "created_at": 1792859004,
-      "sig": "2a3849f6bf1735d9814a24ff11e8d28ff57e8dd671a9e2415503308e288fbb7df8759cc6736d011726beb52354b4bb5a7d57829bd70972df22e9dc7aa7537641",
+      "created_at": 1793530092,
       "tags": [
         [
           "d",
@@ -539,25 +535,25 @@
         ],
         [
           "expiration",
-          "1793463804"
+          "2108890092"
         ],
         [
           "D",
           "d5a48f2b9b312c4303ab105c77b0858b6d856b8ae97a7529d34c10027018de18",
           "AqxRmOsQ7PVXuPvfIGHCCPq1utdLiOvfn0exWNWF4PnNhOo3f7pwv8C92CnOM7zAyth0ZufoC79YRV4wKlmV4MQPrLsCsRDU776WTtlyK9fsoEJIB6f1//8UlviuG50GDqhtNOkjehIBS6Xx0hzBOBsQ/6UsfVe7cQQkXG/B17/i1GO6ebG2xARNOoxHT60wRdgrRMZe4+v6V+w8QUkNAK3B0MMy3pxgI6ybMQEbxKvwYyXhSiz2phpc+KPsBu9BMjKovqrGfzOhRbXBIzVx15Q1PF1gS5ftrL+woVOvr21cNkSYvOtZ/jO6M0uMJq6826CLLFavyt22sSV5NHTVadX5X6YcWEpYSOqm7T5LZvTAr4MpsDUJLsWVA0KdkTwB0NFo"
         ]
-      ]
+      ],
+      "content": "{\"max_payouts\":3,\"call_to_action\":\"\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional Lunar Coffee text advertisement.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"LUNAR COFFEE\\n\\nMoon-roasted. Fresh every orbit.\\nOne small sip, one giant leap.\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:lunar-coffee-text\"}",
+      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
+      "id": "8d4b575b702693216b878ff27d40b4ae3bf3b1254b45a5225f0abd7d11875e25",
+      "sig": "9519959b5a8eb3b3cd70fc730b97339196865c408e8a8ffb6582dc1731230fec4d3f0daacbb8dd31b82d3c9dcce4ba7efd56f809a708693abe2a2083f98bb472"
     }
   },
   {
     "campaign": "galactic-essence-text",
     "event": {
-      "id": "7b196125a7bb15596a90741636ca190154d3565f619c8f2bbaf92d7bba755b35",
-      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
       "kind": 30100,
-      "content": "{\"max_payouts\":3,\"call_to_action\":\"\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional Galactic Essence text advertisement.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"GALACTIC ESSENCE\\n\\nYour next discovery is out there.\\nExplore a universe of possibilities.\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:galactic-essence-text\"}",
-      "created_at": 1792859005,
-      "sig": "ce297c0981a5acb3b649afd9b00105040e68a968478bbc80cd5e6af5d8ade0d6b983f1fa3f026a638c008862b663571b71739a4fb8bb6d519f5181c254b79313",
+      "created_at": 1793530092,
       "tags": [
         [
           "d",
@@ -589,25 +585,25 @@
         ],
         [
           "expiration",
-          "1793463805"
+          "2108890092"
         ],
         [
           "D",
           "d5a48f2b9b312c4303ab105c77b0858b6d856b8ae97a7529d34c10027018de18",
           "Alc3GRpO83dps+b72d9BUO9srRQ9M94baYVlrnqLAiXAynXmb9QTMP8p9eBLnBvikBZzn9sPn4geBIXIEIWCJQ1Ti8ayzjRvhNpzDC+NG21Tx3o5BBnlswDmTblxAZOFMUoX+HYbmlFg+Z0tZ3EQJPTL3CqjqtVNZsh/zlOFBxKf8xZUZ2sly8DXSaVq7k0Ysw4Y4tUEgH7tIFybETQAXv5N1S8bzBWxHtBpW4MpliAadfB0WGaJBj+DaVUjcrnglv0G0g2Hcukgfq/Eve9+PkB3Nhz4x15363KYxuOIlk6CbSYSBVDwBjhrRWNUItrDocL3dD10TvmeQ2wMYASW3Z9JBYTBNKrT+aVl7iKlnCcMCmsf7YMhmHacLD5twP07aO3J"
         ]
-      ]
+      ],
+      "content": "{\"max_payouts\":3,\"call_to_action\":\"\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional Galactic Essence text advertisement.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"GALACTIC ESSENCE\\n\\nYour next discovery is out there.\\nExplore a universe of possibilities.\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:galactic-essence-text\"}",
+      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
+      "id": "11586a321226130cf9ca76f0a762d4bb08b21f23f55d25ca7a76d866a86021e6",
+      "sig": "980986008b6f4d5ead118f07fb7c0f615bd0c5d307d0c2ab6bc2ee7290e8583378a1c26ad2c1b102c2739e7e26ad57af21867835288fa24b895d829e281e1f92"
     }
   },
   {
     "campaign": "orbital-express-text",
     "event": {
-      "id": "540d87cee65fcc2c79da525fb3797072195a9f472a1668c05feb5be9d59a5349",
-      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
       "kind": 30100,
-      "content": "{\"max_payouts\":3,\"call_to_action\":\"\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional Orbital Express text advertisement.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"ORBITAL EXPRESS\\n\\nThe weekend starts on Saturn.\\nTake the scenic route through the stars.\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:orbital-express-text\"}",
-      "created_at": 1792859006,
-      "sig": "1503fd31892b2f4b103bfcb9a0b9b65ef02d9978b6950250dfc938274139c8b8650c60d4f4ef1667af5b74725501018abcc5c492c46d147e02f184d6b6e08de5",
+      "created_at": 1793530092,
       "tags": [
         [
           "d",
@@ -639,25 +635,25 @@
         ],
         [
           "expiration",
-          "1793463806"
+          "2108890092"
         ],
         [
           "D",
           "d5a48f2b9b312c4303ab105c77b0858b6d856b8ae97a7529d34c10027018de18",
           "AiniH24fEWaBd9ehYVf8f4MPsQEjgC2xyYBpFt6Uyy5xJEgqlbZy4UrMUJROAdg5/d7NS4gWjLHA3HZFBtHPUeTU4NqtdnlbAu+T87vNJHBm1lDVwz6DxjXLyEOP7QtwwDbOJXzOVMwyVbuuS6jXL9kjOQAKKLtpAPCdUiZZujIy8Y8qIonJ4er/67KTkCA8RpciQRkOqzlNbYW11v2zb+b1YThDTQBY+Az4riuGKZ/9lgt7zBe1DzCeUcIb+BG9hVT3torVKUkmRjpu6FTeS3JS+DLiRD5gEqVUBu6GtjwN0MPmAlwnkQvcx/E/iswas8PPeGoidfvqG1GKFAXoSA7jmwRGc4M/+y1onUDg66ho0efKk6spQTDWCROZqqU/1ACx"
         ]
-      ]
+      ],
+      "content": "{\"max_payouts\":3,\"call_to_action\":\"\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional Orbital Express text advertisement.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"ORBITAL EXPRESS\\n\\nThe weekend starts on Saturn.\\nTake the scenic route through the stars.\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:orbital-express-text\"}",
+      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
+      "id": "63bf6b0eb217da1edba54f77d2c56c63ef40591c8c1d73fa3f033c3a59bb7d53",
+      "sig": "e38dd34d5898608681013e5a5f58ffb3724a736d8ff3b7fc8bd9bba18deb814edcd25733b8b253c41d6cbdda1d7b163682cc509a9e5f10ee35b08318e6a92996"
     }
   },
   {
     "campaign": "skypod-text",
     "event": {
-      "id": "f9fbbe29ccf3a41a61970798abb0649f35887f5af01ffc5eb8fb702db7258f25",
-      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
       "kind": 30100,
-      "content": "{\"max_payouts\":3,\"call_to_action\":\"\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional Skypod text advertisement.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"SKYPOD\\n\\nLive above it all.\\n\\nA room with a view of tomorrow.\\nFictional capsule homes among the clouds.\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:skypod-text\"}",
-      "created_at": 1792859007,
-      "sig": "d9752e50be545cf9dc7a91eee6bc9036b1a5dd983c6e715dbda28aa4b742fd2e1340b29a81593ec2f303b31c343a38126ee2b4cf2d80f347899f55f008d536df",
+      "created_at": 1793530092,
       "tags": [
         [
           "d",
@@ -689,25 +685,25 @@
         ],
         [
           "expiration",
-          "1793463807"
+          "2108890092"
         ],
         [
           "D",
           "d5a48f2b9b312c4303ab105c77b0858b6d856b8ae97a7529d34c10027018de18",
           "AjHeNu4d+i6OjinMHNwu/BSJi3N5AuQUU1PlXloutmcd65Mr/VQiQOeQxuvgQKIVw0Y37hegnZtd9zoxN4evEHQeWpFme+05ze0RrBHT0CeQOIW/v5nPnnYplZoiI2HykEfM5BG8DZ20KIXXiICujEl2wTx6kfgAK9nyhEOCRzbFCW+wIrkUK+QSLoNEVqNZUN54+Rjt9AU9ecpt2E9cB2r1PfWV9AaWuSMOCGodxGACI5WSB15IJON3OQAABZqi3y9qrOkduVFd4S7Uo25sXmDmkwU1PcfnhMxftAjhyteqvSSICWwdBC3G0U2b38Ggq7CAUQatVrAg2c2udbw0AGHmOOmdKZpNN77RD9CVqSnaSp2YCGNusZA18h1nkJMBBRiF"
         ]
-      ]
+      ],
+      "content": "{\"max_payouts\":3,\"call_to_action\":\"\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional Skypod text advertisement.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"SKYPOD\\n\\nLive above it all.\\n\\nA room with a view of tomorrow.\\nFictional capsule homes among the clouds.\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:skypod-text\"}",
+      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
+      "id": "86419052901b64cc13bae14202c99ec79d31fe4372570663fcb64f394386144c",
+      "sig": "a632ba32afca09891c9ed4cdd2ea28c4298053433f480f319d4569461c651b011d97aac8e731ec398ead376f33c49a1ceaf6d8883fa05b12fdb6361777229814"
     }
   },
   {
     "campaign": "astro-radio-text",
     "event": {
-      "id": "ac105dffb4c3a23df5fed83372d0ee4cfaaabfb833524f1e03d731cb772a019f",
-      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
       "kind": 30100,
-      "content": "{\"max_payouts\":3,\"call_to_action\":\"\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional Astro Radio text advertisement.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"ASTRO RADIO\\nGood music travels light-years. Tune into the cosmos.\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:astro-radio-text\"}",
-      "created_at": 1792859007,
-      "sig": "1d166492cd7943cc81ef952995268e485e0baf2618e2f5e4ce9ce297a2f230c1de89da339762f9d5e95f2b4b3e30350a3416a9ac12ee34ccb26549a9b0675349",
+      "created_at": 1793530092,
       "tags": [
         [
           "d",
@@ -739,25 +735,25 @@
         ],
         [
           "expiration",
-          "1793463807"
+          "2108890092"
         ],
         [
           "D",
           "d5a48f2b9b312c4303ab105c77b0858b6d856b8ae97a7529d34c10027018de18",
           "AgsSyMG1AWaMjlePwPKUDSZuAHnu1rSMdjZYuwIxcOGl7bVMygr8mQ3ECBwffUX1Azv83inSiLN1Y/qOlkBzFGiyGJEXhVO97rEo0lEKMWpcxu2I8ahB297N5i4YkCBxz3kzIDwvSfZIOBehNoon60BKnZgeJ3cqyppDPh2wp6lDEh9GXcXQsJykIG2uFAS2XI0pbQTp4Hj2Z8G5NE13idhrGvjmQV7d1FxXz5iKS1vgcdllyHWJ7tUVWju3jiFxmoghBzw1kIzqdubZ27MXA49qKU9zrZZLTOIK2C7nEvX+YzL499bCBI9FA+n76Qmuh6kpdIRvVCGUT9Hbd+T7pogNtlXfQGzi3MWUTsFwDxWlX+aJBEd5GQkIvAckwWjS080e"
         ]
-      ]
+      ],
+      "content": "{\"max_payouts\":3,\"call_to_action\":\"\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional Astro Radio text advertisement.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"ASTRO RADIO\\nGood music travels light-years. Tune into the cosmos.\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:astro-radio-text\"}",
+      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
+      "id": "c315fddcd07a47621d77ddafaec3f42040e08da649ab28386d3f64b8d440b6f6",
+      "sig": "c32111a6f7f5191b981aecef1ea107006364dde8b305814e415999542597a85a1a5ab51ddb00f3abc1da58496f9c0a308dedcae00f77d6ed99a33269b5f1946f"
     }
   },
   {
     "campaign": "nebula-post-text",
     "event": {
-      "id": "d222163c4fd154e6df87303ec0fcd8a920d87246d5fdda4f5cf409299d36939b",
-      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
       "kind": 30100,
-      "content": "{\"max_payouts\":3,\"call_to_action\":\"\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional Nebula Post text advertisement.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"NEBULA POST — Your parcel. Any planet.\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:nebula-post-text\"}",
-      "created_at": 1792859008,
-      "sig": "08e565750354484f77d68428a90cfcb2832ab6adfea42e9ab73a1f881b32bfb6f6e48dc70217b2794d0b67fc68d57e337750a8541b18d56946b034d1c4e8f4aa",
+      "created_at": 1793530092,
       "tags": [
         [
           "d",
@@ -789,25 +785,25 @@
         ],
         [
           "expiration",
-          "1793463808"
+          "2108890092"
         ],
         [
           "D",
           "d5a48f2b9b312c4303ab105c77b0858b6d856b8ae97a7529d34c10027018de18",
           "Ag1MZgItoQKu5jqOmtH2YfTxkkH9qOxClXafJsmWiIPU4J0O38/TWZx0fNa6cNL1pAfnkPDWF7V2lSo7s9MGf8QVLg/dvfDb4H/f1ZOM0iR7ivjWVkkoRJdwsEnuxO4D3egEmajnL0H0YFTcu99oF3OmtTYBTSMPNbTxg0l4Q2LwMSxFMI60WMGS5YXfVZxY4GmEJjij1C8KgaT0aoVMMB1THDQhNc/jQDSb2trlOMrupz0dRtb8Wg+5TrGQ2lQmuPAysPRP8Xi3PEYqpmNmvLUnQ4RcH/lonpzllMZ8i1PeZofPFoSNqoxuyWupQr2UZpNHwJCwPbncqZRI2Jf8+fNXrfjg2u/byuLF8PX60f0w1Afv2FUhZqF/0QKJpafonkK6"
         ]
-      ]
+      ],
+      "content": "{\"max_payouts\":3,\"call_to_action\":\"\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional Nebula Post text advertisement.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"NEBULA POST — Your parcel. Any planet.\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:nebula-post-text\"}",
+      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
+      "id": "a18b15b17f753883b0c613d1f4d7b6959132a5a9cf5c74217a208f204f0f7f68",
+      "sig": "3a93de3413ed0bffa6c4a4a4357817005459aa7ea0bdd47740715f9b95884516174ead19f339f674f583672a74a76045627e2b929da3940a0e237f32c3c85206"
     }
   },
   {
     "campaign": "ion-air-text",
     "event": {
-      "id": "7326727965da6677d899af7c62d6c97d8d9395015564bc8f178f0c088498ea37",
-      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
       "kind": 30100,
-      "content": "{\"max_payouts\":3,\"call_to_action\":\"\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional Ion Air text advertisement.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"ION AIR — Your next stop: orbit. Window seats available.\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:ion-air-text\"}",
-      "created_at": 1792859008,
-      "sig": "58a7c1bc0d4c40299d44ba35a69f57c6cb2659c812dfcdd3aa24d5bd08e7ad09b7df4d48e7d37d518af0e5ca769a82fcf345ff96beddfd64d2bf28e5a5da4b84",
+      "created_at": 1793530092,
       "tags": [
         [
           "d",
@@ -839,25 +835,25 @@
         ],
         [
           "expiration",
-          "1793463808"
+          "2108890092"
         ],
         [
           "D",
           "d5a48f2b9b312c4303ab105c77b0858b6d856b8ae97a7529d34c10027018de18",
           "AsGBHAXcTuwrmLt+h+q3S8Cx4TV9XS9K4FHQyhVkXaBOyHlVQZIO9ipVU5Y+Rf4jW95LYhYeJUn0B23CBIR0s32+qY22bqI2ZmbOnG9KoeEwtcLyFsUjSgwcaHml0MhhTEVaMkdT4e7d47D0n5tZYPQYJw/I+kmdYxwqbVrSCphzxkfttSV47B1JIBdXrZNNh8GwUQWGVOWaI1UVD7JLk9M2D59R3F8IbaC7etfj7JuLSs7nLcPMVXuvXDpeIB1AHeDak9QjwayL/6Tt038URRWz/OTSQTGN+9+ezMzwbNZsIsWnPe52sRE5Jd+GdptG6KTXCOg22ybSSGSkHFnqNoJLYsKK/jYQ+jqd07ZTvb0TpjRJBk0KGp84FFsprSSS5k41"
         ]
-      ]
+      ],
+      "content": "{\"max_payouts\":3,\"call_to_action\":\"\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional Ion Air text advertisement.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"ION AIR — Your next stop: orbit. Window seats available.\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:ion-air-text\"}",
+      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
+      "id": "4cf6e0ced65b5e2fb78059ab09886ecd5463f38f61f00b728a1154c8dd68c86d",
+      "sig": "cee77bc3b170c85f6e0a3c4181ef83348db1cbe497b51cf674d281a0965280f6bc9aae0a8f61bb5385cb7228ce53a458664bb68f8837cb4af4de8dd796194348"
     }
   },
   {
     "campaign": "moon-gardens-text",
     "event": {
-      "id": "be5351812fd59cba195965fce0e48a7f9b8df03c3e1382485ba8d155034cbd38",
-      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
       "kind": 30100,
-      "content": "{\"max_payouts\":3,\"call_to_action\":\"\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional Moon Gardens text advertisement.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"MOON\\nGARDENS\\n\\nGrow\\nbeyond\\nEarth.\\n\\nA little green,\\na little closer\\nto the stars.\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:moon-gardens-text\"}",
-      "created_at": 1792859009,
-      "sig": "5e80f5a35e3eed0d6922c3c812e9135adeaa3905a7e41bbb19113d7a4e425451ca561db478b87352aff78d1133e0db1fa587ba50eaa0fb3509d75bc1fcb1af5c",
+      "created_at": 1793530092,
       "tags": [
         [
           "d",
@@ -889,14 +885,18 @@
         ],
         [
           "expiration",
-          "1793463809"
+          "2108890092"
         ],
         [
           "D",
           "d5a48f2b9b312c4303ab105c77b0858b6d856b8ae97a7529d34c10027018de18",
           "ArpHiaYyDDaiiSB0qc832E8cPeV9U5x4LSotib3vflurF7gbh3jaELQR561l7x/Y4VruqbpF6FinJExRA0h6QKD0jldCRHlbAqhHrywfgEBeg0uFFNJytoOYNMi0qH9oG1rBTytEiM95KhVilc3K9wNkw2Mjn1bx5s2Ae7CYJc7Zqkp7TM8qEs2ndkxkPb7BoJi8lKfLZh/7zObcx+u9Rj1PE3rF41hCMHkjfaZJ4yXc/E+qY5R5Wb6YmGsJl2rIhoDFLD13eVo5ENAybS+rz9/T7KpTWhvPFHIaYDb2FV2jnCL5Et/mBoPAy57NPS1kXExrW1iSV+16ZYfEeZ4jqqbsbdHMpIhTaLlOfhNP+9pSdSaiUsz1tQvyvD7Y6Q+Tj6nT"
         ]
-      ]
+      ],
+      "content": "{\"max_payouts\":3,\"call_to_action\":\"\",\"link\":\"https://nostr-ads.ngengine.org/#showcase\",\"description\":\"Fictional Moon Gardens text advertisement.\",\"bid\":1000,\"hold_time\":900,\"payload\":\"MOON\\nGARDENS\\n\\nGrow\\nbeyond\\nEarth.\\n\\nA little green,\\na little closer\\nto the stars.\",\"payout_reset_interval\":3600,\"context\":\"nostrads-demo:moon-gardens-text\"}",
+      "pubkey": "acead4d46d9a8d6ebf5c5378ee597ee455cdffdbd76677c2beebd3ab843ab6a4",
+      "id": "c02cf423c0f52db0335bca1c46a5af6f4e38d1ee6920e52ca63f03cea6d433c2",
+      "sig": "dc98bef941ca498ea11782544fd9e8b3e7cef587b32f954c9f1faa29cccc06713a5c2463d5b864d2d343a6e965f3003ade85c23a174b2e49b896ed7f367453bf"
     }
   }
 ]

@@ -36,6 +36,13 @@ include("nostrads-js")
 // The published compiler requests moving snapshots internally. Keep its plugin
 // classpath and generated-program libraries on one immutable publication.
 gradle.beforeProject { project ->
+    project.configurations.configureEach {
+        resolutionStrategy.eachDependency { dependency ->
+            if (dependency.requested.group == 'org.ngengine' && dependency.requested.name == 'nge-platform-json-lib') {
+                dependency.useVersion('0.3.0-20261020.203124-3')
+            }
+        }
+    }
     if (project.path == ':nostrads-bindings4js') {
         def pinTeaVM = { dependency ->
             if (dependency.requested.group == 'org.ngengine' && dependency.requested.name.startsWith('teavm-')) {

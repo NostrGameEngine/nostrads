@@ -11,7 +11,7 @@ const hex = bytes => Buffer.from(bytes).toString('hex');
 const hash = bytes => hex(sha256(bytes));
 const tag = (event, name) => event.tags.find(value => value[0] === name)?.[1];
 const expiration = event => Number(tag(event, 'expiration'));
-const lifetime = 7 * 86400;
+const lifetime = 10 * 365 * 86400;
 const renewBefore = 2 * 86400;
 
 export function decodeKey(value) {
@@ -252,11 +252,13 @@ export async function synchronizeDemo({ catalog, seeds, key, now = Math.floor(Da
             const changed = JSON.stringify(content) !== current.content;
             const missing = inventories.some(events => !events.some(stored => stored.id === current.id && verifyEvent(stored)));
             let event = current;
-            if (expiration(current) <= now + renewBefore || changed || (missing && current.created_at < now - 86400)) {
+            const shortLifetime = expiration(current) - current.created_at < lifetime;
+            if (shortLifetime || expiration(current) <= now + renewBefore || changed || (missing && current.created_at < now - 86400)) {
                 if (checkOnly) throw new Error(`Demo campaign needs renewal: ${campaign.id}`);
+                const createdAt = Math.max(now, current.created_at + 1);
                 event = signEvent({
-                    kind: 30100, created_at: Math.max(now, current.created_at + 1),
-                    tags: seed.tags.map(t => t[0] === 'expiration' ? ['expiration', String(now + lifetime)] : t),
+                    kind: 30100, created_at: createdAt,
+                    tags: seed.tags.map(t => t[0] === 'expiration' ? ['expiration', String(createdAt + lifetime)] : t),
                     content: JSON.stringify(content)
                 }, key);
                 report.renewed++;

@@ -68,7 +68,7 @@ public class AdBidEvent extends AdEvent {
     private static final int MAX_URL_LENGTH = 2048;
     private static final Duration MAX_HOLD_TIME = Duration.ofDays(1);
     private static final Duration MAX_PAYOUT_RESET_INTERVAL = Duration.ofDays(30);
-    private static final Duration MAX_EVENT_LIFETIME = Duration.ofDays(30);
+    private static final Duration MAX_EVENT_LIFETIME = Duration.ofDays(3650);
     private final AdTaxonomy taxonomy;
     private transient AdOfferEvent linkedOffer = null;
 
@@ -264,7 +264,7 @@ public class AdBidEvent extends AdEvent {
     public void checkValid() throws Exception {
         super.checkValid();
         Instant expiration = getExpiration();
-        if (expiration == null || expiration.isAfter(Instant.now().plus(MAX_EVENT_LIFETIME))) {
+        if (expiration == null || expiration.isAfter(getCreatedAt().plus(MAX_EVENT_LIFETIME))) {
             throw new Exception("Bid expiration is missing or exceeds the maximum lifetime");
         }
         String description = getDescription();

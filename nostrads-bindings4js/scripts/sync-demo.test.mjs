@@ -16,11 +16,12 @@ const key = decodeKey(keyHex);
 const advertiser = Buffer.from(schnorr.getPublicKey(key)).toString('hex');
 const now = 1792756800;
 const day = 86400;
+const tenYears = 10 * 365 * day;
 const bytes = new TextEncoder().encode('isolated demo image fixture');
 const digest = Buffer.from(sha256(bytes)).toString('hex');
 const imageUrl = `https://images.example/${digest}.png`;
 
-function fixture({ age = 0, remaining = 7 * day, missing = [] } = {}) {
+function fixture({ age = 0, remaining = tenYears, missing = [] } = {}) {
     const catalog = {
         advertiser, delegate: 'b'.repeat(64), relays: ['wss://relay-a.example', 'wss://relay-b.example'],
         imageOrigins: ['https://images.example'], uploadEndpoints: ['https://images.example'],
@@ -28,7 +29,7 @@ function fixture({ age = 0, remaining = 7 * day, missing = [] } = {}) {
     };
     const event = signEvent({
         created_at: now - age, kind: 30100,
-        tags: [['d', 'stable-demo-campaign'], ['s', '256x512'], ['m', 'image/png'], ['expiration', String(now + remaining)],
+        tags: [['d', 'stable-demo-campaign'], ['k', 'link'], ['s', '256x512'], ['m', 'image/png'], ['expiration', String(now + remaining)],
             ['D', catalog.delegate, 'already-encrypted-wallet-configuration']],
         content: JSON.stringify({ max_payouts: 3, call_to_action: 'Open', link: 'https://example.com',
             description: 'Demo', bid: 1000, hold_time: 900, payload: imageUrl,
@@ -73,6 +74,7 @@ test('public nostr4j campaign seeds verify with the independent NIP-01 signer', 
     }
     for (const { campaign, event } of seeds) {
         assert(verifyEvent(event), campaign);
+        assert.equal(Number(event.tags.find(t => t[0] === 'expiration')[1]) - event.created_at, tenYears, campaign);
         assert.equal(event.pubkey, catalog.advertiser);
         assert.equal(JSON.parse(event.content).context, `nostrads-demo:${campaign}`);
         const creative = catalog.campaigns.find(value => value.id === campaign);
@@ -120,7 +122,18 @@ test('expired campaigns renew with the same d and encrypted delegate payload', a
     assert.notEqual(event.id, f.event.id);
     assert.deepEqual(event.tags.find(t => t[0] === 'd'), f.event.tags.find(t => t[0] === 'd'));
     assert.deepEqual(event.tags.find(t => t[0] === 'D'), f.event.tags.find(t => t[0] === 'D'));
-    assert.equal(Number(event.tags.find(t => t[0] === 'expiration')[1]), now + 7 * day);
+    assert.equal(Number(event.tags.find(t => t[0] === 'expiration')[1]), now + tenYears);
+    assert.equal((await synchronizeDemo(f.options)).published, 0);
+});
+
+test('existing short-lived campaigns migrate once to ten years even before renewal is due', async () => {
+    const f = fixture({ age: day, remaining: 6 * day });
+    const report = await synchronizeDemo(f.options);
+    assert.equal(report.renewed, 1);
+    assert.equal(report.published, 2);
+    const event = f.writes[0].event;
+    assert.equal(Number(event.tags.find(t => t[0] === 'expiration')[1]), now + tenYears);
+    assert.deepEqual(event.tags.find(t => t[0] === 'D'), f.event.tags.find(t => t[0] === 'D'));
     assert.equal((await synchronizeDemo(f.options)).published, 0);
 });
 

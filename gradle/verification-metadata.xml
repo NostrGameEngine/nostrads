@@ -1188,13 +1188,13 @@
          </artifact>
       </component>
       <component group="org.ngengine" name="nge-platform-json-lib" version="0.3.0-20261020.203124-3">
-         <artifact name="nge-platform-json-lib-0.3.0-SNAPSHOT.jar">
+         <artifact name="nge-platform-json-lib-0.3.0-20261020.203124-3.jar">
             <sha256 value="b56596542365f110886b21ac0d2d2a37ee03f0a4dd11aa3525451d7c1a546771" origin="Verified against official Sonatype snapshots"/>
          </artifact>
-         <artifact name="nge-platform-json-lib-0.3.0-SNAPSHOT.module">
+         <artifact name="nge-platform-json-lib-0.3.0-20261020.203124-3.module">
             <sha256 value="84eb4cf99eb9961f9dc6223ed1f90f644fe5c1b51f8117421caef62df96ad572" origin="Verified against official Sonatype snapshots"/>
          </artifact>
-         <artifact name="nge-platform-json-lib-0.3.0-SNAPSHOT.pom">
+         <artifact name="nge-platform-json-lib-0.3.0-20261020.203124-3.pom">
             <sha256 value="e9949790b55fb7f898b5ccb12a2d3d1bb7ff03c805f570405c00aff35da59b99" origin="Verified against official Sonatype snapshots"/>
          </artifact>
       </component>
@@ -1206,6 +1206,16 @@
             <sha256 value="84eb4cf99eb9961f9dc6223ed1f90f644fe5c1b51f8117421caef62df96ad572" origin="Verified against official Sonatype snapshots"/>
          </artifact>
          <artifact name="nge-platform-json-lib-0.3.0-SNAPSHOT.pom">
+            <sha256 value="e9949790b55fb7f898b5ccb12a2d3d1bb7ff03c805f570405c00aff35da59b99" origin="Verified against official Sonatype snapshots"/>
+         </artifact>
+
+         <artifact name="nge-platform-json-lib-0.3.0-20261020.203124-3.jar">
+            <sha256 value="b56596542365f110886b21ac0d2d2a37ee03f0a4dd11aa3525451d7c1a546771" origin="Verified against official Sonatype snapshots"/>
+         </artifact>
+         <artifact name="nge-platform-json-lib-0.3.0-20261020.203124-3.module">
+            <sha256 value="84eb4cf99eb9961f9dc6223ed1f90f644fe5c1b51f8117421caef62df96ad572" origin="Verified against official Sonatype snapshots"/>
+         </artifact>
+         <artifact name="nge-platform-json-lib-0.3.0-20261020.203124-3.pom">
             <sha256 value="e9949790b55fb7f898b5ccb12a2d3d1bb7ff03c805f570405c00aff35da59b99" origin="Verified against official Sonatype snapshots"/>
          </artifact>
       </component>

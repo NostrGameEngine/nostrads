@@ -284,7 +284,7 @@ public class DelegateServer {
         }
         System.out.println("");
         System.out.println("Connecting to relays: " + String.join(", ", relays));
-        service.listen(Instant.now().minus(30, ChronoUnit.DAYS)).await();
+        service.listen(Instant.now().minus(3650, ChronoUnit.DAYS)).await();
     }
 
     private static String envName(String delegateId) {
